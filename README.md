@@ -6,12 +6,12 @@ The Boost genetics library provides data structures and algorithms for searching
 Genetic data usually consists of the letters 'A', 'C', 'G' and 'T' with other optional characters denoting
 special cases.
 
-Reference data is usually in FASTA format which is a series of chromomosome names and bases.
+**Reference data** is usually in FASTA format which is a series of chromomosome names and bases.
 
-Read data from the Illumina machines is in FASTQ format with large numbers of shorter sequences of around
+**Read data** from the Illumina machines is in FASTQ format with large numbers of shorter sequences of around
 30-200 bases. Currently this is around 100, but the trend is for longer sequences.
 
-Aligned data is usually in the SAM or BAM (compressed SAM) format and is similar to the FASTA format but has additional metadata.
+**Aligned data** the result of an aligner such as Tophat or Star is usually in the SAM or BAM (compressed SAM) format and is similar to the FASTA format but has additional metadata.
 
 We provide both packed (2 bits/base) and unpacked data (eg. std::string) algorithms.
 
