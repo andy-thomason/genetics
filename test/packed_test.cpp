@@ -8,12 +8,13 @@
 #include <boost/test/unit_test.hpp>
 
 
-BOOST_AUTO_TEST_CASE( packed )
+void test_bases()
 {
     using namespace boost::genetics;
 
     {
         bases<8> b("ACGT");
+        BOOST_MESSAGE( b );
         BOOST_CHECK( b.to_ullong() == 0x1b00000000000000ull );
         BOOST_CHECK( b.to_string() == "ACGTAAAA" );
     }
@@ -49,12 +50,30 @@ BOOST_AUTO_TEST_CASE( packed )
 
     {
         bases<32> b("ACGTACGTACGT");
-        char buf[64];
+        char buf[64] = {0};
         std::stringstream ss(buf);
         ss << b;
-        BOOST_CHECK( b.to_string() == "ACGTACGTACGTAAAAAAAAAAAAAAAAAAAA" );
+        BOOST_MESSAGE( std::string(ss.str()) );
+        BOOST_CHECK( std::string(ss.str()) == "ACGTACGTACGTAAAAAAAAAAAAAAAAAAAA" );
     }
-
-    BOOST_CHECK( false );
 }
 
+void test_algorithms()
+{
+    using namespace boost::genetics;
+
+    {
+        bases<11> b("TGCAACACACA");
+        BOOST_CHECK( rev_comp(b).to_string() == "TGTGTGTTGCA" );
+    }
+    {
+        std::string b("TGNAACACACA");
+        BOOST_CHECK( rev_comp(b) == "TGTGTGTTNCA" );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( test_all )
+{
+    test_bases();
+    test_algorithms();
+}

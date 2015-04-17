@@ -4,8 +4,20 @@
 
 #include <string>
 #include <iosfwd>
+#include <type_traits>
 
 namespace boost { namespace genetics {
+    static inline bool is_base(unsigned int chr) {
+        static const uint64_t vals = (
+            (1 << ('A'-'A')) |
+            (1 << ('C'-'A')) |
+            (1 << ('G'-'A')) |
+            (1 << ('T'-'A'))
+        );
+        unsigned int idx = (chr & ~0x20) - 'A';
+        return idx <= 'T'-'A' && ((vals >> idx) & 1) != 0;
+    }
+
     static inline int base_to_code(unsigned int chr) {
         static const uint64_t vals = (
             (1ull << ('C'-'C')*2) |
@@ -17,14 +29,16 @@ namespace boost { namespace genetics {
     }
 
     static inline unsigned int code_to_base(int code) {
-        return "ACGT"[code & 3];
+        return (('A' | 'C' << 8 | 'G' << 16 | 'T' << 24) >> (code * 8)) & 0xff;
     }
 
+    /// fixed length vector of packed bases
     template <size_t N> class bases {
     public:
+        typedef size_t is_bases;
         static const size_t num_bases = N;
-        typedef unsigned long long value_type;
-        static const size_t bases_per_value = sizeof(value_type) * 4;
+        typedef unsigned long long word_type;
+        static const size_t bases_per_value = sizeof(word_type) * 4;
         static const size_t num_values = (num_bases + bases_per_value-1) / bases_per_value;
 
     public:
@@ -69,26 +83,52 @@ namespace boost { namespace genetics {
             return (unsigned char)((values[off] >> sh) & 0x03);
         }
 
-        /*template <class charT = char, class traits = std::char_traits<charT>,
-            class Allocator = std::allocator<charT> >
-        std::basic_string<charT, traits, Allocator>*/
-
-        std::string
-        to_string() const {
-            //std::basic_string<charT, traits, Allocator> res(num_bases);
-            std::string res;
+        template<class String=std::string>
+        String to_string() const {
+            String res;
             res.resize(num_bases);
             for (size_t i = 0; i != num_bases; ++i) {
-                res[i] = "ACGT"[(*this)[i]];
+                res[i] = code_to_base((*this)[i]);
             }
             return res;
+        }
+
+        template <class Type>
+        void rev_comp(Type &result, size_t offset=0, size_t length=~(size_t)0) const {
+            length = std::min(length, result.size());
+            length = std::min(length, size() - offset);
+            size_t nv = (length + bases_per_value - 1) / bases_per_value;
+            for (size_t i = 0; i < num_values; ++i) {
+                word_type word = window((ptrdiff_t)(num_bases - bases_per_value - i * bases_per_value));
+                result.values[i] = rev_comp_word(word);
+            }
+        }
+
+        template <class Type>
+        void substring(Type &result, size_t offset=0, size_t length=~(size_t)0) const {
+            size_t nv = (length + bases_per_value - 1) / bases_per_value;
+            for (size_t i = 0; i < nv; ++i) {
+                result.values[i] = window((ptrdiff_t)(offset + i * bases_per_value));
+            }
+        }
+
+        size_t distance(const bases &rhs) const {
+            size_t diff = 0;
+            for (size_t i = 0; i < num_values; ++i) {
+                diff += count_word(values[i] ^ rhs.values[i]);
+            }
+            return diff;
+        }
+
+        size_t size() const {
+          return num_bases;
         }
     private:
         template<class InIter>
         void init(InIter b, InIter e) {
             size_t i = 0;
             size_t d = 0;
-            value_type acc = 0;
+            word_type acc = 0;
             for (; b != e && i != num_bases; ++i) {
                 acc = acc * 4 + base_to_code((int)*b++);
                 if ((i+1) % bases_per_value == 0) {
@@ -105,6 +145,28 @@ namespace boost { namespace genetics {
             }
         }
     private:
+        word_type window(ptrdiff_t base) const {
+          word_type v0 = base < 0 ? 0 : values[base/bases_per_value];
+          if (base % bases_per_value) {
+            return v0;
+          } else {
+            word_type v1 = base/bases_per_value+1 < num_values ? values[base/bases_per_value+1] : 0;
+            return v0 << (base % bases_per_value) | v1 >> ((0-base) % bases_per_value);
+          }
+        }
+
+        static word_type rev_comp_word(word_type x) {
+          x = _byteswap_uint64(x);
+          x = ((x & 0x3333333333333333) << 2) | ((x >> 2) & 0x3333333333333333);
+          return ~x;
+        }
+
+        static size_t count_word(word_type x) {
+          x |= x >> 1;
+          x &= 0x5555555555555555;
+          return (size_t)__popcnt64(x);
+        }
+
         unsigned long long values[num_values];
     };
 
@@ -124,15 +186,25 @@ namespace boost { namespace genetics {
         return os;
     }
 
-/*
-    template <class Stream, int N> Stream &operator>>(Stream &s, bases<N> &b) {
-        
+    template <class Type>
+    Type rev_comp(const Type &x, typename Type::word_type *y = 0) {
+      Type result;
+      x.rev_comp(result);
+      return result;
     }
 
-    template <class Stream, int N> Stream &operator<<(Stream &s, bases<N> &b) {
-        
+    template <class Type>
+    Type rev_comp(const Type &x, typename Type::iterator *b = 0) {
+        Type result = x;
+        std::reverse(result.begin(), result.end());
+        for (Type::iterator i = result.begin(), e = result.end(); i != e; ++i) {
+          int chr = *i;
+          if (is_base(chr)) { *i = code_to_base(3-base_to_code(chr)); }
+        }
+        return result;
     }
-*/
+
+    //template <class Type, Type::num_bases_type NB = Type::num_bases>
 } }
 
 
