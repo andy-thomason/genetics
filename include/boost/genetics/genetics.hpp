@@ -155,22 +155,24 @@ namespace boost { namespace genetics {
                 acc = acc * 4 + base_to_code((int)*b++);
                 num_bases++;
                 if (num_bases % bases_per_value == 0) {
-                    max_bases = values.size() * bases_per_value;
-                    if (num_bases > max_bases) {
+                    size_t index = (num_bases-1) / bases_per_value;
+                    if (index >= values.size()) {
                         values.push_back(acc);
                     } else {
-                        values.back() = acc;
+                        values[index] = acc;
                     }
                     acc = 0;
                 }
             }
 
-            max_bases = values.size() * bases_per_value;
-            acc <<= (max_bases - num_bases) * 2;
-            if (num_bases > max_bases) {
-                values.push_back(acc);
-            } else {
-                values.back() = acc;
+            if (num_bases % bases_per_value != 0) {
+              acc <<= (max_bases - num_bases) * 2;
+              size_t index = (num_bases-1) / bases_per_value;
+              if (index >= values.size()) {
+                  values.push_back(acc);
+              } else {
+                  values[index] = acc;
+              }
             }
         }
 
@@ -225,15 +227,12 @@ namespace boost { namespace genetics {
         std::vector<word_type> values;
     };
 
+    /// containter for bases ACGT and occasional runs of 'N' and other letters.
     class bases_and_letters : public bases {
         static const size_t lg_bases_per_index = 16;
         static const size_t bases_per_index = (size_t)1 << lg_bases_per_index;
         typedef uint32_t index_type;
         typedef uint32_t rle_type;
-
-        // todo: introduce special codes for common cases
-        //static const index_type empty_value = (index_type)-1;
-        //static const index_type n_value = (index_type)-2;
     public:
         bases_and_letters() {
         }
@@ -244,43 +243,86 @@ namespace boost { namespace genetics {
             append(str, e);
         }
 
+        template<class String>
+        bases_and_letters(
+            const String &str,
+            size_t pos = 0, size_t n = ~(size_t)0
+        ) : bases() {
+            append(str.begin() + pos, str.begin() + std::min(n, str.size()));
+        }
+
         char operator[](int64_t base) const {
             if ((uint64_t)base/bases_per_index > index.size()) return 'N';
 
-            index_type i = index[(uint64_t)base/bases_per_index];
-            //if (i == empty_value) return (*(const bases*)this)[base];
-            //if (i == n_value) return 'N';
+            index_type i0 = index[(uint64_t)base/bases_per_index];
 
             index_type i1 =
-              (uint64_t)base/bases_per_index == index.size() ?
+              (uint64_t)base/bases_per_index+1 >= index.size() ?
               (index_type)rle.size() :
               index[(uint64_t)base/bases_per_index+1]
             ;
 
-            rle_type search = (rle_type)((uint64_t)(base % bases_per_index) << 8);
-            const rle_type *b = rle.data() + i;
+            rle_type search = (rle_type)((uint64_t)((base) % bases_per_index) << 8) | 0xff;
+            const rle_type *b = rle.data() + i0;
             const rle_type *e = rle.data() + i1;
             const rle_type *p = std::lower_bound(b, e, search);
-            return (*p & 0xff) ? (*p & 0xff) : (*(const bases*)this)[base];
+            return p > b && (p[-1] & 0xff) ? (p[-1] & 0xff) : (*(const bases*)this)[base];
         }
+
+        void append(const char *str) {
+            const char *e = str;
+            while (*e) ++e;
+            append(str, e);
+        }
+
+        void resize(size_t new_size, char chr='A') {
+            size_t num_bases = size();
+            bases::resize(new_size);
+            if (new_size > num_bases) {
+                while (num_bases < new_size) {
+                    internal_append(num_bases, &chr, &chr+1);
+                    num_bases++;
+                }
+            } else {
+                index.resize(new_size / bases_per_index);
+                rle.resize(index.empty() ? 0 : index.back());
+            }
+        }
+
+        operator std::string() const {
+            std::string res;
+            res.resize(size());
+            for (size_t i = 0; i != size(); ++i) {
+                res[i] = (*this)[i];
+            }
+            return res;
+        }
+
     private:
-        void resize(size_t size); // = deleted
 
         template<class InIter>
         void append(InIter b, InIter e) {
-          size_t num_bases = size();
-          bases::append(b, e);
-          rle_type back = rle.back();
-          while (b != e) {
-            int chr = (int)*b++;
-            int val = (is_base(chr)) ? 0 : chr;
-            if (num_bases % bases_per_index == 0 || (back & 0xff) != val) {
-              back = (rle_type)((num_bases % bases_per_index) * 256 + chr);
-              rle.push_back(back);
-            }
-          }
+            size_t num_bases = size();
+            bases::append(b, e);
+            internal_append(num_bases, b, e);
         }
 
+        template<class InIter>
+        void internal_append(size_t num_bases, InIter b, InIter e) {
+            int prev_val = rle.empty() ? 0 : rle.back();
+            while (b != e) {
+                int chr = (int)*b++;
+                int val = (is_base(chr)) ? 0 : chr;
+                if (num_bases % bases_per_index == 0 || val != prev_val) {
+                    if (num_bases % bases_per_index == 0) {
+                        index.push_back((index_type)rle.size());
+                    }
+                    rle.push_back((rle_type)((num_bases % bases_per_index) * 256 + val));
+                    prev_val = val;
+                }
+                num_bases++;
+            }
+        }
 
         std::vector<index_type> index;
         std::vector<rle_type> rle;
