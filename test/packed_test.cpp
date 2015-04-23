@@ -7,6 +7,29 @@
 
 #include <boost/genetics/genetics.hpp>
 
+static const char chr1[] =
+  "TGTGATTAATGCCTGAGACTGTGTGAAGTAAGAGATGGATCAGAGGCCGGGCGCGGGGGC"
+  "TCGCGCCTGTCATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGA"
+  "TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG"
+  "CCGGGCGCGGTGGCGGGCGCCTGCGGTCCCAGCTGCTGGGGAGGCCGAGGCGGGAGCATG"
+  "GCGGGAACCGGGAGGCGGAGCCTGCAGTGAGCCGAGATGGCGCCACCGCACTCCAGCCTG"
+  "GGCGACCCAGCGAGACTCCGCCTCAAAAAAAAAAAAAGAAGATTGATCAGAGAGTACCTC"
+  "CCCTAAGGGTACATGCAGATAAATACAGTTAAGGCGATTAACATTTCAAATACGGTGACT"
+  "GTTTCTTACGTGGACGACGTTGTGTTGAACATGGGTGAGTAAGACTGAAGCAGCCGTAAT"
+  "TACTGCACGATGCGCATGGTAAAGAAGCACTCCGTTAGGGAAATTATATTCTTTGCCCCT"
+  "CTAATCCTTCACTCCACCTGCCATATTCCCACATGATTTTTTTCTTTGCTGTTCTTGTCT"
+  "AATTGTTATTAATAATTAATAAATAACTTATGATCTAATTGTTATTAATAATAACTTATC"
+  "ATCACATGATTTATTAATAAATTAATAAATAACTTATTATCACCGCATTTCCCCAATTCA"
+  "TTTATCTTTCTTTCATTTTCTCTCTTTGTGTGTTTTCTGTCTTCATATTTCAGCACTTGC"
+  "CACATATTTCCCACAAAATCATTTATGGTCAAACAACACTTCAACGTGTAGCATTTGTAT"
+  "TTCTCAATTCTTCCTCACTTTCTTCCTTCAGAATACTAAAGCTTCTTCTCTACTGACTGA"
+  "GTCAATGGCCAATGGATAGAGTAAATAATTCTGCGGTATCTAAATTTGTATTGATTGGAC"
+  "TTTCAAGCTCTTGGGAGATGCATCTTTTTCTTTTTTGGTTCTTCTCTGTGTTCTACATGG"
+  "GAATTATCCTGGAAAATCTCTTCATTGTGTTCACAGTAATTATTGACTCTCATTTAAATT"
+  "CCCCAGGTACTGCCTACTGGCCAACATTTATCTTCTTGATCTGGGTCTTCTCCTACAGTT"
+  "CTGACTTTTTCACTAACTGCAGCATCATTTCTTTTCCAAGATGCATCATACAGATATTTT"
+;
+
 template <class Type>
 void acgt_container_tests() {
     {
@@ -29,7 +52,7 @@ void acgt_container_tests() {
 }
 
 template <class Type>
-void generic_container_tests() {
+void generic_string_tests() {
     {
         Type b("ACGT");
         BOOST_MESSAGE( b );
@@ -71,28 +94,64 @@ void generic_container_tests() {
     }
 }
 
+template <class Type>
+void find_test() {
+    {
+        Type a(chr1);
+        Type key1("TCGCGCCTGTCATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGA");
+        BOOST_CHECK( a.compare(60, key1.size(), key1) == 0);
+    }
+    {
+        Type a(chr1);
+        Type key1("T");
+        BOOST_CHECK( a.compare(60, key1.size(), key1) == 0);
+    }
+    {
+        Type a(chr1);
+        Type key1("TCGCGCCTGTCATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGA");
+        BOOST_CHECK( a.find(key1, 0) == (size_t)60);
+    }
+    {
+        Type a("ACGTACGTACGTACGTACGTACGTACGTACGC" "ATGTACGTACGTACGTACGTACGTACGTACGT");
+        Type key1("CA");
+        BOOST_CHECK( a.find(key1, 0) == (size_t)31);
+    }
+    {
+        Type a("ACGTACGTACGTACGTACGTACGTACGTACGC" "ATGTACGTACGTACGTACGTACGTACGTACGT");
+        Type key1("CAT");
+        BOOST_CHECK( a.find(key1, 0) == (size_t)31);
+    }
+    {
+        Type a("ACGTACGTACGTACGTACGTACGTACGTACCA" "TTGTACGTACGTACGTACGTACGTACGTACGT");
+        Type key1("CAT");
+        BOOST_CHECK( a.find(key1, 0) == (size_t)30);
+    }
+}
+
 BOOST_AUTO_TEST_CASE( acgt_tests )
 {
     using namespace boost::genetics;
 
-    //acgt_container_tests<bases>();
-    //acgt_container_tests<bases_and_letters>();
+    //acgt_container_tests<dna_string>();
+    //acgt_container_tests<augmented_string>();
     //acgt_container_tests<std::string>();
 
-    //generic_container_tests<bases_and_letters>();
-    //generic_container_tests<std::string>();
+    //generic_string_tests<augmented_string>();
+    //generic_string_tests<std::string>();
+    find_test<std::string>();
+    find_test<dna_string>();
 }
 
 BOOST_AUTO_TEST_CASE( generic_tests )
 {
     using namespace boost::genetics;
 
-    //acgt_container_tests<bases>();
-    //acgt_container_tests<bases_and_letters>();
+    //acgt_container_tests<dna_string>();
+    //acgt_container_tests<augmented_string>();
     //acgt_container_tests<std::string>();
 
-    //generic_container_tests<bases_and_letters>();
-    //generic_container_tests<std::string>();
+    //generic_string_tests<augmented_string>();
+    //generic_string_tests<std::string>();
 }
 
 BOOST_AUTO_TEST_CASE( bandl_tests )
@@ -101,27 +160,27 @@ BOOST_AUTO_TEST_CASE( bandl_tests )
 
     {
         static const char test_string[] = "ACGTACGTXXXXACGT";
-        bases_and_letters b(test_string);
+        augmented_string b(test_string);
         BOOST_CHECK(std::string(b) == test_string);
     }
 
     {
         static const char test_string[] = "NNNNACTGACTGACTG";
-        bases_and_letters b(test_string);
+        augmented_string b(test_string);
         BOOST_CHECK(std::string(b) == test_string);
     }
 
     {
         std::string test_string(0xffff, 'N');
         test_string.append(256, 'A');
-        bases_and_letters b(test_string);
+        augmented_string b(test_string);
         BOOST_CHECK(std::string(b) == test_string);
     }
 
     {
         std::string test_string(0x10000, 'N');
         test_string.append(256, 'A');
-        bases_and_letters b(test_string);
+        augmented_string b(test_string);
         BOOST_CHECK(std::string(b) == test_string);
     }
 
@@ -132,12 +191,24 @@ BOOST_AUTO_TEST_CASE( rev_comp_test )
     using namespace boost::genetics;
 
     {
-        bases b("TGCAACACACA");
+        dna_string b("ACGTACGTACGTACGTACGTACGTACGTACGT");
+        BOOST_MESSAGE( rev_comp(b) );
+        BOOST_CHECK( rev_comp(b) == "ACGTACGTACGTACGTACGTACGTACGTACGT" );
+    }
+
+    {
+        dna_string b("TGCAACACACA");
         BOOST_MESSAGE( rev_comp(b) );
         BOOST_CHECK( rev_comp(b) == "TGTGTGTTGCA" );
     }
+
     {
         std::string b("TGNAACACACA");
+        BOOST_CHECK( rev_comp(b) == "TGTGTGTTNCA" );
+    }
+    {
+        augmented_string b("TGNAACACACA");
+        BOOST_MESSAGE( rev_comp(b) );
         BOOST_CHECK( rev_comp(b) == "TGTGTGTTNCA" );
     }
 }
@@ -151,15 +222,15 @@ BOOST_AUTO_TEST_CASE( substr )
     const char test_string[] = "ACGTTTGA" "ACCGACCG" "ACCGACCG" "TGCGACCG" "ACCGACCG";
 
     {
-        bases b(test_string);
-        bases c;
+        dna_string b(test_string);
+        dna_string c;
         c = b.substr(8, 8);
         BOOST_MESSAGE( c );
         BOOST_CHECK( c == "ACCGACCG" );
         c = b.substr(8, 40);
         BOOST_MESSAGE( c );
-        bases d(test_string + 8);
-        BOOST_MESSAGE( bases(test_string + 8) );
+        dna_string d(test_string + 8);
+        BOOST_MESSAGE( dna_string(test_string + 8) );
         BOOST_CHECK( c == test_string + 8);
     }
 
@@ -174,5 +245,16 @@ BOOST_AUTO_TEST_CASE( substr )
         BOOST_CHECK( c == test_string + 8);
     }
 
+}
+
+BOOST_AUTO_TEST_CASE( two_stage_index_test )
+{
+    using namespace boost::genetics;
+    
+    augmented_string as(chr1);
+    two_stage_index<augmented_string> tsi(as, 6);
+
+    augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
+    BOOST_CHECK(tsi.find(key1, 0, 0) == 120);
 }
 
