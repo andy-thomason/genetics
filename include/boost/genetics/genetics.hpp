@@ -605,7 +605,7 @@ namespace boost { namespace genetics {
             acc = acc0;
             for (size_t i = num_indexed_chars; i != str_size - num_indexed_chars; ++i) {
                 acc = (acc * 4 + get_code(string, i)) & (index_size-1);
-                addr[index[acc]++] = (addr_type)(i - num_indexed_chars);
+                addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
             }
 
             addr_type prev = 0;
@@ -650,6 +650,11 @@ namespace boost { namespace genetics {
             for (;;) {
               addr_type next = (addr_type)-1;
               for (size_t i = 0; i != num_seeds; ++i) {
+                  std::cout << std::hex << active[i].idx << ":" << str.substr(i * num_indexed_chars, num_indexed_chars) << " ";
+              }
+              std::cout << std::endl;
+
+              for (size_t i = 0; i != num_seeds; ++i) {
                   const addr_type *ptr = active[i].ptr;
                   active[i].start = (addr_type)-1;
                   if (ptr != active[i].end) {
@@ -662,9 +667,10 @@ namespace boost { namespace genetics {
                   }
               }
 
+              std::cout.width(10);
               for (size_t i = 1; i != num_seeds; ++i) {
                   addr_type start = active[i].start;
-                  std::cout << std::hex << start << " ";
+                  std::cout << (int)start << " ";
               }
               std::cout << "\n";
 
@@ -704,6 +710,21 @@ namespace boost { namespace genetics {
             }*/
             return std::string::npos;
         }
+
+        template <class charT, class traits, class String>
+        void dump(std::basic_ostream<charT, traits>& os) const {
+            std::basic_ostream<charT, traits>::fmtflags save = os.flags();
+            size_t str_size = string.size();
+            size_t index_size = (size_t)1 << (num_indexed_chars*2);
+            for (size_t i = 0; i != index_size; ++i) {
+                for (index_type j = index[i]; j != index[i+1]; ++j) {
+                    addr_type a = addr[j];
+                    os << "[" << a << " " << string.substr(a, num_indexed_chars) << "]";
+                }
+                os << "\n";
+            }
+            os.setstate( save );
+        }
     private:
         String &string;
         size_t num_indexed_chars;
@@ -723,6 +744,14 @@ namespace boost { namespace genetics {
         };
         mutable std::vector<active_state> active;
     };
+
+    template <class charT, class traits, class String>
+    std::basic_ostream<charT, traits>&
+    operator<<(std::basic_ostream<charT, traits>& os, const two_stage_index<String>& x) {
+        x.dump<charT, traits, String>(os);
+        return os;
+    }
+
 } }
 
 

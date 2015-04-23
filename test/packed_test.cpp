@@ -252,7 +252,8 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     using namespace boost::genetics;
     
     augmented_string as(chr1);
-    two_stage_index<augmented_string> tsi(as, 6);
+    two_stage_index<augmented_string> tsi(as, 4);
+    //BOOST_MESSAGE(tsi);
 
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
     BOOST_CHECK(tsi.find(key1, 0, 0) == 120);
