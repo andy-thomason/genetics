@@ -624,7 +624,6 @@ namespace boost { namespace genetics {
             // get seed values from string
             // touch the index in num_seeds places (with NTA hint)
             for (size_t i = 0; i != num_seeds; ++i) {
-                active[i].number = (index_type)i;
                 active[i].idx = (index_type)get_index(str, i * num_indexed_chars, num_indexed_chars);
                 touch_nta(addr.data() + index[i]);
             }
@@ -646,10 +645,51 @@ namespace boost { namespace genetics {
                    ++ptr;
                 }
                 active[i].ptr = ptr;
-                active[i].value = ptr == end ? (addr_type)-1 : *ptr;
             }
 
-            std::make_heap(active.begin(), active.end());
+            for (;;) {
+              addr_type next = (addr_type)-1;
+              for (size_t i = 0; i != num_seeds; ++i) {
+                  const addr_type *ptr = active[i].ptr;
+                  active[i].start = (addr_type)-1;
+                  if (ptr != active[i].end) {
+                      addr_type pos = *ptr;
+                      if (pos > i * num_indexed_chars) {
+                          addr_type start = pos - (addr_type)(i * num_indexed_chars);
+                          active[i].start = start;
+                          next = std::min(next, start);
+                      }
+                  }
+              }
+
+              for (size_t i = 1; i != num_seeds; ++i) {
+                  addr_type start = active[i].start;
+                  std::cout << std::hex << start << " ";
+              }
+              std::cout << "\n";
+
+              if (next == (addr_type)-1) {
+                  break;
+              }
+
+              size_t count = 0;
+              for (size_t i = 1; i != num_seeds; ++i) {
+                  addr_type start = active[i].start;
+                  count += start == next ? 1 : 0;
+              }
+
+              if (count + max_distance >= num_seeds) {
+                  // test some more
+              }
+
+              for (size_t i = 1; i != num_seeds; ++i) {
+                  addr_type start = active[i].start;
+                  if (start == next) {
+                      active[i].ptr++;
+                  }
+              }
+            }
+            /*std::make_heap(active.begin(), active.end());
             for (;;) {
                 active_state f = active.front();
                 if (f.value == (addr_type)-1) {
@@ -661,7 +701,7 @@ namespace boost { namespace genetics {
                 std::pop_heap(active.begin(), active.end());
                 active.back() = f;
                 std::push_heap(active.begin(), active.end());
-            }
+            }*/
             return std::string::npos;
         }
     private:
@@ -674,9 +714,8 @@ namespace boost { namespace genetics {
         struct active_state {
             const addr_type *ptr;
             const addr_type *end;
-            index_type number;
             index_type idx;
-            addr_type value;
+            addr_type start;
 
             bool operator<(const active_state &rhs) {
                 return value > rhs.value;
