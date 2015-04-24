@@ -62,7 +62,7 @@ namespace boost { namespace genetics {
     static inline uint64_t get_index(const String &str, size_t pos, size_t num_index_chars) {
         uint64_t result = 0;
         for (size_t i = 0; i != num_index_chars; ++i) {
-            result = result * 2 + base_to_code(str[pos + i]);
+            result = result * 4 + base_to_code(str[pos + i]);
         }
         return result;
     }
