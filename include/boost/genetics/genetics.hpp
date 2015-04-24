@@ -624,52 +624,59 @@ namespace boost { namespace genetics {
             // get seed values from string
             // touch the index in num_seeds places (with NTA hint)
             for (size_t i = 0; i != num_seeds; ++i) {
-                active[i].idx = (index_type)get_index(str, i * num_indexed_chars, num_indexed_chars);
+                active_state &s = active[i];
+                s.idx = (index_type)get_index(str, i * num_indexed_chars, num_indexed_chars);
                 touch_nta(addr.data() + index[i]);
             }
 
             // get seed values from string
             // touch the address vector in num_seeds places (with stream hint)
             for (size_t i = 0; i != num_seeds; ++i) {
-                const addr_type *ptr = addr.data() + index[active[i].idx];
-                const addr_type *end = addr.data() + index[active[i].idx+1];
-                active[i].ptr = ptr;
-                active[i].end = end;
+                active_state &s = active[i];
+                const addr_type *ptr = addr.data() + index[s.idx];
+                const addr_type *end = addr.data() + index[s.idx+1];
+                s.ptr = ptr;
+                s.end = end;
                 if (ptr != end) touch_stream(ptr);
             }
 
             for (size_t i = 0; i != num_seeds; ++i) {
-                const addr_type *ptr = active[i].ptr;
-                const addr_type *end = active[i].end;
+                active_state &s = active[i];
+                const addr_type *ptr = s.ptr;
+                const addr_type *end = s.end;
                 while (ptr != end && *ptr < pos) {
                    ++ptr;
                 }
-                active[i].ptr = ptr;
+                s.ptr = ptr;
+                s.off = (addr_type)(i * num_indexed_chars);
+                while (ptr != end && *ptr < s.off) ++ptr;
+                s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
             }
 
-            for (;;) {
+            /*for (;;) {
               addr_type next = (addr_type)-1;
               for (size_t i = 0; i != num_seeds; ++i) {
-                  std::cout << std::hex << active[i].idx << ":" << str.substr(i * num_indexed_chars, num_indexed_chars) << " ";
+                  std::cout << std::hex << s.idx << ":" << str.substr(i * num_indexed_chars, num_indexed_chars) << " ";
               }
               std::cout << std::endl;
 
               for (size_t i = 0; i != num_seeds; ++i) {
-                  const addr_type *ptr = active[i].ptr;
-                  active[i].start = (addr_type)-1;
-                  if (ptr != active[i].end) {
+                  active_state &s = active[i];
+                  const addr_type *ptr = s.ptr;
+                  s.start = (addr_type)-1;
+                  if (ptr != s.end) {
                       addr_type pos = *ptr;
                       if (pos > i * num_indexed_chars) {
                           addr_type start = pos - (addr_type)(i * num_indexed_chars);
-                          active[i].start = start;
+                          s.start = start;
                           next = std::min(next, start);
                       }
                   }
               }
 
               std::cout.width(10);
-              for (size_t i = 1; i != num_seeds; ++i) {
-                  addr_type start = active[i].start;
+              for (size_t i = 0; i != num_seeds; ++i) {
+                  addr_type start = s.start;
                   std::cout << (int)start << " ";
               }
               std::cout << "\n";
@@ -679,8 +686,8 @@ namespace boost { namespace genetics {
               }
 
               size_t count = 0;
-              for (size_t i = 1; i != num_seeds; ++i) {
-                  addr_type start = active[i].start;
+              for (size_t i = 0; i != num_seeds; ++i) {
+                  addr_type start = s.start;
                   count += start == next ? 1 : 0;
               }
 
@@ -688,26 +695,36 @@ namespace boost { namespace genetics {
                   // test some more
               }
 
-              for (size_t i = 1; i != num_seeds; ++i) {
-                  addr_type start = active[i].start;
+              for (size_t i = 0; i != num_seeds; ++i) {
+                  addr_type start = s.start;
                   if (start == next) {
-                      active[i].ptr++;
+                      s.ptr++;
                   }
               }
-            }
-            /*std::make_heap(active.begin(), active.end());
+            }*/
+            std::make_heap(active.begin(), active.end());
             for (;;) {
-                active_state f = active.front();
-                if (f.value == (addr_type)-1) {
+                for (size_t i = 0; i != num_seeds; ++i) {
+                    active_state &s = active[i];
+                    addr_type start = s.start;
+                    std::cout << (int)start << " ";
+                }
+                std::cout << "\n";
+
+                active_state s = active.front();
+                if (s.start == (addr_type)-1) {
                     break;
                 }
-                BOOST_MESSAGE(f.value);
-                const addr_type *ptr = f.ptr + 1;
-                f.value = ptr == f.end ? (addr_type)-1 : *ptr;
+                std::cout << (int)s.start << " " << s.ptr << "\n";
+                const addr_type *ptr = s.ptr + 1;
+                const addr_type *end = s.end;
+                while (ptr != end && *ptr < s.off) ++ptr;
+                s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
+                s.ptr = ptr;
                 std::pop_heap(active.begin(), active.end());
-                active.back() = f;
+                active.back() = s;
                 std::push_heap(active.begin(), active.end());
-            }*/
+            }
             return std::string::npos;
         }
 
@@ -737,9 +754,10 @@ namespace boost { namespace genetics {
             const addr_type *end;
             index_type idx;
             addr_type start;
+            addr_type off;
 
             bool operator<(const active_state &rhs) {
-                return value > rhs.value;
+                return start > rhs.start;
             }
         };
         mutable std::vector<active_state> active;
