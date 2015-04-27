@@ -3,7 +3,7 @@
 
 #include <string>
 #include <iosfwd>
-#include <type_traits>
+//#include <type_traits>
 #include <vector>
 #include <algorithm>
 
@@ -111,6 +111,11 @@ namespace boost { namespace genetics {
     }
 
     static inline int popcnt(uint64_t value, bool has_popcnt) {
+        #if defined(MSC_VER) && defined(_M_X64)
+            if (has_popcnt) {
+                return (int)__popcnt64(value);
+            }
+        #endif
         value = (value & 0x5555555555555555ull) + ((value >> 1) & 0x5555555555555555ull);
         value = (value & 0x3333333333333333ull) + ((value >> 2) & 0x3333333333333333ull);
         value = (value & 0x0f0f0f0f0f0f0f0full) + ((value >> 4) & 0x0f0f0f0f0f0f0f0full);
@@ -265,19 +270,19 @@ namespace boost { namespace genetics {
         }
 
         bool operator>(const dna_string &rhs) const {
-            return values > rhs.values || values == rhs.values && size() > rhs.size();
+            return values > rhs.values || (values == rhs.values && size() > rhs.size());
         }
 
         bool operator<(const dna_string &rhs) const {
-            return values < rhs.values || values == rhs.values && size() < rhs.size();
+            return values < rhs.values || (values == rhs.values && size() < rhs.size());
         }
 
         bool operator>=(const dna_string &rhs) const {
-            return values > rhs.values || values == rhs.values && size() >= rhs.size();
+            return values > rhs.values || (values == rhs.values && size() >= rhs.size());
         }
 
         bool operator<=(const dna_string &rhs) const {
-            return values < rhs.values || values == rhs.values && size() <= rhs.size();
+            return values < rhs.values || (values == rhs.values && size() <= rhs.size());
         }
 
         size_t find(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
@@ -295,7 +300,7 @@ namespace boost { namespace genetics {
             size_t nv = values.size() - 1;
             bool cpu_has_lzcnt = has_lzcnt();
             if (ssz >= 3 && pos < nv * bpv) {
-                size_t max_base = ssz > size() - ssz;
+                //size_t max_base = ssz > size() - ssz;
                 word_type r1c = 0x5555555555555555ull;
                 word_type s0 = str.values[0];
                 word_type rep0 = ~((s0 >> (bpv*2-2)) * r1c);
@@ -378,16 +383,22 @@ namespace boost { namespace genetics {
         }
 
         static word_type rev_comp_word(word_type x) {
-            x = _byteswap_uint64(x);
-            x = ((x & 0x0f0f0f0f0f0f0f0f) << 4) | ((x >> 4) & 0x0f0f0f0f0f0f0f0f);
-            x = ((x & 0x3333333333333333) << 2) | ((x >> 2) & 0x3333333333333333);
+            x = ((x & 0x00000000ffffffff) << 32) | ((x >> 32) & 0x00000000ffffffff);
+            x = ((x & 0x0000ffff0000ffff) << 16) | ((x >> 16) & 0x0000ffff0000ffff);
+            x = ((x & 0x00ff00ff00ff00ff) << 8)  | ((x >> 8) & 0x00ff00ff00ff00ff);
+            x = ((x & 0x0f0f0f0f0f0f0f0f) << 4)  | ((x >> 4) & 0x0f0f0f0f0f0f0f0f);
+            x = ((x & 0x3333333333333333) << 2)  | ((x >> 2) & 0x3333333333333333);
             return ~x;
         }
 
         static size_t count_word(word_type x) {
             x |= x >> 1;
             x &= 0x5555555555555555;
-            return (size_t)__popcnt64(x);
+            x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
+            x = (x & 0x0f0f0f0f0f0f0f0full) + ((x >> 4) & 0x0f0f0f0f0f0f0f0full);
+            x = (x & 0x00ff00ff00ff00ffull) + ((x >> 8) & 0x00ff00ff00ff00ffull);
+            x = (x & 0x0000ffff0000ffffull) + ((x >> 16) & 0x0000ffff0000ffffull);
+            return (int)(x + (x>>32));
         }
 
         size_t num_bases;
@@ -395,12 +406,12 @@ namespace boost { namespace genetics {
     };
 
     template <>
-    static inline int get_code<class dna_string>(const dna_string &str, size_t index) {
+    inline int get_code<class dna_string>(const dna_string &str, size_t index) {
         return str.get_code(index);
     }
 
     template <>
-    static inline uint64_t get_index<class dna_string>(const dna_string &str, size_t pos, size_t num_index_chars) {
+    inline uint64_t get_index<class dna_string>(const dna_string &str, size_t pos, size_t num_index_chars) {
         return str.get_index(pos, num_index_chars);
     }
 
@@ -553,7 +564,7 @@ namespace boost { namespace genetics {
     Type rev_comp(const Type &x, typename Type::iterator *b = 0) {
         Type result = x;
         std::reverse(result.begin(), result.end());
-        for (Type::iterator i = result.begin(), e = result.end(); i != e; ++i) {
+        for (typename Type::iterator i = result.begin(), e = result.end(); i != e; ++i) {
           int chr = *i;
           if (is_base(chr)) { *i = code_to_base(3-base_to_code(chr)); }
         }
@@ -806,9 +817,9 @@ namespace boost { namespace genetics {
             return iterator(this, str, pos, max_distance);
         }
 
-        template <class charT, class traits, class String>
+        template <class charT, class traits>
         void dump(std::basic_ostream<charT, traits>& os) const {
-            std::basic_ostream<charT, traits>::fmtflags save = os.flags();
+            typename std::basic_ostream<charT, traits>::fmtflags save = os.flags();
             size_t str_size = string.size();
             size_t index_size = (size_t)1 << (num_indexed_chars*2);
             for (size_t i = 0; i != index_size; ++i) {
@@ -830,7 +841,7 @@ namespace boost { namespace genetics {
     template <class charT, class traits, class String>
     std::basic_ostream<charT, traits>&
     operator<<(std::basic_ostream<charT, traits>& os, const two_stage_index<String>& x) {
-        x.dump<charT, traits, String>(os);
+        x.dump(os);
         return os;
     }
 
