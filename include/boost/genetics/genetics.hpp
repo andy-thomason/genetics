@@ -124,6 +124,7 @@ namespace boost { namespace genetics {
     public:
         typedef uint64_t word_type;
         static const size_t bases_per_value = sizeof(word_type) * 4;
+        static const size_t npos = (size_t)-1;
 
     public:
         dna_string(size_t size=0) {
@@ -279,7 +280,7 @@ namespace boost { namespace genetics {
             return values < rhs.values || values == rhs.values && size() <= rhs.size();
         }
 
-        size_t find(const dna_string& str, size_t pos = 0, int max_distance = 0) const {
+        size_t find(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
             size_t ssz = str.size();
             if (ssz == 0) {
                 return pos;
@@ -287,7 +288,7 @@ namespace boost { namespace genetics {
 
             size_t sz = size();
             if (pos + ssz > sz || values.size() == 0) {
-                return std::string::npos;
+                return dna_string::npos;
             }
 
             const size_t bpv = bases_per_value;
@@ -329,10 +330,10 @@ namespace boost { namespace genetics {
                 }
                 ++pos;
             }
-            return std::string::npos;
+            return dna_string::npos;
         }
 
-        int compare(size_t pos, size_t ssz, const dna_string &str, int max_distance=0) const {
+        int compare(size_t pos, size_t ssz, const dna_string &str, size_t max_distance=0) const {
             pos = std::min(pos, num_bases);
             ssz = std::min(ssz, str.num_bases);
             ssz = std::min(ssz, num_bases - pos);
@@ -358,6 +359,10 @@ namespace boost { namespace genetics {
             size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
             size_t off = index/bases_per_value;
             return index >= num_bases ? 0 : ((values[off] >> sh) & 0x03);
+        }
+
+        uint64_t get_index(size_t pos, size_t num_index_chars) const {
+            return (uint64_t)(window(pos) >> (bases_per_value - num_index_chars)*2);
         }
     private:
         word_type window(int64_t base) const {
@@ -392,6 +397,11 @@ namespace boost { namespace genetics {
     template <>
     static inline int get_code<class dna_string>(const dna_string &str, size_t index) {
         return str.get_code(index);
+    }
+
+    template <>
+    static inline uint64_t get_index<class dna_string>(const dna_string &str, size_t pos, size_t num_index_chars) {
+        return str.get_index(pos, num_index_chars);
     }
 
     /// containter for bases ACGT and occasional runs of 'N' and other letters.
@@ -550,6 +560,43 @@ namespace boost { namespace genetics {
         return result;
     }
 
+    template <class Lhs, class Rhs>
+    bool match(const Lhs &x, size_t pos, const Rhs &y, size_t max_distance) {
+        size_t n = y.size();
+        size_t result = 0;
+        //TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG
+        //TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG
+        //std::cout << x.substr(pos, y.size()) << "\n";
+        //std::cout << y << "\n";
+        for (size_t i = 0; i != n && result <= max_distance; ++i) {
+            int xchr = x[pos + i];
+            int ychr = y[i];
+            result += ychr != xchr && ychr != 'N';
+        }
+        return result <= max_distance;
+    }
+
+    template <>
+    bool match<dna_string, dna_string>(const dna_string &x, size_t pos, const dna_string &y, size_t max_distance) {
+        return x.compare(pos, y.size(), y, max_distance) == 0;
+    }
+
+    /*template <>
+    size_t match<augmented_string, augmented_string>(const augmented_string &x, size_t pos, const augmented_string &y, size_t max_distance) {
+        if (x.is_pure_dna(pos, y.size() && y.is_pure_dna(0, y.size)) {
+          return (const dna_string&)x.compare(pos, y.size(), (const dna_string&)y, max_distance) == 0;
+        } else {
+          size_t n = y.size();
+          size_t result = 0;
+          for (size_t i = 0; i != n && result <= max_distance; ++i) {
+              int xchr = x[pos + i];
+              int ychr = y[i];
+              result += ychr == xchr && ychr != 'N';
+          }
+          return result <= max_distance;
+        }
+    }*/
+
     //template <class Type, Type::num_bases_type NB = Type::num_bases>
 
     /// two stage index, first index ordered by value, second by address.
@@ -614,118 +661,149 @@ namespace boost { namespace genetics {
             }
         }
 
-        size_t find(const String& str, size_t pos = 0, int max_distance = 0) const {
-            size_t num_seeds = str.size() / num_indexed_chars;
-            active.resize(num_seeds);
-            if (num_seeds == 0) {
-                return std::string::npos;
-            }
+        class iterator {
+        public:
+            iterator(const two_stage_index<String> *tsi, const String& str, size_t min_pos = 0, size_t max_distance = 0) :
+                tsi(tsi), str(str), max_distance(max_distance)
+            {
+                size_t num_indexed_chars = tsi->num_indexed_chars;
+                size_t num_seeds = str.size() / num_indexed_chars;
 
-            // get seed values from string
-            // touch the index in num_seeds places (with NTA hint)
-            for (size_t i = 0; i != num_seeds; ++i) {
-                active_state &s = active[i];
-                s.idx = (index_type)get_index(str, i * num_indexed_chars, num_indexed_chars);
-                touch_nta(addr.data() + index[i]);
-            }
+                if (num_seeds <= max_distance) {
+                    pos = str.find(min_pos, max_distance);
+                } else {
+                    active.resize(num_seeds);
+                    if (num_seeds == 0) {
+                        pos = String::npos;
+                        return;
+                    }
 
-            // get seed values from string
-            // touch the address vector in num_seeds places (with stream hint)
-            for (size_t i = 0; i != num_seeds; ++i) {
-                active_state &s = active[i];
-                const addr_type *ptr = addr.data() + index[s.idx];
-                const addr_type *end = addr.data() + index[s.idx+1];
-                s.ptr = ptr;
-                s.end = end;
-                if (ptr != end) touch_stream(ptr);
-            }
+                    // get seed values from string
+                    // touch the index in num_seeds places (with NTA hint)
+                    for (size_t i = 0; i != num_seeds; ++i) {
+                        active_state &s = active[i];
+                        s.idx = (index_type)get_index(str, i * num_indexed_chars, num_indexed_chars);
+                        touch_nta(tsi->addr.data() + tsi->index[i]);
+                    }
 
-            for (size_t i = 0; i != num_seeds; ++i) {
-                active_state &s = active[i];
-                const addr_type *ptr = s.ptr;
-                const addr_type *end = s.end;
-                while (ptr != end && *ptr < pos) {
-                   ++ptr;
+                    // get seed values from string
+                    // touch the address vector in num_seeds places (with stream hint)
+                    for (size_t i = 0; i != num_seeds; ++i) {
+                        active_state &s = active[i];
+                        const addr_type *ptr = tsi->addr.data() + tsi->index[s.idx];
+                        const addr_type *end = tsi->addr.data() + tsi->index[s.idx+1];
+                        s.ptr = ptr;
+                        s.end = end;
+                        if (ptr != end) touch_stream(ptr);
+                    }
+
+                    for (size_t i = 0; i != num_seeds; ++i) {
+                        active_state &s = active[i];
+                        const addr_type *ptr = s.ptr;
+                        const addr_type *end = s.end;
+                        s.off = (addr_type)(i * num_indexed_chars);
+                        while (ptr != end && *ptr < s.off + min_pos) {
+                            std::cout << "skip " << *ptr << "\n";
+                            ++ptr;
+                        }
+                        s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
+                        s.ptr = ptr;
+                    }
+
+                    std::make_heap(active.begin(), active.end());
+                    find_next();
                 }
-                s.ptr = ptr;
-                s.off = (addr_type)(i * num_indexed_chars);
-                while (ptr != end && *ptr < s.off) ++ptr;
-                s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
             }
 
-            /*for (;;) {
-              addr_type next = (addr_type)-1;
-              for (size_t i = 0; i != num_seeds; ++i) {
-                  std::cout << std::hex << s.idx << ":" << str.substr(i * num_indexed_chars, num_indexed_chars) << " ";
-              }
-              std::cout << std::endl;
-
-              for (size_t i = 0; i != num_seeds; ++i) {
-                  active_state &s = active[i];
-                  const addr_type *ptr = s.ptr;
-                  s.start = (addr_type)-1;
-                  if (ptr != s.end) {
-                      addr_type pos = *ptr;
-                      if (pos > i * num_indexed_chars) {
-                          addr_type start = pos - (addr_type)(i * num_indexed_chars);
-                          s.start = start;
-                          next = std::min(next, start);
-                      }
-                  }
-              }
-
-              std::cout.width(10);
-              for (size_t i = 0; i != num_seeds; ++i) {
-                  addr_type start = s.start;
-                  std::cout << (int)start << " ";
-              }
-              std::cout << "\n";
-
-              if (next == (addr_type)-1) {
-                  break;
-              }
-
-              size_t count = 0;
-              for (size_t i = 0; i != num_seeds; ++i) {
-                  addr_type start = s.start;
-                  count += start == next ? 1 : 0;
-              }
-
-              if (count + max_distance >= num_seeds) {
-                  // test some more
-              }
-
-              for (size_t i = 0; i != num_seeds; ++i) {
-                  addr_type start = s.start;
-                  if (start == next) {
-                      s.ptr++;
-                  }
-              }
+            /*iterator(iterator &&rhs) :
+                str(rhs.str)
+            {
+                active = std::move(rhs.active);
+                str = std::move(rhs.str);
+                max_distance = rhs.max_distance;
             }*/
-            std::make_heap(active.begin(), active.end());
-            for (;;) {
-                for (size_t i = 0; i != num_seeds; ++i) {
-                    active_state &s = active[i];
-                    addr_type start = s.start;
-                    std::cout << (int)start << " ";
-                }
-                std::cout << "\n";
 
-                active_state s = active.front();
-                if (s.start == (addr_type)-1) {
-                    break;
-                }
-                std::cout << (int)s.start << " " << s.ptr << "\n";
-                const addr_type *ptr = s.ptr + 1;
-                const addr_type *end = s.end;
-                while (ptr != end && *ptr < s.off) ++ptr;
-                s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
-                s.ptr = ptr;
-                std::pop_heap(active.begin(), active.end());
-                active.back() = s;
-                std::push_heap(active.begin(), active.end());
+            operator size_t() const {
+                return pos;
             }
-            return std::string::npos;
+
+            iterator &operator++() {
+                find_next();
+                return *this;
+            }
+        private:
+            void find_next() {
+                size_t num_indexed_chars = tsi->num_indexed_chars;
+                size_t num_seeds = str.size() / num_indexed_chars;
+
+                if (pos == String::npos) {
+                    return;
+                } else if (num_seeds <= max_distance) {
+                    pos = str.find(pos + 1, max_distance);
+                    return;
+                } else {
+                    addr_type prev_start = (addr_type)-1;
+                    size_t repeat_count = 0;
+                    pos = String::npos;
+
+                    /*for (size_t i = 0; i != num_seeds; ++i) {
+                        active_state &s = active[i];
+                        addr_type start = s.start;
+                        std::cout << (int)start << " ";
+                    }
+                    std::cout << "\n";*/
+
+                    while (active.front().start != (addr_type)-1) {
+                        active_state s = active.front();
+                        std::cout << (int)s.start << " " << s.ptr << "\n";
+
+                        if (s.start == prev_start) {
+                            repeat_count++;
+                        } else {
+                            if (repeat_count >= num_seeds - max_distance) {
+                                if (match(tsi->string, prev_start, str, max_distance)) {
+                                    pos = prev_start;
+                                    break;
+                                }
+                            }
+                            prev_start = s.start;
+                            repeat_count = 1;
+                        }
+
+                        const addr_type *ptr = s.ptr + 1;
+                        const addr_type *end = s.end;
+                        while (ptr != end && *ptr < s.off) ++ptr;
+                        s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
+                        s.ptr = ptr;
+                        std::pop_heap(active.begin(), active.end());
+                        active.back() = s;
+                        std::push_heap(active.begin(), active.end());
+                    }
+                }
+            }
+
+            // search state
+            struct active_state {
+                const addr_type *ptr;
+                const addr_type *end;
+                index_type idx;
+                addr_type start;
+                addr_type off;
+
+                bool operator<(const active_state &rhs) {
+                    return start > rhs.start;
+                }
+            };
+
+            const two_stage_index<String> *tsi;
+            std::vector<active_state> active;
+            const String &str;
+            size_t max_distance;
+            size_t pos;
+        };
+
+        iterator find(const String& str, size_t pos = 0, size_t max_distance = 0) const {
+            return iterator(this, str, pos, max_distance);
         }
 
         template <class charT, class traits, class String>
@@ -747,20 +825,6 @@ namespace boost { namespace genetics {
         size_t num_indexed_chars;
         std::vector<index_type> index;
         std::vector<addr_type> addr;
-
-        // search state
-        struct active_state {
-            const addr_type *ptr;
-            const addr_type *end;
-            index_type idx;
-            addr_type start;
-            addr_type off;
-
-            bool operator<(const active_state &rhs) {
-                return start > rhs.start;
-            }
-        };
-        mutable std::vector<active_state> active;
     };
 
     template <class charT, class traits, class String>

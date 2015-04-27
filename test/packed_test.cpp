@@ -28,6 +28,9 @@ static const char chr1[] =
   "GAATTATCCTGGAAAATCTCTTCATTGTGTTCACAGTAATTATTGACTCTCATTTAAATT"
   "CCCCAGGTACTGCCTACTGGCCAACATTTATCTTCTTGATCTGGGTCTTCTCCTACAGTT"
   "CTGACTTTTTCACTAACTGCAGCATCATTTCTTTTCCAAGATGCATCATACAGATATTTT"
+  "TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG"
+  "TCGAGACCATCCTGGCTAACACGCGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG"
+  "TCGAGACCATCCTGGCTAACACGCGGAAACCCCGTCTCCACTAATAATACAAAAAGTTAG"
 ;
 
 template <class Type>
@@ -256,6 +259,23 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     //BOOST_MESSAGE(tsi);
 
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
-    BOOST_CHECK(tsi.find(key1, 0, 0) == 120);
+    if (0) {
+      two_stage_index<augmented_string>::iterator i = tsi.find(key1, 0, 0);
+      BOOST_CHECK(i == 120);
+      ++i;
+      BOOST_CHECK(i == 1200);
+      ++i;
+      BOOST_CHECK(i == augmented_string::npos);
+    }
+    {
+      two_stage_index<augmented_string>::iterator i = tsi.find(key1, 121, 1);
+      BOOST_CHECK(i == 1200);
+      ++i;
+      BOOST_CHECK(i == 1260);
+      ++i;
+      BOOST_CHECK(i == 1320);
+      ++i;
+      BOOST_CHECK(i == augmented_string::npos);
+    }
 }
 
