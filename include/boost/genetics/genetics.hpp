@@ -3,9 +3,18 @@
 
 #include <string>
 #include <iosfwd>
-//#include <type_traits>
 #include <vector>
 #include <algorithm>
+
+#include <boost/interprocess/file_mapping.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+
+
+#if !defined(_CRAYC) && !defined(__CUDACC__) && (!defined(__GNUC__) || (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ > 3)))
+    #if (defined(_M_IX86_FP) && (_M_IX86_FP >= 2)) || defined(__SSE2__)
+        #include <mmintrin.h>
+    #endif
+#endif
 
 namespace boost { namespace genetics {
     typedef unsigned char uint8_t;
@@ -37,11 +46,6 @@ namespace boost { namespace genetics {
 
     static inline char code_to_base(int code) {
         return (char)((('A' | 'C' << 8 | 'G' << 16 | 'T' << 24) >> (code * 8)));
-    }
-
-    template <class String>
-    static inline int get_code(const String &str, size_t index) {
-        return base_to_code(str[index]);
     }
 
     template <class Ptr>
@@ -125,26 +129,27 @@ namespace boost { namespace genetics {
     }
 
     /// variable length vector of packed bases
-    class dna_string {
+    template<class WordType, class Allocator>
+    class basic_dna_string {
     public:
-        typedef uint64_t word_type;
+        typedef WordType word_type;
         static const size_t bases_per_value = sizeof(word_type) * 4;
         static const size_t npos = (size_t)-1;
 
     public:
-        dna_string(size_t size=0) {
+        basic_dna_string(size_t size=0) {
             num_bases = size;
             values.resize(num_bases * bases_per_value);
         }
 
         template<class InIter>
-        dna_string(InIter b, InIter e) {
+        basic_dna_string(InIter b, InIter e) {
             num_bases = 0;
             append(b, e);
         }
 
         template<class String>
-        dna_string(
+        basic_dna_string(
             const String &str,
             size_t pos = 0, size_t n = ~(size_t)0
         ) {
@@ -153,7 +158,7 @@ namespace boost { namespace genetics {
         }
 
         template <class charT>
-        dna_string(
+        basic_dna_string(
             const charT* str,
             size_t pos = 0, size_t n = ~(size_t)0
         ) {
@@ -179,8 +184,8 @@ namespace boost { namespace genetics {
             return res;
         }
 
-        dna_string substr(size_t offset=0, size_t length=~(size_t)0, bool rev_comp=false) const {
-            dna_string result;
+        basic_dna_string substr(size_t offset=0, size_t length=~(size_t)0, bool rev_comp=false) const {
+            basic_dna_string result;
             length = std::min(length, size() - offset);
             size_t nv = (length + bases_per_value - 1) / bases_per_value;
             result.num_bases = length;
@@ -199,14 +204,6 @@ namespace boost { namespace genetics {
                 result.values[nv-1] &= ~(word_type)0 << (((0-length) % bases_per_value) * 2);
             }
             return result;
-        }
-
-        size_t distance(const dna_string &rhs) const {
-            size_t diff = 0;
-            for (size_t i = 0; i < values.size(); ++i) {
-                diff += count_word(values[i] ^ rhs.values[i]);
-            }
-            return diff;
         }
 
         size_t size() const {
@@ -237,16 +234,19 @@ namespace boost { namespace genetics {
             size_t max_bases = values.size() * bases_per_value;
             word_type acc = num_bases < max_bases ? values.back() >> (max_bases - num_bases) * 2 : 0;
             while (b != e) {
-                acc = acc * 4 + base_to_code((int)*b++);
-                num_bases++;
-                if (num_bases % bases_per_value == 0) {
-                    size_t index = (num_bases-1) / bases_per_value;
-                    if (index >= values.size()) {
-                        values.push_back(acc);
-                    } else {
+                int chr = (int)*b++;
+                if (chr != '\n') {
+                    acc = acc * 4 + base_to_code(chr);
+                    num_bases++;
+                    if (num_bases % bases_per_value == 0) {
+                        size_t index = (num_bases-1) / bases_per_value;
+                        if (index >= values.size()) {
+                            values.push_back(acc);
+                        } else {
                         values[index] = acc;
+                        }
+                        acc = 0;
                     }
-                    acc = 0;
                 }
             }
 
@@ -261,31 +261,31 @@ namespace boost { namespace genetics {
             }
         }
 
-        bool operator==(const dna_string &rhs) const {
+        bool operator==(const basic_dna_string &rhs) const {
             return values == rhs.values && size() == rhs.size();
         }
 
-        bool operator!=(const dna_string &rhs) const {
+        bool operator!=(const basic_dna_string &rhs) const {
             return values != rhs.values || size() != rhs.size();
         }
 
-        bool operator>(const dna_string &rhs) const {
+        bool operator>(const basic_dna_string &rhs) const {
             return values > rhs.values || (values == rhs.values && size() > rhs.size());
         }
 
-        bool operator<(const dna_string &rhs) const {
+        bool operator<(const basic_dna_string &rhs) const {
             return values < rhs.values || (values == rhs.values && size() < rhs.size());
         }
 
-        bool operator>=(const dna_string &rhs) const {
+        bool operator>=(const basic_dna_string &rhs) const {
             return values > rhs.values || (values == rhs.values && size() >= rhs.size());
         }
 
-        bool operator<=(const dna_string &rhs) const {
+        bool operator<=(const basic_dna_string &rhs) const {
             return values < rhs.values || (values == rhs.values && size() <= rhs.size());
         }
 
-        size_t find(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
+        size_t find(const basic_dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
             size_t ssz = str.size();
             if (ssz == 0) {
                 return pos;
@@ -293,7 +293,7 @@ namespace boost { namespace genetics {
 
             size_t sz = size();
             if (pos + ssz > sz || values.size() == 0) {
-                return dna_string::npos;
+                return basic_dna_string::npos;
             }
 
             const size_t bpv = bases_per_value;
@@ -320,7 +320,10 @@ namespace boost { namespace genetics {
                         bit_pos += lz;
                         size_t search_pos = i * bpv + bit_pos/2;
                         ++bit_pos;
-                        if (search_pos >= pos && compare(search_pos, ssz, str, max_distance) == 0) {
+                        if (
+                            search_pos >= pos &&
+                            compare(search_pos, ssz, str, max_distance) == 0
+                        ) {
                             return search_pos;
                         }
                     }
@@ -335,10 +338,10 @@ namespace boost { namespace genetics {
                 }
                 ++pos;
             }
-            return dna_string::npos;
+            return basic_dna_string::npos;
         }
 
-        int compare(size_t pos, size_t ssz, const dna_string &str, size_t max_distance=0) const {
+        int compare(size_t pos, size_t ssz, const basic_dna_string &str, size_t max_distance=0) const {
             pos = std::min(pos, num_bases);
             ssz = std::min(ssz, str.num_bases);
             ssz = std::min(ssz, num_bases - pos);
@@ -348,12 +351,17 @@ namespace boost { namespace genetics {
             for (size_t i = 0; i != nv; ++i) {
                 word_type w = window((int64_t)pos);
                 word_type s = str.values[i];
+                if (i == ssz/bpv) {
+                    s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
+                    w &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
+                }
+                printf("%lld %llx %llx\n", i, s, w);
                 if (s != w) {
-                    if (i == ssz/bpv) {
-                        s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
-                        w &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
+                    if (max_distance == 0) {
+                        return s == w ? 0 : s < w ? -1 : 1;
+                    } else if (count_word(s^w) > max_distance) {
+                        return s < w ? -1 : 1;
                     }
-                    return s == w ? 0 : s < w ? -1 : 1;
                 }
                 pos += bpv;
             }
@@ -402,40 +410,47 @@ namespace boost { namespace genetics {
         }
 
         size_t num_bases;
-        std::vector<word_type> values;
+        std::vector<word_type, Allocator> values;
     };
 
-    template <>
-    inline int get_code<class dna_string>(const dna_string &str, size_t index) {
+    template <class String>
+    static inline int get_code(const String &str, size_t index) {
+        return base_to_code(str[index]);
+    }
+
+    /*template <>
+    inline int get_code<class basic_dna_string<WordType, Allocator>>(basic_dna_string<WordType, Allocator>>&str, size_t index) {
         return str.get_code(index);
     }
 
     template <>
-    inline uint64_t get_index<class dna_string>(const dna_string &str, size_t pos, size_t num_index_chars) {
+    inline uint64_t get_index<class basic_dna_string>(const basic_dna_string &str, size_t pos, size_t num_index_chars) {
         return str.get_index(pos, num_index_chars);
-    }
+    }*/
 
     /// containter for bases ACGT and occasional runs of 'N' and other letters.
-    class augmented_string : public dna_string {
+    template<class WordType, class Allocator>
+    class basic_augmented_string : public basic_dna_string<WordType, Allocator> {
         static const size_t lg_bases_per_index = 16;
         static const size_t bases_per_index = (size_t)1 << lg_bases_per_index;
         typedef uint32_t index_type;
         typedef uint32_t rle_type;
+        typedef basic_dna_string<WordType, Allocator > parent;
     public:
-        augmented_string() {
+        basic_augmented_string() {
         }
 
-        augmented_string(const char *str) {
+        basic_augmented_string(const char *str) {
             const char *e = str;
             while (*e) ++e;
             append(str, e);
         }
 
         template<class String>
-        augmented_string(
+        basic_augmented_string(
             const String &str,
             size_t pos = 0, size_t n = ~(size_t)0
-        ) : dna_string() {
+        ) : parent() {
             append(str.begin() + pos, str.begin() + std::min(n, str.size()));
         }
 
@@ -454,7 +469,7 @@ namespace boost { namespace genetics {
             const rle_type *b = rle.data() + i0;
             const rle_type *e = rle.data() + i1;
             const rle_type *p = std::lower_bound(b, e, search);
-            return p > b && (p[-1] & 0xff) ? (p[-1] & 0xff) : (*(const dna_string*)this)[base];
+            return p > b && (p[-1] & 0xff) ? (p[-1] & 0xff) : ((const parent&)*this)[base];
         }
 
         void append(const char *str) {
@@ -464,8 +479,8 @@ namespace boost { namespace genetics {
         }
 
         void resize(size_t new_size, char chr='A') {
-            size_t num_bases = size();
-            dna_string::resize(new_size);
+            size_t num_bases = parent::size();
+            parent::resize(new_size);
             if (new_size > num_bases) {
                 while (num_bases < new_size) {
                     internal_append(num_bases, &chr, &chr+1);
@@ -479,15 +494,15 @@ namespace boost { namespace genetics {
 
         operator std::string() const {
             std::string res;
-            res.resize(size());
-            for (size_t i = 0; i != size(); ++i) {
+            res.resize(parent::size());
+            for (size_t i = 0; i != parent::size(); ++i) {
                 res[i] = (*this)[i];
             }
             return res;
         }
 
         std::string substr(size_t offset=0, size_t length=~(size_t)0, bool rev_comp=false) const {
-            length = std::min(length, size() - offset);
+            length = std::min(length, parent::size() - offset);
             std::string result(length, ' ');
             if (!rev_comp) {
                 for (size_t i = 0; i != length; ++i) {
@@ -501,56 +516,59 @@ namespace boost { namespace genetics {
             }
             return result;
         }
-    private:
+
 
         template<class InIter>
         void append(InIter b, InIter e) {
-            size_t num_bases = size();
-            dna_string::append(b, e);
+            size_t num_bases = parent::size();
+            parent::append(b, e);
             internal_append(num_bases, b, e);
         }
 
+    private:
         template<class InIter>
         void internal_append(size_t num_bases, InIter b, InIter e) {
             int prev_val = rle.empty() ? 0 : rle.back();
             while (b != e) {
                 int chr = (int)*b++;
-                int val = (is_base(chr)) ? 0 : chr;
-                if (num_bases % bases_per_index == 0 || val != prev_val) {
-                    if (num_bases % bases_per_index == 0) {
-                        index.push_back((index_type)rle.size());
+                if (chr != '\n') {
+                    int val = (is_base(chr)) ? 0 : chr;
+                    if (num_bases % bases_per_index == 0 || val != prev_val) {
+                        if (num_bases % bases_per_index == 0) {
+                            index.push_back((index_type)rle.size());
+                        }
+                        rle.push_back((rle_type)((num_bases % bases_per_index) * 256 + val));
+                        prev_val = val;
                     }
-                    rle.push_back((rle_type)((num_bases % bases_per_index) * 256 + val));
-                    prev_val = val;
+                    num_bases++;
                 }
-                num_bases++;
             }
         }
 
-        std::vector<index_type> index;
-        std::vector<rle_type> rle;
+
+        std::vector<index_type, Allocator> index;
+        std::vector<rle_type, Allocator> rle;
     };
 
-    class annotation {
-    public:
-    private:
-        typedef uint32_t index_type;
-        std::vector<index_type> index;
-        std::vector<uint8_t> data;
+    struct genome_data {
+        std::string name;
+        std::string info;
+        size_t start;
+        size_t end;
     };
 
-    template <class charT, class traits>
+    template <class charT, class traits, class WordType, class Allocator>
     std::basic_istream<charT, traits>&
-    operator>>(std::basic_istream<charT, traits>& is, dna_string& x) {
+    operator>>(std::basic_istream<charT, traits>& is, basic_dna_string<WordType, Allocator>& x) {
         std::string str;
         is >> str;
-        x = dna_string(str);
+        x = basic_dna_string<WordType, Allocator>(str);
         return is;
     }
 
-    template <class charT, class traits>
+    template <class charT, class traits, class WordType, class Allocator>
     std::basic_ostream<charT, traits>&
-    operator<<(std::basic_ostream<charT, traits>& os, const dna_string& x) {
+    operator<<(std::basic_ostream<charT, traits>& os, const basic_dna_string<WordType, Allocator>&x) {
         os << (std::string)x;
         return os;
     }
@@ -587,15 +605,15 @@ namespace boost { namespace genetics {
         return result <= max_distance;
     }
 
-    template <>
-    bool match<dna_string, dna_string>(const dna_string &x, size_t pos, const dna_string &y, size_t max_distance) {
+    /*template <>
+    bool match<basic_dna_string, basic_dna_string>(const basic_dna_string &x, size_t pos, const basic_dna_string &y, size_t max_distance) {
         return x.compare(pos, y.size(), y, max_distance) == 0;
-    }
+    }*/
 
     /*template <>
-    size_t match<augmented_string, augmented_string>(const augmented_string &x, size_t pos, const augmented_string &y, size_t max_distance) {
+    size_t match<basic_augmented_string, basic_augmented_string>(const basic_augmented_string &x, size_t pos, const basic_augmented_string &y, size_t max_distance) {
         if (x.is_pure_dna(pos, y.size() && y.is_pure_dna(0, y.size)) {
-          return (const dna_string&)x.compare(pos, y.size(), (const dna_string&)y, max_distance) == 0;
+          return (const basic_dna_string&)x.compare(pos, y.size(), (const basic_dna_string&)y, max_distance) == 0;
         } else {
           size_t n = y.size();
           size_t result = 0;
@@ -631,7 +649,7 @@ namespace boost { namespace genetics {
                 string.size() < num_indexed_chars ||
                 (addr_type)string.size() != string.size()
             ) {
-                throw std::out_of_range("reindex() failed");
+                //throw std::out_of_range("reindex() failed");
             }
 
             size_t str_size = string.size();
@@ -769,15 +787,6 @@ namespace boost { namespace genetics {
                         std::cout << (int)s.start << " " << s.ptr << "\n";
 
                         if (s.start == prev_start) {
-                            repeat_count++;
-                        } else {
-                            if (repeat_count >= num_seeds - max_distance) {
-                                if (match(tsi->string, prev_start, str, max_distance)) {
-                                    pos = prev_start;
-                                    break;
-                                }
-                            }
-                            prev_start = s.start;
                             repeat_count = 1;
                         }
 
@@ -838,12 +847,61 @@ namespace boost { namespace genetics {
         std::vector<addr_type> addr;
     };
 
+    typedef basic_dna_string<uint64_t, std::allocator<uint64_t> > dna_string;
+    typedef basic_augmented_string<uint64_t, std::allocator<uint64_t> > augmented_string;
+
     template <class charT, class traits, class String>
     std::basic_ostream<charT, traits>&
     operator<<(std::basic_ostream<charT, traits>& os, const two_stage_index<String>& x) {
         x.dump(os);
         return os;
     }
+
+    class fasta_file { 
+        typedef std::vector<genome_data> data_type;
+    public:
+        fasta_file() {
+        }
+
+        fasta_file(const std::string &filename) {
+            using namespace boost::interprocess;
+            file_mapping fm(filename.c_str(), read_only);
+            mapped_region region(fm, read_only);
+            std::cout << "opened\n";
+            const char *p = (const char*)region.get_address();
+            const char *end = p + region.get_size();
+            genome_data g;
+            g.start = 0;
+            size_t start = 0;
+            while (p != end) {
+                //if (*p != '>') throw(std::exception("bad fasta"));
+                const char *b = p;
+                while (p != end && *p != '\n') ++p;
+                g.info.assign(b, p);
+                size_t sp = g.info.find(" ");
+                if (sp == std::string::npos) {
+                    g.name = g.info;
+                } else {
+                    g.name.assign(b + sp + 1, p);
+                }
+
+                std::cout << g.info << "\n";
+                b = p;
+                while (p != end && *p != '>') ++p;
+                g.end = string.size();
+                string.append(b, p);
+                data.push_back(g);
+                g.start = g.end;
+            }
+        }
+
+        data_type &get_data() {
+            return data;
+        } 
+    private:
+        augmented_string string;
+        data_type data;
+    };
 
 } }
 
