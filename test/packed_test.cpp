@@ -1,6 +1,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 #define BOOST_TEST_MODULE Genetics
 #include <boost/test/unit_test.hpp>
@@ -286,3 +287,85 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
 }
 
 
+<<<<<<< HEAD
+=======
+#if 0
+template<class Type>
+class alloc : public std::char_traits<char> {
+public:
+	typedef alloc<Type> other;
+
+	typedef typename Type value_type;
+
+	typedef value_type *pointer;
+	typedef const value_type *const_pointer;
+	typedef void *void_pointer;
+	typedef const void *const_void_pointer;
+
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+
+	typedef std::false_type propagate_on_container_copy_assignment;
+	typedef std::false_type propagate_on_container_move_assignment;
+	typedef std::false_type propagate_on_container_swap;
+
+  /*static size_t copy(Type *d, const Type *a, size_t b) {
+      while (b) *d++ = *a++;
+      return 0;
+  }
+
+  static void assign(Type &d, const Type &a) {
+      d = a;
+  }*/
+};
+#endif
+
+char ptr[10];
+
+template<class Type>
+class zalloc {
+public:
+  //zalloc();
+	typedef typename Type value_type;
+
+	typedef value_type *pointer;
+	typedef const value_type *const_pointer;
+	typedef void *void_pointer;
+	typedef const void *const_void_pointer;
+
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+
+  template <class U> struct rebind { typedef zalloc<U> other; };
+
+  pointer allocate(size_t n) {
+      return (pointer)ptr;
+  }
+
+  void deallocate(pointer p, size_t n) {
+  }
+
+  template <class... Args>
+  void construct(pointer p, Args... a) {
+      new ((void*)p)value_type(std::forward<Args>(a)...);
+  }
+
+  void destroy(pointer p) {
+      p->~value_type();
+  }
+};
+
+BOOST_AUTO_TEST_CASE( allocators )
+{
+    char x[10];
+    zalloc<char> a;
+    std::basic_string<char, std::char_traits<char>, zalloc<char>> str(a);
+    str.resize(10);
+}
+>>>>>>> 69be8357ca16d68304dc801fd056e86ea2a0828a
