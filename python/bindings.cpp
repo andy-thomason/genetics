@@ -9,8 +9,10 @@ class Fasta {
     typedef boost::genetics::augmented_string augmented_string;
     boost::genetics::fasta_file fasta; 
 public:
-    Fasta(const std::string &filename) : fasta(filename)
-    {
+    Fasta() {
+    }
+
+    Fasta(const std::string &filename) : fasta(filename) {
     }
 
     ~Fasta() {
