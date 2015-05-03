@@ -1,0 +1,8 @@
+*.dll
+*.suo
+*.opensdf
+*.obj
+*.pdb
+*.pyd
+*.sdf
+build

@@ -156,6 +156,25 @@ BOOST_AUTO_TEST_CASE( generic_tests )
 
     //generic_string_tests<augmented_string>();
     //generic_string_tests<std::string>();
+
+    {
+        dna_string a("ACGTACGTACGTACGTACGTACGTACGTACCA" "TTGTACGTACGTACGTACGTACGTACGTACGT");
+        dna_string key1("CAT");
+        BOOST_CHECK( a.find(key1, 0, 31) == dna_string::npos);
+        BOOST_CHECK( a.find(key1, 0, 32) == dna_string::npos);
+        BOOST_CHECK( a.find(key1, 0, 33) == (size_t)30);
+        BOOST_CHECK( a.find(key1, 30, 33) == (size_t)30);
+        BOOST_CHECK( a.find(key1, 31, 33) == dna_string::npos);
+        dna_string key2("TTG");
+        BOOST_CHECK( a.find(key2, 0, 33) == dna_string::npos);
+        BOOST_CHECK( a.find(key2, 0, 34) == dna_string::npos);
+        BOOST_CHECK( a.find(key2, 0, 35) == (size_t)32);
+        dna_string key3("ACA");
+        BOOST_CHECK( a.find(key3, 0, 64, 1) == 0); // matches ACG
+        BOOST_CHECK( a.find(key3, 1, 64, 1) == 4); // matches ACG
+        dna_string key4("ACCGTTGT");
+        BOOST_CHECK( a.find(key4, 0, 64, 1) == 28); // matches "ACCATTGT"
+    }
 }
 
 BOOST_AUTO_TEST_CASE( bandl_tests )
@@ -251,7 +270,7 @@ BOOST_AUTO_TEST_CASE( substr )
 
 }
 
-BOOST_AUTO_TEST_CASE( two_stage_index_test )
+/*BOOST_AUTO_TEST_CASE( two_stage_index_test )
 {
     using namespace boost::genetics;
     
@@ -284,7 +303,7 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
       ++i;
       BOOST_CHECK(i == augmented_string::npos);
     }
-}
+}*/
 
 
 

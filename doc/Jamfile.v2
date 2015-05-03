@@ -1,0 +1,17 @@
+# (c) 2015 Andy Thomason
+#
+# Distributed under the Boost Software
+# License, Version 1.0.
+# http://boost.org/LICENSE_1_0.txt
+
+import quickbook ;
+
+xml genetics : genetics.qbk ;
+
+boostbook standalone
+  :
+    genetics
+  :
+    <xsl:param>boost.root=../../../..
+    <xsl:param>chunk.section.depth=2
+  ;

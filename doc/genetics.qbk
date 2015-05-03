@@ -1,0 +1,59 @@
+[/
+  (c) 2015 Andy Thomason
+
+  Distributed under the Boost Software
+  License, Version 1.0.
+  http://boost.org/LICENSE_1_0.txt
+]
+
+[library Boost.Genetics
+  [quickbook 1.6]
+  [id align]
+  [copyright 2015 Andy Thomason]
+  [authors [Thomason, Andy]]
+  [dirname genetics]
+  [license Distributed under the
+    [@http://boost.org/LICENSE_1_0.txt
+      Boost Software License, Version 1.0].
+  ]
+]
+
+[section Introduction]
+
+This library provides memory efficient containers and search
+algorithms for working with genetic sequences.
+
+The human genome consists of about 3.2 billion bases A, C, G or T
+packed into a number of chromosomes in the nucleus and in mitochondria,
+the little cell-like structures that generate energy for the cell.
+
+The genome is used as a template for building proteins which form
+complex nano-scale machines that implement the machinery of life
+and to encode complex control systems which switch on and off in the
+presence of signals.
+
+The DNA in the chromosomes is copied into RNA which has the alphabet
+A, C, G, U but it is common to use the DNA letters, often because we
+read RNA by converting it to DNA first. RNA is often more interesting
+than DNA as it shows a snapshot of the working activity of each cell type.
+
+[table The Boost.Genetics Library
+  [ [Component] [Description] ]
+  [ [`dna_string`]
+    [Compact container for DNA sequences with fast linear search. Can only hold A, C, T or G]
+  ]
+  [ [`augmented_string`]
+    [DNA string augmented by run-length encoded. Can hold any character.]
+  ]
+  [ [`two_stage_index`]
+    [Hybrid cache efficient index for DNA data]
+  ]
+]
+
+[endsect]
+
+[section Rationale]
+
+[heading Gene Searches]
+
+[endsect]

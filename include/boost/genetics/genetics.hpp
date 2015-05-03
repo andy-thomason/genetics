@@ -285,43 +285,60 @@ namespace boost { namespace genetics {
             return values < rhs.values || (values == rhs.values && size() <= rhs.size());
         }
 
-        size_t find(const basic_dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
+        size_t find(
+            const basic_dna_string& str, size_t pos = 0,
+            size_t n = ~(size_t)0, size_t max_distance = 0
+        ) const {
             size_t ssz = str.size();
             if (ssz == 0) {
                 return pos;
             }
 
             size_t sz = size();
-            if (pos + ssz > sz || values.size() == 0) {
+            if (pos >= sz) {
                 return basic_dna_string::npos;
             }
 
+            n = std::min((size_t)(sz - pos), n);
+            size_t last = pos + n;
+            if (pos + ssz > last || values.size() == 0) {
+                return basic_dna_string::npos;
+            }
+
+            // come gentle pedantry, shine upon this code.
             const size_t bpv = bases_per_value;
-            size_t nv = values.size() - 1;
+            size_t nv = std::min(values.size() - 1, last/bpv);
             bool cpu_has_lzcnt = has_lzcnt();
-            if (ssz >= 3 && pos < nv * bpv) {
-                //size_t max_base = ssz > size() - ssz;
+            word_type s0 = str.values[0];
+            word_type s0mask = ssz >= bpv ? ~(word_type)0 : ~(word_type)0 << (bpv*2-ssz*2);
+            if (ssz >= 4 && max_distance == 0 && pos < nv * bpv) {
+
+                // search for three characters, bpv at a time.
+                // this should be about 32 times faster than strstr.
                 word_type r1c = 0x5555555555555555ull;
-                word_type s0 = str.values[0];
                 word_type rep0 = ~((s0 >> (bpv*2-2)) * r1c);
                 word_type rep1 = ~(((s0 >> (bpv*2-4)) & 3) * r1c);
                 word_type rep2 = ~(((s0 >> (bpv*2-6)) & 3) * r1c);
+                word_type rep3 = ~(((s0 >> (bpv*2-8)) & 3) * r1c);
                 for (size_t i = pos/bpv; i < nv; ++i) {
                     word_type v0 = values[i];
                     word_type v1 = values[i+1];
                     word_type mask = v0 ^ rep0;
                     mask &= ((v0 << 2 ) | (v1 >> (bpv*2-2))) ^ rep1;
                     mask &= ((v0 << 4 ) | (v1 >> (bpv*2-4))) ^ rep2;
+                    mask &= ((v0 << 6 ) | (v1 >> (bpv*2-6))) ^ rep3;
                     mask &= mask << 1;
-                    mask &= ~r1c;
+                    mask &= 0xaaaaaaaaaaaaaaaaull;
                     size_t bit_pos = 0;
                     while (mask << bit_pos) {
                         int lz = (int)lzcnt(mask << bit_pos, cpu_has_lzcnt);
                         bit_pos += lz;
                         size_t search_pos = i * bpv + bit_pos/2;
+                        word_type v = bit_pos == 0 ? v0 : (v0 << bit_pos) | (v1 >> (64-bit_pos));
                         ++bit_pos;
                         if (
-                            search_pos >= pos &&
+                            ((v ^ s0) & s0mask) == 0 &&
+                            search_pos >= pos && search_pos <= last - ssz &&
                             compare(search_pos, ssz, str, max_distance) == 0
                         ) {
                             return search_pos;
@@ -331,8 +348,9 @@ namespace boost { namespace genetics {
 
                 pos = nv * bpv;
             }
-
-            while (pos < sz) {
+            //std::cout << substr(294589*60-120, 60) << "\n";
+            while (pos <= last - ssz) {
+                //word_type w0 = window(pos);
                 if (compare(pos, ssz, str, max_distance) == 0) {
                     return pos;
                 }
@@ -355,7 +373,7 @@ namespace boost { namespace genetics {
                     s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
                     w &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
                 }
-                printf("%lld %llx %llx\n", i, s, w);
+                //printf("%lld %llx %llx\n", (long long)i, (long long)s, (long long)w);
                 if (s != w) {
                     if (max_distance == 0) {
                         return s == w ? 0 : s < w ? -1 : 1;
@@ -501,7 +519,9 @@ namespace boost { namespace genetics {
             return res;
         }
 
-        std::string substr(size_t offset=0, size_t length=~(size_t)0, bool rev_comp=false) const {
+        std::string substr(
+            size_t offset=0, size_t length=~(size_t)0, bool rev_comp=false
+        ) const {
             length = std::min(length, parent::size() - offset);
             std::string result(length, ' ');
             if (!rev_comp) {
@@ -888,19 +908,23 @@ namespace boost { namespace genetics {
                 std::cout << g.info << "\n";
                 b = p;
                 while (p != end && *p != '>') ++p;
-                g.end = string.size();
-                string.append(b, p);
-                data.push_back(g);
+                g.end = str.size();
+                str.append(b, p);
+                dat.push_back(g);
                 g.start = g.end;
             }
         }
 
-        data_type &get_data() {
-            return data;
+        const augmented_string &string() const {
+            return str;
+        } 
+
+        const data_type &data() const {
+            return dat;
         } 
     private:
-        augmented_string string;
-        data_type data;
+        augmented_string str;
+        data_type dat;
     };
 
 } }
