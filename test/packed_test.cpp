@@ -34,6 +34,23 @@ static const char chr1[] =
   "TCGAGACCATCCTGGCTAACACGCGGAAACCCCGTCTCCACTAATAATACAAAAAGTTAG" // 1320
 ;
 
+BOOST_AUTO_TEST_CASE( dna_string_window )
+{
+    using namespace boost::genetics;
+
+    const char test_string[] = "ACGTTTGA" "ACCGACCG" "ACCGACCG" "TGCGACCG" "ACCGACCG";
+    dna_string str(test_string);
+
+    {
+        dna_string::word_type w0 = str.window(0);
+        dna_string::word_type w1 = str.window(-4);
+        dna_string::word_type w2 = str.window(16);
+        BOOST_CHECK(w0 == 0x1bf816161616e616ull);
+        BOOST_CHECK(w1 == (w0 >> 8));
+        BOOST_CHECK(w2 == 0x1616e61600000000ull);
+    }
+}
+
 template <class Type>
 void acgt_container_tests() {
     {
@@ -103,6 +120,7 @@ void find_test() {
     {
         Type a(chr1);
         Type key1("TCGCGCCTGTCATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGA");
+        //std::cout << key1 << "\n";
         BOOST_CHECK( a.compare(60, key1.size(), key1) == 0);
     }
     {
@@ -136,12 +154,6 @@ BOOST_AUTO_TEST_CASE( acgt_tests )
 {
     using namespace boost::genetics;
 
-    //acgt_container_tests<dna_string>();
-    //acgt_container_tests<augmented_string>();
-    //acgt_container_tests<std::string>();
-
-    //generic_string_tests<augmented_string>();
-    //generic_string_tests<std::string>();
     find_test<std::string>();
     find_test<dna_string>();
 }
@@ -304,50 +316,3 @@ BOOST_AUTO_TEST_CASE( substr )
       BOOST_CHECK(i == augmented_string::npos);
     }
 }*/
-
-
-
-/*template<class Type>
-class zalloc {
-public:
-  //zalloc();
-	typedef typename Type value_type;
-
-	typedef value_type *pointer;
-	typedef const value_type *const_pointer;
-	typedef void *void_pointer;
-	typedef const void *const_void_pointer;
-
-	typedef value_type& reference;
-	typedef const value_type& const_reference;
-
-	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
-
-  template <class U> struct rebind { typedef zalloc<U> other; };
-
-  pointer allocate(size_t n) {
-      return (pointer)ptr;
-  }
-
-  void deallocate(pointer p, size_t n) {
-  }
-
-  template <class... Args>
-  void construct(pointer p, Args... a) {
-      new ((void*)p)value_type(std::forward<Args>(a)...);
-  }
-
-  void destroy(pointer p) {
-      p->~value_type();
-  }
-};
-
-BOOST_AUTO_TEST_CASE( allocators )
-{
-    char x[10];
-    zalloc<char> a;
-    std::basic_string<char, std::char_traits<char>, zalloc<char>> str(a);
-    str.resize(10);
-}*/
-

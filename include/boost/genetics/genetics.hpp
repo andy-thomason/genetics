@@ -171,7 +171,7 @@ namespace boost { namespace genetics {
 
         char operator[](size_t index) const {
             size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
-            size_t off = index/bases_per_value;
+            size_t off = index / bases_per_value;
             return index >= num_bases ? 'N' : code_to_base((values[off] >> sh) & 0x03);
         }
 
@@ -192,11 +192,14 @@ namespace boost { namespace genetics {
             result.values.resize(nv);
             if (!rev_comp) {
               for (size_t i = 0; i < nv; ++i) {
-                  result.values[i] = window((int64_t)(offset + i * bases_per_value));
+                  size_t addr = offset + i * bases_per_value;
+                  result.values[i] = window(addr);
               }
             } else {
               for (size_t i = 0; i < nv; ++i) {
-                  word_type w = window((int64_t)(offset + length - (i+1) * bases_per_value));
+                  size_t addr = offset + length - (i+1) * bases_per_value;
+                  word_type w = window(addr);
+                  printf("w=%016llx addr=%08llx\n", w, addr);
                   result.values[i] = rev_comp_word(w);
               }
             }
@@ -367,7 +370,7 @@ namespace boost { namespace genetics {
             const size_t bpv = bases_per_value;
             size_t nv = std::min(str.values.size(), (ssz+bpv-1)/bpv);
             for (size_t i = 0; i != nv; ++i) {
-                word_type w = window((int64_t)pos);
+                word_type w = window(pos);
                 word_type s = str.values[i];
                 if (i == ssz/bpv) {
                     s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
@@ -395,19 +398,24 @@ namespace boost { namespace genetics {
         uint64_t get_index(size_t pos, size_t num_index_chars) const {
             return (uint64_t)(window(pos) >> (bases_per_value - num_index_chars)*2);
         }
-    private:
-        word_type window(int64_t base) const {
-            int64_t max_size = (int64_t)values.size()*(int64_t)bases_per_value;
-            word_type v0 = base >= 0 && base < max_size ? values[base/bases_per_value] : 0;
-            if (base % bases_per_value == 0) {
+
+        word_type window(size_t base) const {
+            size_t offset = base / bases_per_value;
+            size_t sh = (base % bases_per_value) * 2;
+            word_type v0 = offset < values.size() ? values[offset] : 0;
+            printf("windows %08llx/%08llx\n", (long long)base, (long long)values.size());
+            if (sh == 0) {
                 return v0;
             } else {
-                base += bases_per_value;
-                word_type v1 = base >= 0 && base < max_size ? values[base/bases_per_value] : 0;
-                return v0 << ((base % bases_per_value)*2) | v1 >> (((0-base) % bases_per_value)*2);
+                size_t offset1 = (base + bases_per_value) / bases_per_value;
+                printf("%08llx %08llx\n", (long long)offset, (long long)offset1);
+                word_type v1 = offset1 < values.size() ? values[offset1] : 0;
+                printf("%016llx %016llx\n", (long long)v0, (long long)v1);
+                return v0 << sh | v1 >> (64-sh);
             }
         }
 
+    private:
         static word_type rev_comp_word(word_type x) {
             x = ((x & 0x00000000ffffffff) << 32) | ((x >> 32) & 0x00000000ffffffff);
             x = ((x & 0x0000ffff0000ffff) << 16) | ((x >> 16) & 0x0000ffff0000ffff);
@@ -472,18 +480,19 @@ namespace boost { namespace genetics {
             append(str.begin() + pos, str.begin() + std::min(n, str.size()));
         }
 
-        char operator[](int64_t base) const {
-            if ((uint64_t)base/bases_per_index > index.size()) return 'N';
+        char operator[](size_t base) const {
+            size_t offset = base / bases_per_index;
+            if (offset > index.size()) return 'N';
 
-            index_type i0 = index[(uint64_t)base/bases_per_index];
+            index_type i0 = index[offset];
 
             index_type i1 =
-              (uint64_t)base/bases_per_index+1 >= index.size() ?
+              offset+1 >= index.size() ?
               (index_type)rle.size() :
-              index[(uint64_t)base/bases_per_index+1]
+              index[offset+1]
             ;
 
-            rle_type search = (rle_type)((uint64_t)((base) % bases_per_index) << 8) | 0xff;
+            rle_type search = (rle_type)((base % bases_per_index) << 8) | 0xff;
             const rle_type *b = rle.data() + i0;
             const rle_type *e = rle.data() + i1;
             const rle_type *p = std::lower_bound(b, e, search);
