@@ -6,7 +6,10 @@
 #define BOOST_TEST_MODULE Genetics
 #include <boost/test/unit_test.hpp>
 
-#include <boost/genetics/genetics.hpp>
+#include <boost/genetics/utils.hpp>
+#include <boost/genetics/dna_string.hpp>
+#include <boost/genetics/augmented_string.hpp>
+#include <boost/genetics/two_stage_index.hpp>
 
 static const char chr1[] =
   "TGTGATTAATGCCTGAGACTGTGTGAAGTAAGAGATGGATCAGAGGCCGGGCGCGGGGGC"
