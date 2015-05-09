@@ -129,12 +129,13 @@ namespace boost { namespace genetics {
     }
 
     /// variable length vector of packed bases
-    template<class WordType, class Allocator>
+    template<class WordType, class ArrayType>
     class basic_dna_string {
     public:
         typedef WordType word_type;
         static const size_t bases_per_value = sizeof(word_type) * 4;
         static const size_t npos = (size_t)-1;
+        typedef basic_dna_string<WordType, ArrayType> this_type;
 
     public:
         basic_dna_string(size_t size=0) {
@@ -291,7 +292,7 @@ namespace boost { namespace genetics {
         }
 
         size_t find(
-            const basic_dna_string& str, size_t pos = 0,
+            const this_type& str, size_t pos = 0,
             size_t n = ~(size_t)0, size_t max_distance = 0
         ) const {
             size_t ssz = str.size();
@@ -439,7 +440,7 @@ namespace boost { namespace genetics {
         }
 
         size_t num_bases;
-        std::vector<word_type, Allocator> values;
+        ArrayType values;
     };
 
     template <class String>
@@ -458,13 +459,13 @@ namespace boost { namespace genetics {
     }*/
 
     /// containter for bases ACGT and occasional runs of 'N' and other letters.
-    template<class WordType, class Allocator>
-    class basic_augmented_string : public basic_dna_string<WordType, Allocator> {
+    template<class WordType, class ParentType, class IndexArrayType, class RleArrayType>
+    class basic_augmented_string : public ParentType {
         static const size_t lg_bases_per_index = 16;
         static const size_t bases_per_index = (size_t)1 << lg_bases_per_index;
         typedef uint32_t index_type;
         typedef uint32_t rle_type;
-        typedef basic_dna_string<WordType, Allocator > parent;
+        typedef ParentType parent;
     public:
         basic_augmented_string() {
         }
@@ -578,8 +579,8 @@ namespace boost { namespace genetics {
         }
 
 
-        std::vector<index_type, Allocator> index;
-        std::vector<rle_type, Allocator> rle;
+        IndexArrayType index;
+        RleArrayType rle;
     };
 
     struct genome_data {
@@ -661,13 +662,13 @@ namespace boost { namespace genetics {
     //template <class Type, Type::num_bases_type NB = Type::num_bases>
 
     /// two stage index, first index ordered by value, second by address.
-    template <class String>
-    class two_stage_index {
+    template <class String, class IndexArrayType, class AddrArrayType>
+    class basic_two_stage_index {
     public:
-        typedef uint32_t index_type;
-        typedef uint32_t addr_type;
+        typedef typename IndexArrayType::value_type index_type;
+        typedef typename AddrArrayType::value_type addr_type;
 
-        two_stage_index(
+        basic_two_stage_index(
             String &string,
             size_t num_indexed_chars
         ) : string(string), num_indexed_chars(num_indexed_chars) {
@@ -691,12 +692,12 @@ namespace boost { namespace genetics {
             index.resize(index_size+1);
             addr.resize(str_size);
 
-            uint64_t acc0 = 0;
+            size_t acc0 = 0;
             for (size_t i = 0; i != num_indexed_chars-1; ++i) {
                 acc0 = acc0 * 4 + get_code(string, i);
             }
 
-            uint64_t acc = acc0;
+            size_t acc = acc0;
             for (size_t i = num_indexed_chars; i != str_size - num_indexed_chars; ++i) {
                 acc = (acc * 4 + get_code(string, i)) & (index_size-1);
                 index[acc]++;
@@ -724,7 +725,7 @@ namespace boost { namespace genetics {
 
         class iterator {
         public:
-            iterator(const two_stage_index<String> *tsi, const String& str, size_t min_pos = 0, size_t max_distance = 0) :
+            iterator(const basic_two_stage_index *tsi, const String& str, size_t min_pos = 0, size_t max_distance = 0) :
                 tsi(tsi), str(str), max_distance(max_distance)
             {
                 size_t num_indexed_chars = tsi->num_indexed_chars;
@@ -847,7 +848,7 @@ namespace boost { namespace genetics {
                 }
             };
 
-            const two_stage_index<String> *tsi;
+            const basic_two_stage_index *tsi;
             std::vector<active_state> active;
             const String &str;
             size_t max_distance;
@@ -875,16 +876,17 @@ namespace boost { namespace genetics {
     private:
         String &string;
         size_t num_indexed_chars;
-        std::vector<index_type> index;
-        std::vector<addr_type> addr;
+        IndexArrayType index;
+        AddrArrayType addr;
     };
 
-    typedef basic_dna_string<uint64_t, std::allocator<uint64_t> > dna_string;
-    typedef basic_augmented_string<uint64_t, std::allocator<uint64_t> > augmented_string;
+    typedef basic_dna_string<uint64_t, std::vector<uint64_t> > dna_string;
+    typedef basic_augmented_string<uint64_t, dna_string, std::vector<uint32_t>, std::vector<uint32_t> > augmented_string;
+    typedef basic_two_stage_index<augmented_string, std::vector<uint32_t>, std::vector<uint32_t> > two_stage_index;
 
-    template <class charT, class traits, class String>
+    template <class charT, class traits, class String, class IndexArrayType, class AddrArrayType>
     std::basic_ostream<charT, traits>&
-    operator<<(std::basic_ostream<charT, traits>& os, const two_stage_index<String>& x) {
+    operator<<(std::basic_ostream<charT, traits>& os, const basic_two_stage_index<String, IndexArrayType, AddrArrayType>& x) {
         x.dump(os);
         return os;
     }

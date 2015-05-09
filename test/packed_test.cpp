@@ -286,17 +286,17 @@ BOOST_AUTO_TEST_CASE( substr )
 
 }
 
-/*BOOST_AUTO_TEST_CASE( two_stage_index_test )
+BOOST_AUTO_TEST_CASE( two_stage_index_test )
 {
     using namespace boost::genetics;
     
     augmented_string as(chr1);
-    two_stage_index<augmented_string> tsi(as, 4);
+    two_stage_index tsi(as, 4);
     //BOOST_MESSAGE(tsi);
 
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
     if (0) {
-      two_stage_index<augmented_string>::iterator i = tsi.find(key1, 0, 0);
+      two_stage_index::iterator i = tsi.find(key1, 0, 0);
       BOOST_CHECK(i == 120);
       ++i;
       BOOST_CHECK(i == 1200);
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE( substr )
       BOOST_CHECK(i == augmented_string::npos);
     }
     if (0) {
-      two_stage_index<augmented_string>::iterator i = tsi.find(key1, 121, 1);
+      two_stage_index::iterator i = tsi.find(key1, 121, 1);
       BOOST_CHECK(i == 1200);
       ++i;
       BOOST_CHECK(i == 1260);
@@ -312,11 +312,11 @@ BOOST_AUTO_TEST_CASE( substr )
       BOOST_CHECK(i == augmented_string::npos);
     }
     {
-      two_stage_index<augmented_string>::iterator i = tsi.find(key1, 1201, 2);
+      two_stage_index::iterator i = tsi.find(key1, 1201, 2);
       BOOST_CHECK(i == 1260);
       ++i;
       BOOST_CHECK(i == 1320);
       ++i;
       BOOST_CHECK(i == augmented_string::npos);
     }
-}*/
+}
