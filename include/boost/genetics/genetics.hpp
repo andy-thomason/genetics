@@ -199,7 +199,7 @@ namespace boost { namespace genetics {
               for (size_t i = 0; i < nv; ++i) {
                   size_t addr = offset + length - (i+1) * bases_per_value;
                   word_type w = window(addr);
-                  printf("w=%016llx addr=%08llx\n", w, addr);
+                  //printf("w=%016llx addr=%08llx\n", w, addr);
                   result.values[i] = rev_comp_word(w);
               }
             }
@@ -246,7 +246,7 @@ namespace boost { namespace genetics {
                         if (index >= values.size()) {
                             values.push_back(acc);
                         } else {
-                        values[index] = acc;
+                            values[index] = acc;
                         }
                         acc = 0;
                     }
@@ -254,7 +254,9 @@ namespace boost { namespace genetics {
             }
 
             if (num_bases % bases_per_value != 0) {
-              acc <<= (max_bases - num_bases) * 2;
+              //printf("%016llx sh=%d\n", (long long)acc, (int)((0-num_bases)%bases_per_value * 2));
+              acc <<= (0-num_bases) % bases_per_value * 2;
+              //printf("%016llx..\n", (long long)acc);
               size_t index = (num_bases-1) / bases_per_value;
               if (index >= values.size()) {
                   values.push_back(acc);
@@ -363,6 +365,7 @@ namespace boost { namespace genetics {
         }
 
         int compare(size_t pos, size_t ssz, const basic_dna_string &str, size_t max_distance=0) const {
+            //printf("%s\n", std::string(str).c_str());
             pos = std::min(pos, num_bases);
             ssz = std::min(ssz, str.num_bases);
             ssz = std::min(ssz, num_bases - pos);
@@ -403,14 +406,14 @@ namespace boost { namespace genetics {
             size_t offset = base / bases_per_value;
             size_t sh = (base % bases_per_value) * 2;
             word_type v0 = offset < values.size() ? values[offset] : 0;
-            printf("windows %08llx/%08llx\n", (long long)base, (long long)values.size());
+            //printf("windows %08llx/%08llx\n", (long long)base, (long long)values.size());
             if (sh == 0) {
                 return v0;
             } else {
                 size_t offset1 = (base + bases_per_value) / bases_per_value;
-                printf("%08llx %08llx\n", (long long)offset, (long long)offset1);
+                //printf("%08llx %08llx\n", (long long)offset, (long long)offset1);
                 word_type v1 = offset1 < values.size() ? values[offset1] : 0;
-                printf("%016llx %016llx\n", (long long)v0, (long long)v1);
+                //printf("%016llx %016llx\n", (long long)v0, (long long)v1);
                 return v0 << sh | v1 >> (64-sh);
             }
         }

@@ -38,16 +38,20 @@ BOOST_AUTO_TEST_CASE( dna_string_window )
 {
     using namespace boost::genetics;
 
-    const char test_string[] = "ACGTTTGA" "ACCGACCG" "ACCGACCG" "TGCGACCG" "ACCGACCG";
+    const char test_string[] = "ACTGTGAC" "TTAACCGG" "TCTCAGAG" "ACGATTGG" "CCAATTGA";
     dna_string str(test_string);
 
     {
         dna_string::word_type w0 = str.window(0);
-        dna_string::word_type w1 = str.window(-4);
+        dna_string::word_type w1 = str.window(32);
         dna_string::word_type w2 = str.window(16);
-        BOOST_CHECK(w0 == 0x1bf816161616e616ull);
-        BOOST_CHECK(w1 == (w0 >> 8));
-        BOOST_CHECK(w2 == 0x1616e61600000000ull);
+        dna_string::word_type w3 = str.window(-4);
+        //printf("%016llx!!\n", (long long)w0);
+        //printf("%016llx\n", (long long)w1);
+        //printf("%016llx\n", (long long)w2);
+        //printf("%016llx\n", (long long)w3);
+        BOOST_CHECK(w2 == ((w0 << 32) | (w1 >> 32)));
+        BOOST_CHECK(w3 == w0 >> 8);
     }
 }
 
