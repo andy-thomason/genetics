@@ -9,10 +9,11 @@ namespace boost { namespace genetics {
     class basic_augmented_string : public ParentType {
         static const size_t lg_bases_per_index = 16;
         static const size_t bases_per_index = (size_t)1 << lg_bases_per_index;
-        typedef uint32_t index_type;
-        typedef uint32_t rle_type;
-        typedef ParentType parent;
     public:
+        typedef typename IndexArrayType::value_type index_type;
+        typedef typename RleArrayType::value_type rle_type;
+        typedef ParentType parent;
+
         basic_augmented_string() {
         }
 
@@ -28,6 +29,13 @@ namespace boost { namespace genetics {
             size_t pos = 0, size_t n = ~(size_t)0
         ) : parent() {
             append(str.begin() + pos, str.begin() + std::min(n, str.size()));
+        }
+
+        basic_augmented_string(mapper &map) :
+            parent(map),
+            index(map),
+            rle(map)
+        {
         }
 
         char operator[](size_t base) const {
@@ -96,7 +104,6 @@ namespace boost { namespace genetics {
             return result;
         }
 
-
         template<class InIter>
         void append(InIter b, InIter e) {
             size_t num_bases = parent::size();
@@ -104,6 +111,17 @@ namespace boost { namespace genetics {
             internal_append(num_bases, b, e);
         }
 
+        void swap(basic_dna_string &rhs) {
+            parent::swap(rhs);
+            index.swap(rhs.index);
+            rle.swap(rhs.rle);
+        }
+
+        void write_binary(writer &wr) const {
+            parent::write_binary(wr);
+            wr.write(index);
+            wr.write(rle);
+        }
     private:
         template<class InIter>
         void internal_append(size_t num_bases, InIter b, InIter e) {
@@ -124,12 +142,13 @@ namespace boost { namespace genetics {
             }
         }
 
-
+        // note: order matters
         IndexArrayType index;
         RleArrayType rle;
     };
 
     typedef basic_augmented_string<uint64_t, dna_string, std::vector<uint32_t>, std::vector<uint32_t> > augmented_string;
+    typedef basic_augmented_string<uint64_t, mapped_dna_string, mapped_vector<uint32_t>, mapped_vector<uint32_t> > mapped_augmented_string;
 } }
 
 

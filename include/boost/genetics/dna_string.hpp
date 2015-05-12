@@ -3,6 +3,8 @@
 
 #include <boost/genetics/utils.hpp>
 
+#include <string>
+
 namespace boost { namespace genetics {
     /// variable length vector of packed bases
     template<class WordType, class ArrayType>
@@ -14,9 +16,24 @@ namespace boost { namespace genetics {
         typedef basic_dna_string<WordType, ArrayType> this_type;
 
     public:
-        basic_dna_string(size_t size=0) {
+        basic_dna_string() {
+            num_bases = 0;
+        }
+        
+        basic_dna_string(size_t size) {
             num_bases = size;
-            values.resize(num_bases * bases_per_value);
+            values.resize((num_bases+bases_per_value-1)/bases_per_value);
+            /*if (word_value != 0) {
+                for (size_t i = 0; i != values.size(); ++i) {
+                    values[i] = word_value;
+                }
+            }*/
+        }
+
+        explicit basic_dna_string(size_t num_bases, const ArrayType &values) :
+            num_bases(num_bases),
+            values(values)
+        {
         }
 
         template<class InIter>
@@ -25,9 +42,9 @@ namespace boost { namespace genetics {
             append(b, e);
         }
 
-        template<class StringType>
+        template<class Char, class Traits, class Allocator>
         basic_dna_string(
-            const StringType &str,
+            const std::basic_string<Char, Traits, Allocator> &str,
             size_t pos = 0, size_t n = ~(size_t)0
         ) {
             num_bases = 0;
@@ -46,6 +63,12 @@ namespace boost { namespace genetics {
             append(b, e);
         }
 
+        basic_dna_string(mapper &map) :
+            num_bases(map.read64()),
+            values(map)
+        {
+        }
+        
         char operator[](size_t index) const {
             size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
             size_t off = index / bases_per_value;
@@ -167,7 +190,11 @@ namespace boost { namespace genetics {
             return values < rhs.values || (values == rhs.values && size() <= rhs.size());
         }
 
-        size_t find(
+        size_t find(const this_type& str, size_t pos = 0, size_t n = ~(size_t)0) const {
+            return find_inexact(str, pos, n, 0);
+        }
+
+        size_t find_inexact(
             const this_type& str, size_t pos = 0,
             size_t n = ~(size_t)0, size_t max_distance = 0
         ) const {
@@ -221,7 +248,7 @@ namespace boost { namespace genetics {
                         if (
                             ((v ^ s0) & s0mask) == 0 &&
                             search_pos >= pos && search_pos <= last - ssz &&
-                            compare(search_pos, ssz, str, max_distance) == 0
+                            compare_inexact(search_pos, ssz, str, max_distance) == 0
                         ) {
                             return search_pos;
                         }
@@ -233,7 +260,7 @@ namespace boost { namespace genetics {
             //std::cout << substr(294589*60-120, 60) << "\n";
             while (pos <= last - ssz) {
                 //word_type w0 = window(pos);
-                if (compare(pos, ssz, str, max_distance) == 0) {
+                if (compare_inexact(pos, ssz, str, max_distance) == 0) {
                     return pos;
                 }
                 ++pos;
@@ -241,7 +268,11 @@ namespace boost { namespace genetics {
             return basic_dna_string::npos;
         }
 
-        int compare(size_t pos, size_t ssz, const basic_dna_string &str, size_t max_distance=0) const {
+        int compare(size_t pos, size_t ssz, const basic_dna_string &str) const {
+            return compare_inexact(pos, ssz, str);
+        }
+
+        int compare_inexact(size_t pos, size_t ssz, const basic_dna_string &str, size_t max_distance=0) const {
             //printf("%s\n", std::string(str).c_str());
             pos = std::min(pos, num_bases);
             ssz = std::min(ssz, str.num_bases);
@@ -294,6 +325,16 @@ namespace boost { namespace genetics {
                 return v0 << sh | v1 >> (64-sh);
             }
         }
+        
+        void swap(basic_dna_string &rhs) {
+            std::swap(num_bases, rhs.num_bases);
+            values.swap(rhs.values);
+        }
+        
+        void write_binary(writer &wr) const {
+            wr.write64(num_bases);
+            wr.write(values);
+        }
 
     private:
         static word_type rev_comp_word(word_type x) {
@@ -315,6 +356,7 @@ namespace boost { namespace genetics {
             return (int)(x + (x>>32));
         }
 
+        // note: order matters!
         size_t num_bases;
         ArrayType values;
     };
@@ -335,7 +377,11 @@ namespace boost { namespace genetics {
         return os;
     }
 
+    // conventional dna string
     typedef basic_dna_string<uint64_t, std::vector<uint64_t> > dna_string;
+    
+    // file mapped dna string
+    typedef basic_dna_string<uint64_t, mapped_vector<uint64_t> > mapped_dna_string;
 } }
 
 

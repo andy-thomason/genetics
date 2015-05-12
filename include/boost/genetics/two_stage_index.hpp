@@ -52,10 +52,11 @@ namespace boost { namespace genetics {
             }
 
             size_t acc = acc0;
-            for (size_t i = num_indexed_chars; i != str_size - num_indexed_chars; ++i) {
+            for (size_t i = num_indexed_chars; i != str_size; ++i) {
                 acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
                 index[acc]++;
             }
+            
 
             addr_type cur = 0;
             for (size_t i = 0; i != index_size; ++i) {
@@ -66,7 +67,7 @@ namespace boost { namespace genetics {
             index[index_size] = cur;
 
             acc = acc0;
-            for (size_t i = num_indexed_chars; i != str_size - num_indexed_chars; ++i) {
+            for (size_t i = num_indexed_chars; i != str_size; ++i) {
                 acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
                 addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
             }
@@ -86,7 +87,7 @@ namespace boost { namespace genetics {
                 size_t num_seeds = str.size() / num_indexed_chars;
 
                 if (num_seeds <= max_distance) {
-                    pos = str.find(min_pos, max_distance);
+                    pos = str.find_inexact(str, min_pos, max_distance);
                 } else {
                     active.resize(num_seeds);
                     if (num_seeds == 0) {
@@ -117,12 +118,14 @@ namespace boost { namespace genetics {
                         active_state &s = active[i];
                         const addr_type *ptr = s.ptr;
                         const addr_type *end = s.end;
-                        s.off = (addr_type)(i * num_indexed_chars);
-                        while (ptr != end && *ptr < s.off + min_pos) {
+                        s.elem = (addr_type)i;
+                        addr_type skip = (addr_type)(i * num_indexed_chars) + min_pos;
+                        while (ptr != end && *ptr < skip) {
                             std::cout << "skip " << *ptr << "\n";
                             ++ptr;
                         }
-                        s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
+                        s.start = ptr == end ? (addr_type)-1 : (addr_type)(*ptr - (s.elem * num_indexed_chars));
+                        s.prev = (addr_type)-1;
                         s.ptr = ptr;
                     }
 
@@ -147,36 +150,51 @@ namespace boost { namespace genetics {
                 if (pos == StringType::npos) {
                     return;
                 } else if (num_seeds <= max_distance) {
-                    pos = str.find(pos + 1, max_distance);
+                    pos = str.find_inexact(str, pos + 1, max_distance);
+                    printf("brute force\n");
                     return;
                 } else {
                     addr_type prev_start = (addr_type)-1;
                     size_t repeat_count = 0;
                     pos = StringType::npos;
 
-                    /*for (size_t i = 0; i != num_seeds; ++i) {
-                        active_state &s = active[i];
-                        addr_type start = s.start;
-                        std::cout << (int)start << " ";
-                    }
-                    std::cout << "\n";*/
-
-                    while (active.front().start != (addr_type)-1) {
+                    for (;;) {
                         active_state s = active.front();
-                        std::cout << (int)s.start << " " << s.ptr << "\n";
 
-                        if (s.start == prev_start) {
-                            repeat_count = 1;
+                        if (s.start != prev_start) {
+                            size_t erc = 0;
+                            // printf("xxx ");
+                            // for (size_t i = 0; i != active.size(); ++i) {
+                                // printf("%5d[%2d] ", (int)active[i].prev, (int)active[i].elem);
+                                // erc += active[i].prev == prev_start;
+                            // }
+                            // printf("\n");
+                            //printf("xxx rc=%d/%d\n", (int)repeat_count, (int)erc);
+                            if (repeat_count >= num_seeds - max_distance) {
+                                pos = prev_start;
+                                return;
+                            }
+                            repeat_count = 0;
+                            prev_start = s.start;
                         }
+
+                        if (s.start == (addr_type)-1) {
+                            return;
+                        }
+
+                        // printf("xxx %5d %2d/%2d [%2d]\n", (int)s.start, (int)repeat_count, (int)(num_seeds - max_distance), (int)s.elem);
 
                         const addr_type *ptr = s.ptr + 1;
                         const addr_type *end = s.end;
-                        while (ptr != end && *ptr < s.off) ++ptr;
-                        s.start = ptr == end ? (addr_type)-1 : *ptr - s.off;
+                        s.prev = s.start;
+                        s.start = ptr == end ? (addr_type)-1 : (addr_type)(*ptr - s.elem * num_indexed_chars);
                         s.ptr = ptr;
                         std::pop_heap(active.begin(), active.end());
                         active.back() = s;
                         std::push_heap(active.begin(), active.end());
+                        
+                        // printf("xxx next: %d\n", (int)active.front().start);
+                        repeat_count++;
                     }
                 }
             }
@@ -187,7 +205,8 @@ namespace boost { namespace genetics {
                 const addr_type *end;
                 index_type idx;
                 addr_type start;
-                addr_type off;
+                addr_type prev;
+                addr_type elem;
 
                 bool operator<(const active_state &rhs) {
                     return start > rhs.start;
@@ -218,6 +237,13 @@ namespace boost { namespace genetics {
                 os << "\n";
             }
             os.setstate( save );
+        }
+        
+        void swap(basic_two_stage_index &rhs) {
+            std::swap(string, rhs.string);
+            std::swap(num_indexed_chars, rhs.num_indexed_chars);
+            index.swap(rhs.index);
+            addr.swap(rhs.addr);
         }
     private:
         StringType *string;

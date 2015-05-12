@@ -28,7 +28,7 @@ namespace boost { namespace genetics {
         basic_fasta_file() {
         }
 
-        /// create a FASTA reference from a 
+        /// create a FASTA reference from a text file
         basic_fasta_file(const std::string &filename) {
             append(filename);
         }
@@ -88,7 +88,13 @@ namespace boost { namespace genetics {
                 g.start = g.end;
             }
         }
-
+        
+        void swap(basic_fasta_file &rhs) {
+            std::swap(str, rhs.str);
+            std::swap(dat, rhs.dat);
+            std::swap(idx, rhs.idx);
+        }
+        
     private:
         string_type str;
         data_type dat;

@@ -177,6 +177,128 @@ namespace boost { namespace genetics {
         return base_to_code(str[index]);
     }
 
+    const char *to_dna(uint64_t value, size_t len) {
+        static char buf[sizeof(uint64_t)*4+1];
+        size_t i = 0;
+        for (; i != len; ++i) {
+            if (i+1 == sizeof(buf)) break;
+            buf[i] = code_to_base((value >> (len - i - 1)*2)&3);
+        }
+        buf[i] = 0;
+        return buf;
+    }
+
+    class writer {
+    public:
+        writer(char *begin, char *end) :
+            begin(begin), ptr(begin), end(end)
+        {
+            printf("error: writer %p %p\n", begin, end);
+        }
+        
+        void write(const char *src, size_t size, size_t align) {
+            char *aptr = begin + ((ptr - begin + align - 1) & (0-align));
+            printf("error: ptr=%p aptr=%p al=%d\n", ptr, aptr, (int)align);
+            if (end != nullptr && aptr + size <= end) {
+                if (aptr != ptr) memset(ptr, 0, aptr - ptr);
+                memcpy(aptr, src, size);
+            }
+            ptr = aptr + size;
+        }
+
+        template <class Type>
+        void write(const std::vector<Type> &vec) {
+            write64(vec.size());
+            // todo: in C++11 use alignof
+            write((const char*)vec.data(), vec.size() * sizeof(Type), sizeof(Type));
+        }
+        
+        void write64(uint64_t value) {
+            write((const char*)&value, sizeof(value), sizeof(value));
+        }
+        
+        bool is_end() const {
+            return ptr == end;
+        }
+        
+        char *get_ptr() const {
+            return ptr;
+        }
+    private:
+        char *begin;
+        char *ptr;
+        char *end;
+    };
+    
+    class mapper {
+    public:
+        mapper(const char *begin, const char *end) :
+            begin(begin), ptr(begin), end(end)
+        {
+            printf("error: mapper %p %p\n", begin, end);
+        }
+        
+        uint64_t read64() {
+            return *map<uint64_t>(1, sizeof(uint64_t));
+        }
+        
+        template <class Type>
+        const Type *map(size_t size, size_t align) {
+            Type *res = (Type*)ptr;
+            const char *aptr = begin + (((ptr - begin) + align - 1) & (0-align));
+            printf("error: ptr=%p aptr=%p al=%d\n", ptr, aptr, (int)align);
+            ptr = aptr + sizeof(Type) * size;
+            return res;
+        }
+        
+        bool is_end() const {
+            return ptr == end;
+        }
+
+        const char *get_ptr() const {
+            return ptr;
+        }
+    public:
+        const char *begin;
+        const char *ptr;
+        const char *end;
+    };
+    
+    
+    // read only mapped vector
+    template<class Type>
+    class mapped_vector {
+    public:
+        typedef Type value_type;
+        
+        mapped_vector(mapper &map) {
+            size_t sz = (size_t)map.read64();
+            dat = map.map<value_type>(sz, sizeof(value_type));
+        }
+        
+        size_t size() const {
+            return sz;
+        }
+        
+        value_type operator[](size_t idx) const {
+            return dat[idx];
+        }
+        
+        void resize(size_t new_size) {
+            // todo: throw something
+        }
+        
+        void push_back(const value_type &val) {
+            // todo: throw something
+        }
+        
+        const value_type *data() const {
+            return dat;
+        }
+    private:
+        size_t sz;
+        const value_type *dat;
+    };
 } }
 
 

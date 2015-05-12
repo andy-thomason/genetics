@@ -35,6 +35,7 @@ static const char chr1[] =
   "TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG" // 1200
   "TCGAGACCATCCTGGCTAACACGCGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG" // 1260
   "TCGAGACCATCCTGGCTAACACGCGGAAACCCCGTCTCCACTAATAATACAAAAAGTTAG" // 1320
+  //"CCCCAGGTACTGCCTACTGGCCAACATTTATCTTCTTGATCTGGGTCTTCTCCTACAGTT"
 ;
 
 BOOST_AUTO_TEST_CASE( dna_string_window )
@@ -49,10 +50,6 @@ BOOST_AUTO_TEST_CASE( dna_string_window )
         dna_string::word_type w1 = str.window(32);
         dna_string::word_type w2 = str.window(16);
         dna_string::word_type w3 = str.window(-4);
-        //printf("%016llx!!\n", (long long)w0);
-        //printf("%016llx\n", (long long)w1);
-        //printf("%016llx\n", (long long)w2);
-        //printf("%016llx\n", (long long)w3);
         BOOST_CHECK(w2 == ((w0 << 32) | (w1 >> 32)));
         BOOST_CHECK(w3 == w0 >> 8);
     }
@@ -97,13 +94,6 @@ void generic_string_tests() {
         BOOST_CHECK( b[32] == 'A' );
         BOOST_CHECK( b[33] == 'C' );
         //BOOST_CHECK( b[999] == 'N' );
-    }
-    {
-        Type b("ACGT");
-        b.resize(3);
-        b.resize(4);
-        BOOST_MESSAGE( b );
-        BOOST_CHECK( b == "ACGA" );
     }
 
     {
@@ -157,7 +147,7 @@ void find_test() {
     }
 }
 
-BOOST_AUTO_TEST_CASE( acgt_tests )
+BOOST_AUTO_TEST_CASE( generic_find_tests )
 {
     using namespace boost::genetics;
 
@@ -165,34 +155,40 @@ BOOST_AUTO_TEST_CASE( acgt_tests )
     find_test<dna_string>();
 }
 
-BOOST_AUTO_TEST_CASE( generic_tests )
+BOOST_AUTO_TEST_CASE( generic_string_test )
 {
     using namespace boost::genetics;
 
-    //acgt_container_tests<dna_string>();
-    //acgt_container_tests<augmented_string>();
-    //acgt_container_tests<std::string>();
+    generic_string_tests<std::string>();
+    generic_string_tests<dna_string>();
+}
 
-    //generic_string_tests<augmented_string>();
-    //generic_string_tests<std::string>();
+BOOST_AUTO_TEST_CASE( find_inexact )
+{
+    using namespace boost::genetics;
 
     {
+        // wildcard searches
+        dna_string a("ACGTACGTACGTACGTACGTACGTACGTACCA" "TTGTACGTACGTACGTACGTACGTACGTACGT");
+        dna_string key3("ACA");
+        BOOST_CHECK( a.find_inexact(key3, 0, 64, 1) == 0); // matches ACG
+        BOOST_CHECK( a.find_inexact(key3, 1, 64, 1) == 4); // matches ACG
+        dna_string key4("ACCGTTGT");
+        BOOST_CHECK( a.find_inexact(key4, 0, 64, 1) == 28); // matches "ACCATTGT"
+    }
+    {
+        // check boundaries and limits
         dna_string a("ACGTACGTACGTACGTACGTACGTACGTACCA" "TTGTACGTACGTACGTACGTACGTACGTACGT");
         dna_string key1("CAT");
-        BOOST_CHECK( a.find(key1, 0, 31) == dna_string::npos);
-        BOOST_CHECK( a.find(key1, 0, 32) == dna_string::npos);
-        BOOST_CHECK( a.find(key1, 0, 33) == (size_t)30);
-        BOOST_CHECK( a.find(key1, 30, 33) == (size_t)30);
-        BOOST_CHECK( a.find(key1, 31, 33) == dna_string::npos);
+        BOOST_CHECK( a.find_inexact(key1, 0, 31) == dna_string::npos);
+        BOOST_CHECK( a.find_inexact(key1, 0, 32) == dna_string::npos);
+        BOOST_CHECK( a.find_inexact(key1, 0, 33) == (size_t)30);
+        BOOST_CHECK( a.find_inexact(key1, 30, 33) == (size_t)30);
+        BOOST_CHECK( a.find_inexact(key1, 31, 33) == dna_string::npos);
         dna_string key2("TTG");
-        BOOST_CHECK( a.find(key2, 0, 33) == dna_string::npos);
-        BOOST_CHECK( a.find(key2, 0, 34) == dna_string::npos);
-        BOOST_CHECK( a.find(key2, 0, 35) == (size_t)32);
-        dna_string key3("ACA");
-        BOOST_CHECK( a.find(key3, 0, 64, 1) == 0); // matches ACG
-        BOOST_CHECK( a.find(key3, 1, 64, 1) == 4); // matches ACG
-        dna_string key4("ACCGTTGT");
-        BOOST_CHECK( a.find(key4, 0, 64, 1) == 28); // matches "ACCATTGT"
+        BOOST_CHECK( a.find_inexact(key2, 0, 33) == dna_string::npos);
+        BOOST_CHECK( a.find_inexact(key2, 0, 34) == dna_string::npos);
+        BOOST_CHECK( a.find_inexact(key2, 0, 35) == (size_t)32);
     }
 }
 
@@ -264,6 +260,14 @@ BOOST_AUTO_TEST_CASE( substr )
     const char test_string[] = "ACGTTTGA" "ACCGACCG" "ACCGACCG" "TGCGACCG" "ACCGACCG";
 
     {
+        dna_string b("ACGT");
+        b.resize(3);
+        b.resize(4);
+        BOOST_MESSAGE( b );
+        BOOST_CHECK( b == "ACGA" );
+    }
+
+    {
         dna_string b(test_string);
         dna_string c;
         c = b.substr(8, 8);
@@ -323,3 +327,49 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
       BOOST_CHECK(i == augmented_string::npos);
     }
 }
+
+BOOST_AUTO_TEST_CASE( mapped_dna_string_test )
+{
+    using namespace boost::genetics;
+
+    boost::genetics::uint64_t buf[32];
+    char *ptr = 0;
+    
+    {
+        dna_string dna("TTTTTTTTGGGGGGGGCCCCCCCCAAAA");
+        writer wr((char*)buf, (char*)(buf + 3));
+        dna.write_binary(wr);
+        ptr = wr.get_ptr();
+        printf("error: %d\n", (int)(wr.get_ptr() - (const char*)buf));
+        BOOST_CHECK(wr.is_end());
+        BOOST_CHECK(buf[0] == 28);
+        BOOST_CHECK(buf[1] == 1);
+        //printf("error: %016llx\n", buf[2]);
+        BOOST_CHECK(buf[2] == 0xffffaaaa55550000);
+    }
+
+    {
+        mapper map((const char*)buf, ptr);
+        mapped_dna_string dna(map);
+        printf("error: %d\n", (int)(map.get_ptr() - (const char*)buf));
+        BOOST_CHECK(map.is_end());
+        BOOST_CHECK(std::string(dna) == "TTTTTTTTGGGGGGGGCCCCCCCCAAAA");
+    }
+
+    {
+        augmented_string dna("TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
+        writer wr((char*)buf, (char*)(buf + 32));
+        dna.write_binary(wr);
+        printf("error: %d\n", (int)(wr.get_ptr() - (const char*)buf));
+        BOOST_CHECK(wr.is_end());
+    }
+
+    {
+        mapper map((const char*)buf, (char*)(buf + 32));
+        mapped_augmented_string dna(map);
+        BOOST_CHECK(map.is_end());
+        printf("error: %d\n", (int)(map.get_ptr() - (const char*)buf));
+        BOOST_CHECK(std::string(dna) == "TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
+    }
+}
+
