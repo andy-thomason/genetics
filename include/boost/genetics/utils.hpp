@@ -193,28 +193,27 @@ namespace boost { namespace genetics {
         writer(char *begin, char *end) :
             begin(begin), ptr(begin), end(end)
         {
-            printf("error: writer %p %p\n", begin, end);
         }
         
-        void write(const char *src, size_t size, size_t align) {
+        template <class Type>
+        void write(const Type *src, size_t size, size_t align) {
             char *aptr = begin + ((ptr - begin + align - 1) & (0-align));
-            printf("error: ptr=%p aptr=%p al=%d\n", ptr, aptr, (int)align);
             if (end != nullptr && aptr + size <= end) {
                 if (aptr != ptr) memset(ptr, 0, aptr - ptr);
-                memcpy(aptr, src, size);
+                memcpy(aptr, src, sizeof(Type) * size);
             }
-            ptr = aptr + size;
+            ptr = aptr + sizeof(Type) * size;
         }
 
         template <class Type>
         void write(const std::vector<Type> &vec) {
             write64(vec.size());
             // todo: in C++11 use alignof
-            write((const char*)vec.data(), vec.size() * sizeof(Type), sizeof(Type));
+            write(vec.data(), vec.size(), sizeof(Type));
         }
         
         void write64(uint64_t value) {
-            write((const char*)&value, sizeof(value), sizeof(value));
+            write(&value, 1, sizeof(value));
         }
         
         bool is_end() const {
@@ -235,7 +234,6 @@ namespace boost { namespace genetics {
         mapper(const char *begin, const char *end) :
             begin(begin), ptr(begin), end(end)
         {
-            printf("error: mapper %p %p\n", begin, end);
         }
         
         uint64_t read64() {
@@ -244,9 +242,8 @@ namespace boost { namespace genetics {
         
         template <class Type>
         const Type *map(size_t size, size_t align) {
-            Type *res = (Type*)ptr;
             const char *aptr = begin + (((ptr - begin) + align - 1) & (0-align));
-            printf("error: ptr=%p aptr=%p al=%d\n", ptr, aptr, (int)align);
+            Type *res = (Type*)aptr;
             ptr = aptr + sizeof(Type) * size;
             return res;
         }
@@ -272,7 +269,7 @@ namespace boost { namespace genetics {
         typedef Type value_type;
         
         mapped_vector(mapper &map) {
-            size_t sz = (size_t)map.read64();
+            sz = (size_t)map.read64();
             dat = map.map<value_type>(sz, sizeof(value_type));
         }
         

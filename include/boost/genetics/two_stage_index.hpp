@@ -5,7 +5,7 @@
 
 namespace boost { namespace genetics {
     /// two stage index, first index ordered by value, second by address.
-    template <class StringType, class IndexArrayType, class AddrArrayType>
+    template <class StringType, class IndexArrayType, class AddrArrayType, bool Writable>
     class basic_two_stage_index {
     public:
         typedef typename IndexArrayType::value_type index_type;
@@ -15,11 +15,10 @@ namespace boost { namespace genetics {
         ) : string(nullptr), num_indexed_chars(0) {
         }
         
-        basic_two_stage_index(
-            StringType &string,
-            size_t num_indexed_chars
-        ) : string(&string), num_indexed_chars(num_indexed_chars) {
-            reindex();
+        void write_binary(writer &wr) const {
+            wr.write64(num_indexed_chars);
+            wr.write(index);
+            wr.write(addr);
         }
 
         basic_two_stage_index &operator =(basic_two_stage_index &&rhs) {
@@ -29,58 +28,32 @@ namespace boost { namespace genetics {
             return *this;
         }
 
+        basic_two_stage_index(
+            StringType &string,
+            mapper &map
+        ) :
+            string(&string),
+            num_indexed_chars((size_t)map.read64()),
+            index(map),
+            addr(map)
+        {
+            reindex();
+        }
+        
+        basic_two_stage_index(
+            StringType &string,
+            size_t num_indexed_chars
+        ) : string(&string), num_indexed_chars(num_indexed_chars) {
+            reindex();
+        }
+
         void reindex() {
-            if (
-                num_indexed_chars <= 1 ||
-                num_indexed_chars > 32 ||
-                string->size() < num_indexed_chars ||
-                (addr_type)string->size() != string->size()
-            ) {
-                //throw std::out_of_range("reindex() failed");
-            }
-
-            size_t str_size = string->size();
-            size_t index_size = (size_t)1 << (num_indexed_chars*2);
-
-            index.resize(0);
-            index.resize(index_size+1);
-            addr.resize(str_size);
-
-            size_t acc0 = 0;
-            for (size_t i = 0; i != num_indexed_chars-1; ++i) {
-                acc0 = acc0 * 4 + get_code(*string, i);
-            }
-
-            size_t acc = acc0;
-            for (size_t i = num_indexed_chars; i != str_size; ++i) {
-                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
-                index[acc]++;
-            }
-            
-
-            addr_type cur = 0;
-            for (size_t i = 0; i != index_size; ++i) {
-                addr_type val = index[i];
-                index[i] = cur;
-                cur += val;
-            }
-            index[index_size] = cur;
-
-            acc = acc0;
-            for (size_t i = num_indexed_chars; i != str_size; ++i) {
-                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
-                addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
-            }
-
-            addr_type prev = 0;
-            for (size_t i = 0; i != index_size; ++i) {
-                std::swap(prev, index[i]);
-            }
+            reindex_impl<Writable>();
         }
 
         class iterator {
         public:
-            iterator(const basic_two_stage_index *tsi, const StringType& str, size_t min_pos = 0, size_t max_distance = 0) :
+            iterator(const basic_two_stage_index *tsi, const dna_string& str, size_t min_pos = 0, size_t max_distance = 0) :
                 tsi(tsi), str(str), max_distance(max_distance)
             {
                 size_t num_indexed_chars = tsi->num_indexed_chars;
@@ -91,7 +64,7 @@ namespace boost { namespace genetics {
                 } else {
                     active.resize(num_seeds);
                     if (num_seeds == 0) {
-                        pos = StringType::npos;
+                        pos = dna_string::npos;
                         return;
                     }
 
@@ -147,7 +120,7 @@ namespace boost { namespace genetics {
                 size_t num_indexed_chars = tsi->num_indexed_chars;
                 size_t num_seeds = str.size() / num_indexed_chars;
 
-                if (pos == StringType::npos) {
+                if (pos == dna_string::npos) {
                     return;
                 } else if (num_seeds <= max_distance) {
                     pos = str.find_inexact(str, pos + 1, max_distance);
@@ -156,7 +129,7 @@ namespace boost { namespace genetics {
                 } else {
                     addr_type prev_start = (addr_type)-1;
                     size_t repeat_count = 0;
-                    pos = StringType::npos;
+                    pos = dna_string::npos;
 
                     for (;;) {
                         active_state s = active.front();
@@ -215,12 +188,12 @@ namespace boost { namespace genetics {
 
             const basic_two_stage_index *tsi;
             std::vector<active_state> active;
-            const StringType &str;
+            const dna_string &str;
             size_t max_distance;
             size_t pos;
         };
 
-        iterator find(const StringType& str, size_t pos = 0, size_t max_distance = 0) const {
+        iterator find(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
             return iterator(this, str, pos, max_distance);
         }
 
@@ -246,17 +219,74 @@ namespace boost { namespace genetics {
             addr.swap(rhs.addr);
         }
     private:
+        // mapped version has no reindex() as we can't write to the vectors
+        template<bool B>
+        void reindex_impl() {
+        }
+
+        // std::vector version has reindex()
+        template<>
+        void reindex_impl<true>() {
+            if (
+                num_indexed_chars <= 1 ||
+                num_indexed_chars > 32 ||
+                string->size() < num_indexed_chars ||
+                (addr_type)string->size() != string->size()
+            ) {
+                //throw std::out_of_range("reindex() failed");
+            }
+
+            size_t str_size = string->size();
+            size_t index_size = (size_t)1 << (num_indexed_chars*2);
+
+            index.resize(0);
+            index.resize(index_size+1);
+            addr.resize(str_size);
+
+            size_t acc0 = 0;
+            for (size_t i = 0; i != num_indexed_chars-1; ++i) {
+                acc0 = acc0 * 4 + get_code(*string, i);
+            }
+
+            size_t acc = acc0;
+            for (size_t i = num_indexed_chars; i != str_size; ++i) {
+                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
+                index[acc]++;
+            }
+            
+            addr_type cur = 0;
+            for (size_t i = 0; i != index_size; ++i) {
+                addr_type val = index[i];
+                index[i] = cur;
+                cur += val;
+            }
+            index[index_size] = cur;
+
+            acc = acc0;
+            for (size_t i = num_indexed_chars; i != str_size; ++i) {
+                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
+                addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
+            }
+
+            addr_type prev = 0;
+            for (size_t i = 0; i != index_size; ++i) {
+                std::swap(prev, index[i]);
+            }
+        }
+
+        // note: order matters
         StringType *string;
         size_t num_indexed_chars;
         IndexArrayType index;
         AddrArrayType addr;
     };
 
-    typedef basic_two_stage_index<augmented_string, std::vector<uint32_t>, std::vector<uint32_t> > two_stage_index;
+    typedef basic_two_stage_index<augmented_string, std::vector<uint32_t>, std::vector<uint32_t>, true > two_stage_index;
+    typedef basic_two_stage_index<mapped_augmented_string, mapped_vector<uint32_t>, mapped_vector<uint32_t>, false > mapped_two_stage_index;
 
-    template <class charT, class traits, class StringType, class IndexArrayType, class AddrArrayType>
+    template <class charT, class traits, class StringType, class IndexArrayType, class AddrArrayType, bool Writable>
     std::basic_ostream<charT, traits>&
-    operator<<(std::basic_ostream<charT, traits>& os, const basic_two_stage_index<StringType, IndexArrayType, AddrArrayType>& x) {
+    operator<<(std::basic_ostream<charT, traits>& os, const basic_two_stage_index<StringType, IndexArrayType, AddrArrayType, Writable>& x) {
         x.dump(os);
         return os;
     }

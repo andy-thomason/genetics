@@ -36,6 +36,7 @@ namespace boost { namespace genetics {
             index(map),
             rle(map)
         {
+            printf("error: i=%d r=%d\n", index.size(), rle.size());
         }
 
         char operator[](size_t base) const {

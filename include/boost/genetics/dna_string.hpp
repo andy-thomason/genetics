@@ -64,9 +64,10 @@ namespace boost { namespace genetics {
         }
 
         basic_dna_string(mapper &map) :
-            num_bases(map.read64()),
+            num_bases((size_t)map.read64()),
             values(map)
         {
+            printf("error: basic_dna_string %d %d\n", (int)num_bases, (int)values.size());
         }
         
         char operator[](size_t index) const {

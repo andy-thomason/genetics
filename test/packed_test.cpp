@@ -328,11 +328,11 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     }
 }
 
-BOOST_AUTO_TEST_CASE( mapped_dna_string_test )
+BOOST_AUTO_TEST_CASE( mapped_container_test )
 {
     using namespace boost::genetics;
 
-    boost::genetics::uint64_t buf[32];
+    boost::genetics::uint64_t buf[64];
     char *ptr = 0;
     
     {
@@ -340,18 +340,15 @@ BOOST_AUTO_TEST_CASE( mapped_dna_string_test )
         writer wr((char*)buf, (char*)(buf + 3));
         dna.write_binary(wr);
         ptr = wr.get_ptr();
-        printf("error: %d\n", (int)(wr.get_ptr() - (const char*)buf));
         BOOST_CHECK(wr.is_end());
         BOOST_CHECK(buf[0] == 28);
         BOOST_CHECK(buf[1] == 1);
-        //printf("error: %016llx\n", buf[2]);
         BOOST_CHECK(buf[2] == 0xffffaaaa55550000);
     }
 
     {
         mapper map((const char*)buf, ptr);
         mapped_dna_string dna(map);
-        printf("error: %d\n", (int)(map.get_ptr() - (const char*)buf));
         BOOST_CHECK(map.is_end());
         BOOST_CHECK(std::string(dna) == "TTTTTTTTGGGGGGGGCCCCCCCCAAAA");
     }
@@ -360,16 +357,35 @@ BOOST_AUTO_TEST_CASE( mapped_dna_string_test )
         augmented_string dna("TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
         writer wr((char*)buf, (char*)(buf + 32));
         dna.write_binary(wr);
-        printf("error: %d\n", (int)(wr.get_ptr() - (const char*)buf));
-        BOOST_CHECK(wr.is_end());
+        ptr = wr.get_ptr();
     }
 
     {
-        mapper map((const char*)buf, (char*)(buf + 32));
+        mapper map((const char*)buf, ptr);
         mapped_augmented_string dna(map);
         BOOST_CHECK(map.is_end());
-        printf("error: %d\n", (int)(map.get_ptr() - (const char*)buf));
         BOOST_CHECK(std::string(dna) == "TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
     }
-}
 
+    {
+        augmented_string dna("TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
+        two_stage_index tsi(dna, 2);
+        writer wr((char*)buf, (char*)(buf + 32));
+        dna.write_binary(wr);
+        tsi.write_binary(wr);
+        ptr = wr.get_ptr();
+    }
+
+    {
+        mapper map((const char*)buf, ptr);
+        mapped_augmented_string dna(map);
+        mapped_two_stage_index tsi(dna, map);
+        BOOST_CHECK(map.is_end());
+        BOOST_CHECK(std::string(dna) == "TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
+        augmented_string key("GG");
+        mapped_two_stage_index::iterator i = tsi.find(key, 0);
+        BOOST_CHECK(i == 10);
+        i++;
+        BOOST_CHECK(i == 11);
+    }
+}
