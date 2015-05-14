@@ -338,25 +338,6 @@ namespace boost { namespace genetics {
         }
 
     private:
-        static word_type rev_comp_word(word_type x) {
-            x = ((x & 0x00000000ffffffff) << 32) | ((x >> 32) & 0x00000000ffffffff);
-            x = ((x & 0x0000ffff0000ffff) << 16) | ((x >> 16) & 0x0000ffff0000ffff);
-            x = ((x & 0x00ff00ff00ff00ff) << 8)  | ((x >> 8) & 0x00ff00ff00ff00ff);
-            x = ((x & 0x0f0f0f0f0f0f0f0f) << 4)  | ((x >> 4) & 0x0f0f0f0f0f0f0f0f);
-            x = ((x & 0x3333333333333333) << 2)  | ((x >> 2) & 0x3333333333333333);
-            return ~x;
-        }
-
-        static size_t count_word(word_type x) {
-            x |= x >> 1;
-            x &= 0x5555555555555555;
-            x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
-            x = (x & 0x0f0f0f0f0f0f0f0full) + ((x >> 4) & 0x0f0f0f0f0f0f0f0full);
-            x = (x & 0x00ff00ff00ff00ffull) + ((x >> 8) & 0x00ff00ff00ff00ffull);
-            x = (x & 0x0000ffff0000ffffull) + ((x >> 16) & 0x0000ffff0000ffffull);
-            return (int)(x + (x>>32));
-        }
-
         // note: order matters!
         size_t num_bases;
         ArrayType values;

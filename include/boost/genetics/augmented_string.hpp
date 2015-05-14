@@ -5,10 +5,14 @@
 
 namespace boost { namespace genetics {
     /// containter for bases ACGT and occasional runs of 'N' and other letters.
-    template<class WordType, class ParentType, class IndexArrayType, class RleArrayType>
+    template<
+        class WordType, class ParentType,
+        class IndexArrayType, class RleArrayType
+    >
     class basic_augmented_string : public ParentType {
         static const size_t lg_bases_per_index = 16;
-        static const size_t bases_per_index = (size_t)1 << lg_bases_per_index;
+        static const size_t bases_per_index =
+            (size_t)1 << lg_bases_per_index;
     public:
         typedef typename IndexArrayType::value_type index_type;
         typedef typename RleArrayType::value_type rle_type;

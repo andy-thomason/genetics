@@ -115,6 +115,11 @@ namespace boost { namespace genetics {
                 find_next();
                 return *this;
             }
+
+            iterator &operator++(int) {
+                find_next();
+                return *this;
+            }
         private:
             void find_next() {
                 size_t num_indexed_chars = tsi->num_indexed_chars;

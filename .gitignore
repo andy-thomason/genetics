@@ -6,3 +6,6 @@
 *.pyd
 *.sdf
 build
+*.hpp~
+*.v2~
+*.txt

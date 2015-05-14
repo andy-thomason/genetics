@@ -42,7 +42,7 @@ namespace boost { namespace genetics {
         unsigned int idx = (chr & ~0x20) - 'C';
         return idx <= 'T'-'C' ? (int)(vals >> (idx*2)) & 0x03 : 0x00;
     }
-
+    
     static inline char code_to_base(int code) {
         return (char)((('A' | 'C' << 8 | 'G' << 16 | 'T' << 24) >> (code * 8)));
     }
@@ -133,13 +133,32 @@ namespace boost { namespace genetics {
         return (int)(value + (value>>32));
     }
 
+    static inline uint64_t rev_comp_word(uint64_t x) {
+        x = ((x & 0x00000000ffffffff) << 32) | ((x >> 32) & 0x00000000ffffffff);
+        x = ((x & 0x0000ffff0000ffff) << 16) | ((x >> 16) & 0x0000ffff0000ffff);
+        x = ((x & 0x00ff00ff00ff00ff) << 8)  | ((x >> 8) & 0x00ff00ff00ff00ff);
+        x = ((x & 0x0f0f0f0f0f0f0f0f) << 4)  | ((x >> 4) & 0x0f0f0f0f0f0f0f0f);
+        x = ((x & 0x3333333333333333) << 2)  | ((x >> 2) & 0x3333333333333333);
+        return ~x;
+    }
+
+    static inline size_t count_word(uint64_t x) {
+        x |= x >> 1;
+        x &= 0x5555555555555555;
+        x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
+        x = (x & 0x0f0f0f0f0f0f0f0full) + ((x >> 4) & 0x0f0f0f0f0f0f0f0full);
+        x = (x & 0x00ff00ff00ff00ffull) + ((x >> 8) & 0x00ff00ff00ff00ffull);
+        x = (x & 0x0000ffff0000ffffull) + ((x >> 16) & 0x0000ffff0000ffffull);
+        return (int)(x + (x>>32));
+    }
+
     // consistent reverse complement interface
     // A <-> T  C <-> G and reverse string
     // this is because DNA has two strands in opposite directions.
     // this one is for dna_string and augmented_string
     template <class Type>
     Type rev_comp(const Type &x, typename Type::word_type *y = 0) {
-      return x.substr(0, x.size(), true);
+        return x.substr(0, x.size(), true);
     }
 
     // this one is for std::string and other strings
