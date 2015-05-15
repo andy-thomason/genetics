@@ -9,3 +9,6 @@ build
 *.hpp~
 *.v2~
 *.txt
+*.idea
+*.pyc
+*.so
