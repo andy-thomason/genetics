@@ -37,6 +37,7 @@ namespace boost { namespace genetics {
             str = std::move(rhs.str);
             dat = std::move(rhs.dat);
             idx = std::move(rhs.idx);
+            return *this;
         }
 
         const string_type &string() const {

@@ -1,5 +1,7 @@
 
-#include <boost/genetics/genetics.hpp>
+#pragma warning(disable : 4273)
+#include <boost/genetics/augmented_string.hpp>
+#include <boost/genetics/fasta.hpp>
 #include <boost/python.hpp>
 
 using namespace boost::python;
@@ -12,13 +14,9 @@ public:
     Fasta() {
     }
 
-<<<<<<< HEAD
-    Fasta(const std::string &filename) : fasta(filename) {
-=======
     void load(const std::string &filename)
     {
         fasta = boost::genetics::fasta_file(filename);
->>>>>>> 63ca159381204163430aed01d101db82f5d3a40e
     }
 
     ~Fasta() {
@@ -28,7 +26,7 @@ public:
         list result;
         size_t pos = 0;
         for (;;) {
-            pos = fasta.string().find(key, pos, ~(size_t)0, max_distance);
+            pos = fasta.string().find_inexact(key, pos, ~(size_t)0, max_distance);
             if (pos == augmented_string::npos) {
                 break;
             }
