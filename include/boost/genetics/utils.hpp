@@ -287,6 +287,11 @@ namespace boost { namespace genetics {
     public:
         typedef Type value_type;
         
+        mapped_vector() {
+            sz = 0;
+            dat = nullptr;
+        }
+        
         mapped_vector(mapper &map) {
             sz = (size_t)map.read64();
             dat = map.map<value_type>(sz, sizeof(value_type));
@@ -294,6 +299,10 @@ namespace boost { namespace genetics {
         
         size_t size() const {
             return sz;
+        }
+        
+        value_type &operator[](size_t idx) {
+            return dat[idx];
         }
         
         value_type operator[](size_t idx) const {
@@ -311,9 +320,17 @@ namespace boost { namespace genetics {
         const value_type *data() const {
             return dat;
         }
+
+        value_type &back() {
+            return dat[sz-1];
+        }
+
+        bool empty() const {
+            return sz == 0;
+        }
     private:
         size_t sz;
-        const value_type *dat;
+        value_type *dat;
     };
 } }
 
