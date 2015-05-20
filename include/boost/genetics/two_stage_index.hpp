@@ -1,3 +1,8 @@
+// Copyright Andy Thomason 2015
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef BOOST_GENETICS_TWO_STAGE_INDEX_HPP
 #define BOOST_GENETICS_TWO_STAGE_INDEX_HPP
 
@@ -25,6 +30,7 @@ namespace boost { namespace genetics {
             string = rhs.string;
             index = std::move(rhs.index);
             addr = std::move(rhs.addr);
+            num_indexed_chars = rhs.num_indexed_chars;
             return *this;
         }
 
@@ -49,6 +55,10 @@ namespace boost { namespace genetics {
 
         void reindex() {
             reindex_impl<Writable>();
+        }
+        
+        size_t end() const {
+            return (size_t)-1;
         }
 
         class iterator {
@@ -92,7 +102,7 @@ namespace boost { namespace genetics {
                         const addr_type *ptr = s.ptr;
                         const addr_type *end = s.end;
                         s.elem = (addr_type)i;
-                        addr_type skip = (addr_type)(i * num_indexed_chars) + min_pos;
+                        addr_type skip = (addr_type)(i * num_indexed_chars + min_pos);
                         while (ptr != end && *ptr < skip) {
                             std::cout << "skip " << *ptr << "\n";
                             ++ptr;
@@ -198,7 +208,7 @@ namespace boost { namespace genetics {
             size_t pos;
         };
 
-        iterator find(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
+        iterator find_inexact(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
             return iterator(this, str, pos, max_distance);
         }
 
@@ -232,6 +242,7 @@ namespace boost { namespace genetics {
         // std::vector version has reindex()
         template<>
         void reindex_impl<true>() {
+            printf("reindexing %d\n", (int)num_indexed_chars);
             if (
                 num_indexed_chars <= 1 ||
                 num_indexed_chars > 32 ||

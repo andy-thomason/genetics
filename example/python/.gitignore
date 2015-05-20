@@ -1,0 +1,8 @@
+*.obj
+*.exp
+*.ilk
+*.lib
+*.pdb
+*.sdf
+*.suo
+Debug

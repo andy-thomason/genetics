@@ -389,3 +389,4 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
         BOOST_CHECK(i == 11);
     }
 }
+

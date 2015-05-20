@@ -1,3 +1,8 @@
+// Copyright Andy Thomason 2015
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef BOOST_GENETICS_DNA_STRING_HPP
 #define BOOST_GENETICS_DNA_STRING_HPP
 
@@ -48,7 +53,8 @@ namespace boost { namespace genetics {
             size_t pos = 0, size_t n = ~(size_t)0
         ) {
             num_bases = 0;
-            append(str.begin() + pos, str.begin() + std::min(n, str.size()));
+            append(str.data() + pos, str.data() + std::min(n, str.size()));
+            //append(str.begin() + pos, str.begin() + std::min(n, str.size()));
         }
 
         template <class charT>
