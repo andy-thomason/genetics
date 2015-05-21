@@ -370,6 +370,11 @@ namespace boost { namespace genetics {
     
     // file mapped dna string
     typedef basic_dna_string<uint64_t, mapped_vector<uint64_t> > mapped_dna_string;
+
+    template <>
+    static inline int get_code<dna_string>(const dna_string &str, size_t index) {
+        return str.get_code(index);
+    }
 } }
 
 

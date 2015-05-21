@@ -157,8 +157,24 @@ namespace boost { namespace genetics {
         RleArrayType rle;
     };
 
-    typedef basic_augmented_string<uint64_t, dna_string, std::vector<uint32_t>, std::vector<uint32_t> > augmented_string;
-    typedef basic_augmented_string<uint64_t, mapped_dna_string, mapped_vector<uint32_t>, mapped_vector<uint32_t> > mapped_augmented_string;
+    typedef basic_augmented_string<
+        uint64_t,
+        dna_string,
+        std::vector<uint32_t>,
+        std::vector<uint32_t>
+    > augmented_string;
+
+    typedef basic_augmented_string<
+        uint64_t,
+        mapped_dna_string,
+        mapped_vector<uint32_t>,
+        mapped_vector<uint32_t>
+    > mapped_augmented_string;
+
+    template <>
+    static inline int get_code<augmented_string>(const augmented_string &str, size_t index) {
+        return str.get_code(index);
+    }
 } }
 
 

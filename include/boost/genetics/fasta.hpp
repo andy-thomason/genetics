@@ -21,7 +21,7 @@ namespace boost { namespace genetics {
         size_t end;
 
         bool operator <(size_t pos) const {
-            return start < pos;
+            return end < pos;
         }
 
         chromosome() : start(0), end(0) {
@@ -172,9 +172,10 @@ namespace boost { namespace genetics {
 
         /// find a chomosome for a location.
         const chromosome &find_chromosome(size_t location) const {
-            const chromosome *i = std::lower_bound(dat.data(), dat.data() + dat.size(), location);
-            if (i != dat.data() && location >= i[-1].start && location < i[-1].end) {
-                return *i;
+            const chromosome *end = dat.data() + dat.size();
+            const chromosome *i = std::lower_bound(dat.data(), end, location);
+            if (i != end && location >= i[0].start && location < i[0].end) {
+                return i[0];
             } else {
                 return null_chr;
             }
