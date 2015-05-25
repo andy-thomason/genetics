@@ -6,9 +6,12 @@
 *.pyd
 *.sdf
 build
-*.hpp~
-*.v2~
+*.*~
 *.txt
 *.idea
 *.pyc
 *.so
+*.exp
+*.lib
+example/python/x64
+example/python/ensembl_chr21.fa

@@ -224,15 +224,21 @@ namespace boost { namespace genetics {
             ptr = aptr + sizeof(Type) * size;
         }
 
-        template <class Type>
-        void write(const std::vector<Type> &vec) {
+        template <class A, class B> struct exists { typedef B type; };
+
+        // todo: in C++11 use alignof
+        template <class VecType>
+        void write(const VecType &vec, size_t align = sizeof(VecType::value_type)) {
             write64(vec.size());
-            // todo: in C++11 use alignof
-            write(vec.data(), vec.size(), sizeof(Type));
+            write(vec.data(), vec.size(), align);
         }
         
         void write64(uint64_t value) {
             write(&value, 1, sizeof(value));
+        }
+        
+        void write(const std::string &str) {
+            write(str.c_str(), str.size(), 1);
         }
         
         bool is_end() const {
@@ -287,6 +293,11 @@ namespace boost { namespace genetics {
     public:
         typedef Type value_type;
         
+        mapped_vector() {
+            sz = 0;
+            dat = nullptr;
+        }
+        
         mapped_vector(mapper &map) {
             sz = (size_t)map.read64();
             dat = map.map<value_type>(sz, sizeof(value_type));
@@ -294,6 +305,10 @@ namespace boost { namespace genetics {
         
         size_t size() const {
             return sz;
+        }
+        
+        value_type &operator[](size_t idx) {
+            return dat[idx];
         }
         
         value_type operator[](size_t idx) const {
@@ -311,9 +326,17 @@ namespace boost { namespace genetics {
         const value_type *data() const {
             return dat;
         }
+
+        value_type &back() {
+            return dat[sz-1];
+        }
+
+        bool empty() const {
+            return sz == 0;
+        }
     private:
         size_t sz;
-        const value_type *dat;
+        value_type *dat;
     };
 } }
 

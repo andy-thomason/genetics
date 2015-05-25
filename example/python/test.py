@@ -4,18 +4,14 @@ Test module for example Boost.Genetics Python wrapper
 
 import genetics  # must match name of module generated in bindings.cpp
 
+print("loading...")
 
-def test_genetics():
+s = genetics.Fasta(['/projects/deskgen-rosalind/22.fa'], 10)
 
-    s = genetics.Fasta()
-    print(s)
+s.write_binary("")
 
-    #s.load('/home/andy/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa')
-    s.load('1.fa')
-    result = s.find_all('ACTGACTGACTG', 0)
-    print(len(result))
-    print(result)
+print("finding...")
 
-
-if __name__ == "__main__":
-    test_genetics()
+result = s.find_inexact('ACTGACTGACTG', 0, 100)
+print(len(result))
+print(result)

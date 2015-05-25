@@ -1,3 +1,8 @@
+// Copyright Andy Thomason 2015
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef BOOST_GENETICS_AUGMENTED_STRING_HPP
 #define BOOST_GENETICS_AUGMENTED_STRING_HPP
 
@@ -152,8 +157,24 @@ namespace boost { namespace genetics {
         RleArrayType rle;
     };
 
-    typedef basic_augmented_string<uint64_t, dna_string, std::vector<uint32_t>, std::vector<uint32_t> > augmented_string;
-    typedef basic_augmented_string<uint64_t, mapped_dna_string, mapped_vector<uint32_t>, mapped_vector<uint32_t> > mapped_augmented_string;
+    typedef basic_augmented_string<
+        uint64_t,
+        dna_string,
+        std::vector<uint32_t>,
+        std::vector<uint32_t>
+    > augmented_string;
+
+    typedef basic_augmented_string<
+        uint64_t,
+        mapped_dna_string,
+        mapped_vector<uint32_t>,
+        mapped_vector<uint32_t>
+    > mapped_augmented_string;
+
+    template <>
+    static inline int get_code<augmented_string>(const augmented_string &str, size_t index) {
+        return str.get_code(index);
+    }
 } }
 
 
