@@ -14,3 +14,4 @@ build
 *.exp
 *.lib
 example/python/x64
+example/python/ensembl_chr21.fa

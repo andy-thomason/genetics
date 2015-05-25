@@ -224,15 +224,21 @@ namespace boost { namespace genetics {
             ptr = aptr + sizeof(Type) * size;
         }
 
-        template <class Type>
-        void write(const std::vector<Type> &vec) {
+        template <class A, class B> struct exists { typedef B type; };
+
+        // todo: in C++11 use alignof
+        template <class VecType>
+        void write(const VecType &vec, size_t align = sizeof(VecType::value_type)) {
             write64(vec.size());
-            // todo: in C++11 use alignof
-            write(vec.data(), vec.size(), sizeof(Type));
+            write(vec.data(), vec.size(), align);
         }
         
         void write64(uint64_t value) {
             write(&value, 1, sizeof(value));
+        }
+        
+        void write(const std::string &str) {
+            write(str.c_str(), str.size(), 1);
         }
         
         bool is_end() const {

@@ -15,8 +15,8 @@
 
 namespace boost { namespace genetics {
     struct chromosome {
-        std::string name;
-        std::string info;
+        char name[80]; /// note: these need to be fixed length strings for binary mapping
+        char info[80];
         size_t start;
         size_t end;
 
@@ -25,6 +25,7 @@ namespace boost { namespace genetics {
         }
 
         chromosome() : start(0), end(0) {
+            name[0] = info[0] = 0;
         }
     };
     
@@ -39,6 +40,8 @@ namespace boost { namespace genetics {
         virtual void make_index(size_t num_indexed_chars) = 0;
         virtual void append(const std::string &filename) = 0;
         virtual const chromosome &find_chromosome(size_t location) const = 0;
+        virtual void write_binary(writer &wr) const = 0;
+        virtual void write_ascii(std::ostream &str) const = 0;
         virtual ~fasta_file_interface() {}
     };
     
@@ -59,14 +62,14 @@ namespace boost { namespace genetics {
         }
         
         basic_fasta_file &operator=(basic_fasta_file &&rhs) {
-            dat = std::move(rhs.dat);
+            chromosomes = std::move(rhs.chromosomes);
             str = std::move(rhs.str);
             idx = std::move(rhs.idx);
             return *this;
         }
 
         basic_fasta_file(mapper &map) :
-            dat(map),
+            chromosomes(map),
             str(map),
             idx(map)
         {
@@ -94,19 +97,21 @@ namespace boost { namespace genetics {
                 //if (*p != '>') throw(std::exception("bad fasta"));
                 const char *b = p;
                 while (p != end && *p != '\n' && *p != '\r') ++p;
-                g.info.assign(b+1, p);
-                size_t sp = g.info.find(" ");
-                if (sp == std::string::npos) {
-                    g.name = g.info;
-                } else {
-                    g.name.assign(g.info.begin(), g.info.begin() + sp);
+                size_t size = std::min(sizeof(g.info)-1, (size_t)(p-(b+1)));
+                memcpy(g.info, b+1, size);
+
+                g.info[size] = 0;
+                size_t i = 0;
+                for (; i != size && i != sizeof(g.name)-1 && g.info[i] != ' '; ++i) {
+                    g.name[i] = g.info[i];
                 }
+                g.name[i] = 0;
 
                 b = p;
                 while (p != end && *p != '>') ++p;
                 str.append(b, p);
                 g.end = str.size();
-                dat.push_back(g);
+                chromosomes.push_back(g);
                 g.start = g.end;
             }
         }
@@ -114,15 +119,41 @@ namespace boost { namespace genetics {
         /// swap FASTA files.
         void swap(basic_fasta_file &rhs) {
             std::swap(str, rhs.str);
-            std::swap(dat, rhs.dat);
+            std::swap(chromosomes, rhs.chromosomes);
             std::swap(idx, rhs.idx);
         }
         
         /// copy the bytes in this file to an image.
         void write_binary(writer &wr) const {
-            wr.write(dat);
-            wr.write(str);
-            wr.write(idx);
+            wr.write(chromosomes);
+            str.write_binary(wr);
+            idx.write_binary(wr);
+        }
+        
+        /// copy the bytes in this file to an image.
+        void write_ascii(std::ostream &os) const {
+            std::string line;
+            line.reserve(256);
+            for (size_t i = 0; i != chromosomes.size(); ++i) {
+                const chromosome &c = chromosomes[i];
+                size_t info_size = strlen(c.info);
+                line.resize(info_size + 2);
+                size_t j = 0;
+                line[j++] = '>';
+                for (const char *p = c.info; *p; ++p) line[j++] = *p;
+                line[j++] = '\n';
+                os << line;
+                for (size_t b = c.start; b < c.end; ) {
+                    size_t e = std::min(b + 60, c.end);
+                    line.resize(e - b + 1);
+                    for (size_t i = 0; i != (e-b); ++i) {
+                        line[i] = str[b + i];
+                    }
+                    line[e-b] = '\n';
+                    os << line;
+                }
+            }
+
         }
         
         /// search the FASTA file for strings with some allowable errors.
@@ -157,7 +188,7 @@ namespace boost { namespace genetics {
         
         /// get the chromosomes in this file.
         void get_chromosomes(std::vector<chromosome> &result) {
-            result = dat;
+            result = chromosomes;
         }
 
         /// must be called after appending FASTA data.
@@ -172,8 +203,8 @@ namespace boost { namespace genetics {
 
         /// find a chomosome for a location.
         const chromosome &find_chromosome(size_t location) const {
-            const chromosome *end = dat.data() + dat.size();
-            const chromosome *i = std::lower_bound(dat.data(), end, location);
+            const chromosome *end = chromosomes.data() + chromosomes.size();
+            const chromosome *i = std::lower_bound(chromosomes.data(), end, location);
             if (i != end && location >= i[0].start && location < i[0].end) {
                 return i[0];
             } else {
@@ -187,7 +218,7 @@ namespace boost { namespace genetics {
         chromosome null_chr;
 
         /// vector of chromosomes.
-        chromosome_type dat;
+        chromosome_type chromosomes;
 
         /// usually an augmented_string type to store bases.
         string_type str;

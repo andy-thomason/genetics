@@ -9,6 +9,9 @@
 #include <boost/genetics/fasta.hpp>
 #include <boost/python.hpp>
 
+#include <iostream>
+#include <fstream>
+
 using namespace boost::python;
 using namespace boost::genetics;
 
@@ -67,14 +70,37 @@ public:
         return result;
     }
 
+    /// write a binary file for use with a map
+    void write_binary_file(const std::string &filename) const {
+        writer sizer(nullptr, nullptr);
+        fasta->write_binary(sizer);
+        size_t size = (size_t)sizer.get_ptr();
+
+        using namespace boost::interprocess;
+        file_mapping fm(filename.c_str(), read_write);
+        mapped_region region(fm, read_write, 0, size);
+        char *p = (char*)region.get_address();
+        char *end = p + region.get_size();
+        writer w(p, end);
+        fasta->write_binary(w);
+    }
+
+    /// write an ASCII file for human and legacy use.
+    void write_ascii_file(const std::string &filename) const {
+        std::ofstream os(filename);
+        fasta->write_ascii(os);
+    }
+
     fasta_file_interface *fasta;
 }; 
 
 BOOST_PYTHON_MODULE(genetics)
 {
+    // , (arg("filenames"), arg("num_indexed_chars")), "Create a reference file from several FASTA files, indexing to num_indexed_chars [3..16)"
     class_<Fasta>("Fasta", init<list, int>())
-        .def("find_inexact", &Fasta::find_inexact)
-        //.property("chromosomes", &Fasta::get_chromosomes)
+        .def("find_inexact", &Fasta::find_inexact, (arg("str"), arg("max_distance"), arg("max_results")), "find up to max_results hits with up to max_distance errors")
+        .def("write_binary_file", &Fasta::write_binary_file, (arg("filename")), "write the reference to a binary file")
+        .def("write_ascii_file", &Fasta::write_binary_file, (arg("filename")), "write the reference to a ascii file")
     ;
 }
 
