@@ -65,8 +65,8 @@ namespace boost { namespace genetics {
 
         class iterator {
         public:
-            iterator(const basic_two_stage_index *tsi, const dna_string& str, size_t min_pos = 0, size_t max_distance = 0) :
-                tsi(tsi), str(str), max_distance(max_distance)
+            iterator(const basic_two_stage_index *tsi, const dna_string& str, size_t min_pos = 0, size_t max_distance = 0, size_t max_gap = 0) :
+                tsi(tsi), str(str), max_distance(max_distance), max_gap(max_gap)
             {
                 size_t num_indexed_chars = tsi->num_indexed_chars;
                 size_t num_seeds = str.size() / num_indexed_chars;
@@ -138,12 +138,15 @@ namespace boost { namespace genetics {
                 size_t num_seeds = str.size() / num_indexed_chars;
 
                 if (pos == dna_string::npos) {
+                    // if we have already reached the end, stop.
                     return;
                 } else if (num_seeds <= max_distance) {
+                    // if there are a large number of unknowns, brute force will be faster.
                     pos = str.find_inexact(str, pos + 1, max_distance);
                     printf("brute force\n");
                     return;
                 } else {
+                    // for a small number of unknowns, use a merge to find potential starts.
                     addr_type prev_start = (addr_type)-1;
                     size_t repeat_count = 0;
                     pos = dna_string::npos;
@@ -153,16 +156,11 @@ namespace boost { namespace genetics {
 
                         if (s.start != prev_start) {
                             size_t erc = 0;
-                            // printf("xxx ");
-                            // for (size_t i = 0; i != active.size(); ++i) {
-                                // printf("%5d[%2d] ", (int)active[i].prev, (int)active[i].elem);
-                                // erc += active[i].prev == prev_start;
-                            // }
-                            // printf("\n");
-                            //printf("xxx rc=%d/%d\n", (int)repeat_count, (int)erc);
                             if (repeat_count >= num_seeds - max_distance) {
-                                pos = prev_start;
-                                return;
+                                if (tsi->string->compare_inexact(prev_start, str.size(), str, max_distance) == 0) {
+                                  pos = prev_start;
+                                  return;
+                                }
                             }
                             repeat_count = 0;
                             prev_start = s.start;
@@ -203,15 +201,28 @@ namespace boost { namespace genetics {
                 }
             };
 
+            // index used
             const basic_two_stage_index *tsi;
+
+            // array of active pointers for each seed
             std::vector<active_state> active;
+
+            // dna string
             const dna_string &str;
+
+            // max allowable errors
             size_t max_distance;
+
+            // maximum gaps allowed (introns)
+            size_t max_gap;
+
+            // current search position.
             size_t pos;
         };
 
-        iterator find_inexact(const dna_string& str, size_t pos = 0, size_t max_distance = 0) const {
-            return iterator(this, str, pos, max_distance);
+        /// find the next dna string which is close to the search string allowing max_distance errors and max_gap gaps between exons.
+        iterator find_inexact(const dna_string& str, size_t pos = 0, size_t max_distance = 0, size_t max_gap = 0) const {
+            return iterator(this, str, pos, max_distance, max_gap);
         }
 
         template <class charT, class traits>

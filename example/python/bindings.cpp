@@ -69,12 +69,6 @@ public:
         return py_result;
     }
 
-    list get_chromosomes() const {
-        list result;
-
-        return result;
-    }
-
     /// write a binary file for use with a map
     void write_binary_file(const std::string &filename) const {
         using namespace boost::interprocess;

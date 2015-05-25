@@ -279,17 +279,19 @@ namespace boost { namespace genetics {
             return compare_inexact(pos, ssz, str);
         }
 
-        int compare_inexact(size_t pos, size_t ssz, const basic_dna_string &str, size_t max_distance=0) const {
+        template <class WordType, class ArrayType>
+        int compare_inexact(size_t pos, size_t ssz, const basic_dna_string<WordType, ArrayType> &str, size_t max_distance=0) const {
             //printf("%s\n", std::string(str).c_str());
             pos = std::min(pos, num_bases);
-            ssz = std::min(ssz, str.num_bases);
+            ssz = std::min(ssz, str.size());
             ssz = std::min(ssz, num_bases - pos);
 
+            const ArrayType &str_values = str.get_values();
             const size_t bpv = bases_per_value;
-            size_t nv = std::min(str.values.size(), (ssz+bpv-1)/bpv);
+            size_t nv = std::min(str_values .size(), (ssz+bpv-1)/bpv);
             for (size_t i = 0; i != nv; ++i) {
                 word_type w = window(pos);
-                word_type s = str.values[i];
+                word_type s = str_values[i];
                 if (i == ssz/bpv) {
                     s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
                     w &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
@@ -341,6 +343,10 @@ namespace boost { namespace genetics {
         void write_binary(writer &wr) const {
             wr.write64(num_bases);
             wr.write(values);
+        }
+
+        const ArrayType &get_values() const {
+            return values;
         }
 
     private:
