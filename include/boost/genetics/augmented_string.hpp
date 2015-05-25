@@ -40,12 +40,12 @@ namespace boost { namespace genetics {
             append(str.begin() + pos, str.begin() + std::min(n, str.size()));
         }
 
-        basic_augmented_string(mapper &map) :
+        template <class Mapper>
+        basic_augmented_string(Mapper &map, typename Mapper::is_mapper *p=0) :
             parent(map),
             index(map),
             rle(map)
         {
-            printf("error: i=%d r=%d\n", index.size(), rle.size());
         }
 
         char operator[](size_t base) const {

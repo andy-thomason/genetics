@@ -18,24 +18,29 @@ using namespace boost::genetics;
 class Fasta {
 public:
     Fasta() {
+        fm = nullptr;
+        region = nullptr;
     }
 
-    /// load from single FASTA file
-    /*Fasta(const std::string &filename) {
-        fasta = new fasta_file();
-        fasta->append(filename);
-        int num_indexed_chars = (56-lzcnt(fasta->size())/2;
-        num_indexed_chars = std::max(6, std::min(12, num_indexed_chars));
-        fasta->make_index((size_t)num_indexed_chars);
-    }*/
+    Fasta(const std::string &binary_filename) {
+        using namespace boost::interprocess;
+        fm = nullptr;
+        region = nullptr;
 
-    ~Fasta() {
-        delete fasta;
+        fm = new file_mapping(binary_filename.c_str(), read_only);
+        region = new mapped_region(*fm, read_only);
+        char *p = (char*)region->get_address();
+        char *end = p + region->get_size();
+        mapper m(p, end);
+        fasta = new mapped_fasta_file(m);
     }
 
     /// load from FASTA files (takes several seconds)
     Fasta(const list &filenames, int num_indexed_chars)
     {
+        fm = nullptr;
+        region = nullptr;
+
         size_t len = boost::python::len(filenames);
         fasta = new fasta_file();
         for (size_t i = 0; i != len; ++i) {
@@ -44,10 +49,10 @@ public:
         fasta->make_index((size_t)num_indexed_chars);
     }
 
-    /// map instantly from a binary file
-    void map(const std::string &binary_filename)
-    {
-        fasta = new mapped_fasta_file(binary_filename);
+    ~Fasta() {
+        delete fasta;
+        delete fm;
+        delete region;
     }
 
     /// return a list of matches to 
@@ -72,11 +77,19 @@ public:
 
     /// write a binary file for use with a map
     void write_binary_file(const std::string &filename) const {
+        using namespace boost::interprocess;
+
         writer sizer(nullptr, nullptr);
         fasta->write_binary(sizer);
         size_t size = (size_t)sizer.get_ptr();
 
-        using namespace boost::interprocess;
+
+        // there may be a better way of creating a pre-sized writable file!
+        {
+          std::ofstream os(filename);
+          os.seekp(size-1);
+          os.write("", 1);
+        }
         file_mapping fm(filename.c_str(), read_write);
         mapped_region region(fm, read_write, 0, size);
         char *p = (char*)region.get_address();
@@ -92,12 +105,15 @@ public:
     }
 
     fasta_file_interface *fasta;
+    boost::interprocess::file_mapping *fm;
+    boost::interprocess::mapped_region *region;
 }; 
 
 BOOST_PYTHON_MODULE(genetics)
 {
     // , (arg("filenames"), arg("num_indexed_chars")), "Create a reference file from several FASTA files, indexing to num_indexed_chars [3..16)"
     class_<Fasta>("Fasta", init<list, int>())
+        .def(init<const std::string &>())
         .def("find_inexact", &Fasta::find_inexact, (arg("str"), arg("max_distance"), arg("max_results")), "find up to max_results hits with up to max_distance errors")
         .def("write_binary_file", &Fasta::write_binary_file, (arg("filename")), "write the reference to a binary file")
         .def("write_ascii_file", &Fasta::write_binary_file, (arg("filename")), "write the reference to a ascii file")

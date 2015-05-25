@@ -69,11 +69,11 @@ namespace boost { namespace genetics {
             append(b, e);
         }
 
-        basic_dna_string(mapper &map) :
+        template <class Mapper>
+        basic_dna_string(Mapper &map, typename Mapper::is_mapper *p=0) :
             num_bases((size_t)map.read64()),
             values(map)
         {
-            printf("error: basic_dna_string %d %d\n", (int)num_bases, (int)values.size());
         }
         
         char operator[](size_t index) const {

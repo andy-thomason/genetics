@@ -34,9 +34,11 @@ namespace boost { namespace genetics {
             return *this;
         }
 
+        template <class Mapper>
         basic_two_stage_index(
             StringType &string,
-            mapper &map
+            Mapper &map,
+            typename Mapper::is_mapper *p=0
         ) :
             string(&string),
             num_indexed_chars((size_t)map.read64()),

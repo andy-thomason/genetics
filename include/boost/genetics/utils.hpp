@@ -229,6 +229,7 @@ namespace boost { namespace genetics {
         // todo: in C++11 use alignof
         template <class VecType>
         void write(const VecType &vec, size_t align = sizeof(VecType::value_type)) {
+            write64(sizeof(VecType::value_type));
             write64(vec.size());
             write(vec.data(), vec.size(), align);
         }
@@ -256,6 +257,8 @@ namespace boost { namespace genetics {
     
     class mapper {
     public:
+        typedef void is_mapper;
+
         mapper(const char *begin, const char *end) :
             begin(begin), ptr(begin), end(end)
         {
@@ -266,10 +269,11 @@ namespace boost { namespace genetics {
         }
         
         template <class Type>
-        const Type *map(size_t size, size_t align) {
+        Type *map(size_t size, size_t align) {
             const char *aptr = begin + (((ptr - begin) + align - 1) & (0-align));
             Type *res = (Type*)aptr;
             ptr = aptr + sizeof(Type) * size;
+            if (ptr > end) throw(std::exception("mapped file: overflow reading vector (check file format)"));
             return res;
         }
         
@@ -299,6 +303,11 @@ namespace boost { namespace genetics {
         }
         
         mapped_vector(mapper &map) {
+            size_t value_size = (size_t)map.read64();
+            //printf("mapped_vector: %d\n", (int)value_size);
+            if (value_size != sizeof(value_type)) {
+                throw(std::exception("mapped file: item size mismatch (check file format)"));
+            }
             sz = (size_t)map.read64();
             dat = map.map<value_type>(sz, sizeof(value_type));
         }

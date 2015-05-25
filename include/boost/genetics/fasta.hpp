@@ -24,8 +24,8 @@ namespace boost { namespace genetics {
             return end < pos;
         }
 
-        chromosome() : start(0), end(0) {
-            name[0] = info[0] = 0;
+        chromosome() {
+            memset(this, 0, sizeof(*this));
         }
     };
     
@@ -36,7 +36,8 @@ namespace boost { namespace genetics {
     
     struct fasta_file_interface {
         virtual void find_inexact(std::vector<fasta_result> &result, const std::string &str, size_t max_distance, size_t max_results) = 0;
-        virtual void get_chromosomes(std::vector<chromosome> &result) = 0;
+        virtual const chromosome &get_chromosome(size_t index) const = 0;
+        virtual size_t get_num_chromosomes() const = 0;
         virtual void make_index(size_t num_indexed_chars) = 0;
         virtual void append(const std::string &filename) = 0;
         virtual const chromosome &find_chromosome(size_t location) const = 0;
@@ -61,6 +62,16 @@ namespace boost { namespace genetics {
             append(filename);
         }
         
+        /// use a mapper to instantly load from a mapped file.
+        template <class Mapper>
+        basic_fasta_file(Mapper &map, typename Mapper::is_mapper *p=0) :
+            chromosomes(map),
+            str(map),
+            idx(str, map)
+        {
+        }
+
+        /// move from another reference of the same type
         basic_fasta_file &operator=(basic_fasta_file &&rhs) {
             chromosomes = std::move(rhs.chromosomes);
             str = std::move(rhs.str);
@@ -68,13 +79,6 @@ namespace boost { namespace genetics {
             return *this;
         }
 
-        basic_fasta_file(mapper &map) :
-            chromosomes(map),
-            str(map),
-            idx(map)
-        {
-        }
-        
         virtual ~basic_fasta_file() {
         }
 
@@ -187,8 +191,12 @@ namespace boost { namespace genetics {
         }
         
         /// get the chromosomes in this file.
-        void get_chromosomes(std::vector<chromosome> &result) {
-            result = chromosomes;
+        const chromosome &get_chromosome(size_t index) const {
+            return chromosomes[index];
+        }
+
+        size_t get_num_chromosomes() const {
+            return chromosomes.size();
         }
 
         /// must be called after appending FASTA data.
@@ -226,7 +234,7 @@ namespace boost { namespace genetics {
         /// index on str
         index_type idx;
     };
-    
+
     /// this container is a writable type for conversion from ASCII files.
     typedef basic_fasta_file<
         std::vector<chromosome>,
@@ -236,11 +244,11 @@ namespace boost { namespace genetics {
 
     /// this container is read only for mapped files.
     typedef basic_fasta_file<
-        std::vector<chromosome>,
+        mapped_vector<chromosome>,
         mapped_augmented_string,
         mapped_two_stage_index
     > mapped_fasta_file;
-    
+
 } }
 
 #endif
