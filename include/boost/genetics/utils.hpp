@@ -142,14 +142,10 @@ namespace boost { namespace genetics {
         return ~x;
     }
 
-    static inline size_t count_word(uint64_t x) {
-        x |= x >> 1;
+    static inline size_t count_word(uint64_t x, bool has_popcnt) {
+        x |= x >> 1;  // count if either bit is 1.
         x &= 0x5555555555555555;
-        x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
-        x = (x & 0x0f0f0f0f0f0f0f0full) + ((x >> 4) & 0x0f0f0f0f0f0f0f0full);
-        x = (x & 0x00ff00ff00ff00ffull) + ((x >> 8) & 0x00ff00ff00ff00ffull);
-        x = (x & 0x0000ffff0000ffffull) + ((x >> 16) & 0x0000ffff0000ffffull);
-        return (int)(x + (x>>32));
+        return popcnt(x, has_popcnt);
     }
 
     // consistent reverse complement interface
@@ -173,24 +169,8 @@ namespace boost { namespace genetics {
         return result;
     }
 
-    // return true if x[pos..] matches y to max_distance mismatches)
-    template <class Lhs, class Rhs>
-    bool match(const Lhs &x, size_t pos, const Rhs &y, size_t max_distance) {
-        size_t n = y.size();
-        size_t result = 0;
-        //TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG
-        //TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG
-        //std::cout << x.substr(pos, y.size()) << "\n";
-        //std::cout << y << "\n";
-        for (size_t i = 0; i != n && result <= max_distance; ++i) {
-            int xchr = x[pos + i];
-            int ychr = y[i];
-            result += ychr != xchr && ychr != 'N';
-        }
-        return result <= max_distance;
-    }
-
-    // consistent interface to get a code (0..3) from a string
+    /// Consistent interface to get a code (0..3) from a string.
+    /// Note there is a specialisation for dna_string
     template <class StringType>
     static inline int get_code(const StringType &str, size_t index) {
         return base_to_code(str[index]);
@@ -291,7 +271,8 @@ namespace boost { namespace genetics {
     };
     
     
-    // read only mapped vector
+    /// read only mapped vector
+    /// todo: investigate using boost::interprocess containers
     template<class Type>
     class mapped_vector {
     public:

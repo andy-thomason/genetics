@@ -3,11 +3,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommand>c:\python27\python.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>test.py</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>test.py GRCh38.bin 2 0 1000</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>c:\python27\python.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>test.py</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>test.py GRCh38.bin 2 0 1000</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

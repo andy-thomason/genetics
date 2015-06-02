@@ -201,11 +201,14 @@ namespace boost { namespace genetics {
             return find_inexact(str, pos, n, 0);
         }
 
+
+        /// Brute force string search. For a more refined aproach, use two_stage_index.
+        template <class String>
         size_t find_inexact(
-            const this_type& str, size_t pos = 0,
+            const String& search_str, size_t pos = 0,
             size_t n = ~(size_t)0, size_t max_distance = 0
         ) const {
-            size_t ssz = str.size();
+            size_t ssz = search_str.size();
             if (ssz == 0) {
                 return pos;
             }
@@ -221,15 +224,17 @@ namespace boost { namespace genetics {
                 return basic_dna_string::npos;
             }
 
+            bool cpu_has_popcnt = has_popcnt();
+            bool cpu_has_lzcnt = has_lzcnt();
+
             // come gentle pedantry, shine upon this code.
             const size_t bpv = bases_per_value;
             size_t nv = std::min(values.size() - 1, last/bpv);
-            bool cpu_has_lzcnt = has_lzcnt();
-            word_type s0 = str.values[0];
+            const word_type *search_values = search_str.get_values().data();
+            word_type s0 = search_values[0];
             word_type s0mask = ssz >= bpv ? ~(word_type)0 : ~(word_type)0 << (bpv*2-ssz*2);
             if (ssz >= 4 && max_distance == 0 && pos < nv * bpv) {
-
-                // search for three characters, bpv at a time.
+                // search for four characters, bpv at a time.
                 // this should be about 32 times faster than strstr.
                 word_type r1c = 0x5555555555555555ull;
                 word_type rep0 = ~((s0 >> (bpv*2-2)) * r1c);
@@ -255,7 +260,7 @@ namespace boost { namespace genetics {
                         if (
                             ((v ^ s0) & s0mask) == 0 &&
                             search_pos >= pos && search_pos <= last - ssz &&
-                            compare_inexact(search_pos, ssz, str, max_distance) == 0
+                            compare_inexact(search_pos, ssz, search_str, max_distance) == 0
                         ) {
                             return search_pos;
                         }
@@ -263,12 +268,38 @@ namespace boost { namespace genetics {
                 }
 
                 pos = nv * bpv;
+            } else {
+                for (size_t i = pos/bpv; i < nv; ++i) {
+                    word_type v0 = values[i];
+                    word_type v1 = values[i+1];
+                    for (size_t j = 0; j != bpv; ++j) {
+                        /*if (i == 209843156/32) {
+                            size_t search_pos = i * bpv + j;
+                            printf("%lld %lld %lld %016llx %016llx %016llx\n", (long long)i, (long long)j, (long long)search_pos, v0, v1, s0);
+                        }*/
+                        if (count_word((v0 ^ s0) & s0mask, cpu_has_popcnt) <= max_distance) {
+                            size_t search_pos = i * bpv + j;
+                            //printf("!%lld %lld %lld %016llx %016llx\n", (long long)i, (long long)j, (long long)search_pos, v0, v1);
+                            if (
+                                search_pos >= pos && search_pos <= last - ssz &&
+                                compare_inexact(search_pos, ssz, search_str, max_distance) == 0
+                            ) {
+                                return search_pos;
+                            }
+                        }
+                        v0 = (v0 << 2) | v1 >> (bpv*2-2);
+                        v1 <<= 2;
+                    }
+                }
+                pos = nv * bpv;
             }
-            //std::cout << substr(294589*60-120, 60) << "\n";
+
             while (pos <= last - ssz) {
-                //word_type w0 = window(pos);
-                if (compare_inexact(pos, ssz, str, max_distance) == 0) {
-                    return pos;
+                word_type w0 = window(pos);
+                if (count_word((w0 ^ s0) & s0mask, cpu_has_popcnt) <= max_distance) {
+                    if (compare_inexact(pos, ssz, search_str, max_distance) == 0) {
+                        return pos;
+                    }
                 }
                 ++pos;
             }
@@ -286,9 +317,11 @@ namespace boost { namespace genetics {
             ssz = std::min(ssz, str.size());
             ssz = std::min(ssz, num_bases - pos);
 
+            bool cpu_has_popcnt = has_popcnt();
             const ArrayType &str_values = str.get_values();
             const size_t bpv = bases_per_value;
-            size_t nv = std::min(str_values .size(), (ssz+bpv-1)/bpv);
+            size_t nv = std::min(str_values.size(), (ssz+bpv-1)/bpv);
+            size_t error = 0;
             for (size_t i = 0; i != nv; ++i) {
                 word_type w = window(pos);
                 word_type s = str_values[i];
@@ -296,12 +329,14 @@ namespace boost { namespace genetics {
                     s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
                     w &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
                 }
-                //printf("%lld %llx %llx\n", (long long)i, (long long)s, (long long)w);
                 if (s != w) {
                     if (max_distance == 0) {
                         return s == w ? 0 : s < w ? -1 : 1;
-                    } else if (count_word(s^w) > max_distance) {
-                        return s < w ? -1 : 1;
+                    } else {
+                        error += count_word(s^w, cpu_has_popcnt);
+                        if (error > max_distance) {
+                            return s < w ? -1 : 1;
+                        }
                     }
                 }
                 pos += bpv;

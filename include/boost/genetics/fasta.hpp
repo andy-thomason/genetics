@@ -35,7 +35,14 @@ namespace boost { namespace genetics {
     };
     
     struct fasta_file_interface {
-        virtual void find_inexact(std::vector<fasta_result> &result, const std::string &str, size_t max_distance, size_t max_results) = 0;
+        virtual void find_inexact(
+            std::vector<fasta_result> &result,
+            const std::string &dstr,
+            size_t max_distance,
+            size_t max_results,
+            size_t max_gap,
+            bool is_brute_force
+        ) = 0;
         virtual const chromosome &get_chromosome(size_t index) const = 0;
         virtual size_t get_num_chromosomes() const = 0;
         virtual void make_index(size_t num_indexed_chars) = 0;
@@ -155,6 +162,7 @@ namespace boost { namespace genetics {
                     }
                     line[e-b] = '\n';
                     os << line;
+                    b = e;
                 }
             }
 
@@ -165,23 +173,26 @@ namespace boost { namespace genetics {
             std::vector<fasta_result> &result,
             const std::string &dstr,
             size_t max_distance,
-            size_t max_results
+            size_t max_results,
+            size_t max_gap,
+            bool is_brute_force
         ) /* overload */ {
             result.resize(0);
-            dna_string dna_str = dstr;
+            dna_string search_str = dstr;
             for (
-                index_type::iterator i = idx.find_inexact(dna_str, 0, max_distance);
+                index_type::iterator i = idx.find_inexact(search_str, 0, max_distance, max_gap, is_brute_force);
                 i != idx.end();
                 ++i
             ) {
                 fasta_result r;
                 r.location = (size_t)i;
-                std::string substr = str.substr(r.location, dstr.size());
+                /*std::string substr = str.substr(r.location, dstr.size());
                 r.distance = 0;
                 for (size_t i = 0; i != dstr.size(); ++i) {
                     r.distance += (dstr[i] != substr[i]);
-                }
-                if (r.distance <= max_distance) {
+                }*/
+                //if (r.distance <= max_distance) {
+                {
                     result.push_back(r);
                     if (result.size() == max_results) {
                         return;

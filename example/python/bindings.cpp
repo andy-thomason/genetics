@@ -15,50 +15,47 @@
 using namespace boost::python;
 using namespace boost::genetics;
 
-class Fasta {
+/// python class representing a collection of FASTA files in a reference.
+class Reference {
 public:
-    Fasta() {
-        fm = nullptr;
-        region = nullptr;
+    /// create an empty Reference
+    Reference() {
     }
 
-    Fasta(const std::string &binary_filename) {
+    /// create a Reference from a binary file.
+    Reference(const std::string &binary_filename) {
         using namespace boost::interprocess;
-        fm = nullptr;
-        region = nullptr;
 
-        fm = new file_mapping(binary_filename.c_str(), read_only);
-        region = new mapped_region(*fm, read_only);
+        fm = std::make_shared<file_mapping>(binary_filename.c_str(), read_only);
+        region = std::make_shared<mapped_region>(*fm, read_only);
         char *p = (char*)region->get_address();
         char *end = p + region->get_size();
         mapper m(p, end);
-        fasta = new mapped_fasta_file(m);
+        fasta = std::make_shared<mapped_fasta_file>(m);
     }
 
-    /// load from FASTA files (takes several seconds)
-    Fasta(const list &filenames, int num_indexed_chars)
+    /// load from FASTA files and build index (takes several seconds)
+    Reference(const list &filenames, int num_indexed_chars)
     {
-        fm = nullptr;
-        region = nullptr;
-
         size_t len = boost::python::len(filenames);
-        fasta = new fasta_file();
+        fasta = std::make_shared<fasta_file>();
         for (size_t i = 0; i != len; ++i) {
             fasta->append(boost::python::extract<std::string>(filenames[i]));
         }
         fasta->make_index((size_t)num_indexed_chars);
     }
 
-    ~Fasta() {
-        delete fasta;
-        delete fm;
-        delete region;
+    /// clean up
+    ~Reference() {
     }
 
     /// return a list of matches to 
-    list find_inexact(const std::string &str, int max_distance, int max_results) const {
+    list find_inexact(const std::string &str, int max_distance, int max_gap, bool is_brute_force, int max_results) const {
+        long long t0 = __rdtsc();
         std::vector<fasta_result> result;
-        fasta->find_inexact(result, str, (size_t)max_distance, (size_t)max_results);
+        fasta->find_inexact(result, str, (size_t)max_distance, (size_t)max_results, (size_t)max_gap, is_brute_force);
+        long long t1 = __rdtsc();
+        printf("tot %lld\n", t1 - t0);
         list py_result;
         for (size_t i = 0; i != result.size(); ++i) {
             fasta_result &r = result[i];
@@ -98,19 +95,18 @@ public:
         fasta->write_ascii(os);
     }
 
-    fasta_file_interface *fasta;
-    boost::interprocess::file_mapping *fm;
-    boost::interprocess::mapped_region *region;
+    std::shared_ptr<fasta_file_interface> fasta;
+    std::shared_ptr<boost::interprocess::file_mapping> fm;
+    std::shared_ptr<boost::interprocess::mapped_region> region;
 }; 
 
 BOOST_PYTHON_MODULE(genetics)
 {
-    // , (arg("filenames"), arg("num_indexed_chars")), "Create a reference file from several FASTA files, indexing to num_indexed_chars [3..16)"
-    class_<Fasta>("Fasta", init<list, int>())
+    class_<Reference>("Reference", init<list, int>())
         .def(init<const std::string &>())
-        .def("find_inexact", &Fasta::find_inexact, (arg("str"), arg("max_distance"), arg("max_results")), "find up to max_results hits with up to max_distance errors")
-        .def("write_binary_file", &Fasta::write_binary_file, (arg("filename")), "write the reference to a binary file")
-        .def("write_ascii_file", &Fasta::write_binary_file, (arg("filename")), "write the reference to a ascii file")
+        .def("find_inexact", &Reference::find_inexact, (arg("str"), arg("max_distance"), arg("max_gap"), arg("is_brute_force"), arg("max_results")), "find up to max_results hits with up to max_distance errors")
+        .def("write_binary_file", &Reference::write_binary_file, (arg("filename")), "write the reference to a binary file")
+        .def("write_ascii_file", &Reference::write_ascii_file, (arg("filename")), "write the reference to an ascii file")
     ;
 }
 
