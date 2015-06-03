@@ -15,6 +15,12 @@
     #endif
 #endif
 
+#if defined(_MSC_VER) && defined(_M_AMD64)
+    #define BOOST_GENETICS_IS_WIN64 1
+#else
+    #define BOOST_GENETICS_IS_WIN64 0
+#endif
+
 namespace boost { namespace genetics {
     typedef unsigned char uint8_t;
     typedef unsigned short uint16_t;
@@ -53,14 +59,14 @@ namespace boost { namespace genetics {
 
     template <class Ptr>
     void touch_nta(Ptr ptr) {
-        #if defined(_MSC_VER) && defined(_M_AMD64)
+        #if BOOST_GENETICS_IS_WIN64
             _mm_prefetch((const char *)ptr, _MM_HINT_NTA);
         #endif
     }
 
     template <class Ptr>
     void touch_stream(Ptr ptr) {
-        #if defined(_MSC_VER) && defined(_M_AMD64)
+        #if BOOST_GENETICS_IS_WIN64
             _mm_prefetch((const char *)ptr, _MM_HINT_T1);
         #endif
     }
@@ -76,7 +82,7 @@ namespace boost { namespace genetics {
 
     // some older hardware treats lzcnt like bsr
     static inline bool has_lzcnt() {
-        #if defined(_MSC_VER) && defined(_M_AMD64)
+        #if BOOST_GENETICS_IS_WIN64
             int result[4];
             __cpuidex(result, 0x80000001, 0x000000000);
             return (result[2] & (1 << 5)) != 0;
@@ -87,7 +93,7 @@ namespace boost { namespace genetics {
 
     // some older X86 hardware does not have popcnt
     static inline bool has_popcnt() {
-        #if defined(_MSC_VER) && defined(_M_AMD64)
+        #if BOOST_GENETICS_IS_WIN64
             int result[4];
             __cpuidex(result, 0x00000001, 0x000000000);
             return (result[2] & (1 << 23)) != 0;
@@ -98,8 +104,8 @@ namespace boost { namespace genetics {
 
     // leading zero count: either use machine instruction or C version.
     static inline int lzcnt(uint64_t value, bool has_lzcnt) {
-        #if defined(MSC_VER) && defined(_M_X64)
-            return __lzcnt64(value) ^ (has_lzcnt ? 0x00 : 0x1f);
+        #if defined(_MSC_VER) && defined(_M_X64)
+            return (int)__lzcnt64(value) ^ (has_lzcnt ? 0x00 : 0x1f);
         #else
             int result = value ? 0 : 1;
             result = (value >> 32) ? result : result + 32;
@@ -120,7 +126,7 @@ namespace boost { namespace genetics {
 
     // non-zero bit population count: either use machine instruction or C version.
     static inline int popcnt(uint64_t value, bool has_popcnt) {
-        #if defined(MSC_VER) && defined(_M_X64)
+        #if defined(_MSC_VER) && defined(_M_X64)
             if (has_popcnt) {
                 return (int)__popcnt64(value);
             }

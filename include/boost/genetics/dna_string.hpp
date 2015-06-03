@@ -226,6 +226,7 @@ namespace boost { namespace genetics {
 
             bool cpu_has_popcnt = has_popcnt();
             bool cpu_has_lzcnt = has_lzcnt();
+            //printf("%d %d\n", cpu_has_popcnt, cpu_has_lzcnt);
 
             // come gentle pedantry, shine upon this code.
             const size_t bpv = bases_per_value;
@@ -269,27 +270,13 @@ namespace boost { namespace genetics {
 
                 pos = nv * bpv;
             } else {
-                for (size_t i = pos/bpv; i < nv; ++i) {
-                    word_type v0 = values[i];
-                    word_type v1 = values[i+1];
-                    for (size_t j = 0; j != bpv; ++j) {
-                        /*if (i == 209843156/32) {
-                            size_t search_pos = i * bpv + j;
-                            printf("%lld %lld %lld %016llx %016llx %016llx\n", (long long)i, (long long)j, (long long)search_pos, v0, v1, s0);
-                        }*/
-                        if (count_word((v0 ^ s0) & s0mask, cpu_has_popcnt) <= max_distance) {
-                            size_t search_pos = i * bpv + j;
-                            //printf("!%lld %lld %lld %016llx %016llx\n", (long long)i, (long long)j, (long long)search_pos, v0, v1);
-                            if (
-                                search_pos >= pos && search_pos <= last - ssz &&
-                                compare_inexact(search_pos, ssz, search_str, max_distance) == 0
-                            ) {
-                                return search_pos;
-                            }
-                        }
-                        v0 = (v0 << 2) | v1 >> (bpv*2-2);
-                        v1 <<= 2;
-                    }
+                if (cpu_has_popcnt) {
+                    pos = inexact_search<String, true>(search_str, pos, nv, s0, s0mask, max_distance, ssz, last);
+                } else {
+                    pos = inexact_search<String, false>(search_str, pos, nv, s0, s0mask, max_distance, ssz, last);
+                }
+                if (pos != basic_dna_string::npos) {
+                    return pos;
                 }
                 pos = nv * bpv;
             }
@@ -303,6 +290,36 @@ namespace boost { namespace genetics {
                 }
                 ++pos;
             }
+            return basic_dna_string::npos;
+        }
+
+
+        template <class String, bool cpu_has_popcnt>
+        size_t inexact_search(const String &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t ssz, size_t last) const {
+            const size_t bpv = bases_per_value;
+            for (size_t i = pos/bpv; i < nv; ++i) {
+                word_type v0 = values[i];
+                word_type v1 = values[i+1];
+                size_t hits[bases_per_value];
+                size_t *hp = hits;
+                size_t search_pos = i * bpv;
+                for (size_t j = 0; j != bpv; ++j) {
+                    *hp = search_pos++;
+                    hp = popcnt((v0 ^ s0) & s0mask, cpu_has_popcnt) <= max_distance*2 ? hp + 1 : hp;
+                    v0 = (v0 << 2) | v1 >> (bpv*2-2);
+                    v1 <<= 2;
+                }
+                for (size_t *p = hits; p != hp; ++p) {
+                    size_t search_pos = *p;
+                    if (
+                        search_pos >= pos && search_pos <= last - ssz &&
+                        compare_inexact(search_pos, ssz, search_str, max_distance) == 0
+                    ) {
+                        return search_pos;
+                    }
+                }
+            }
+
             return basic_dna_string::npos;
         }
 

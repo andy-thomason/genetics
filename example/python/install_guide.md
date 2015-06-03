@@ -76,3 +76,30 @@ build parameters.
 appropriate PYTHONPATH
 
 7) Run a basic python test to make sure everything is sane 
+
+##Building with b2
+
+This project should live in your_boost/libs/genetics
+
+The Jamfile.v2 file should be enough to build the DLL
+
+On windows:
+
+..\..\..\..\..\b2 address-model=64
+
+This should make genetics.pyd
+
+*note* it is essential that
+
+a) You use a 64 bit Python build
+b) You run the bootstrap first and build the boost libs
+c) You make sure the boost python DLL is in the path
+
+If python complains about missing DLLs, it is probably not your
+DLL but the boost DLLs which are inacessible.
+
+Once it works, test with "import genetics" in the python
+command shell.
+
+
+

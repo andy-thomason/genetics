@@ -8,7 +8,7 @@ import sys
 
 if sys.argv[1] == "index":
   print("loading...")
-  s = genetics.Reference(['/projects/test/Homo_sapiens.GRCh38.dna.primary_assembly.fa'], 14)
+  s = genetics.Reference(['Homo_sapiens.GRCh38.dna.primary_assembly.fa'], 14)
   print("writing...")
   s.write_binary_file("GRCh38.bin")
 else:
@@ -21,16 +21,6 @@ else:
 
   is_brute_force = int(sys.argv[3]) != 0
   print(is_brute_force)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
-  result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
   result = s.find_inexact('ACTGACTGACTGACTGACTGACTG', int(sys.argv[2]), 0, is_brute_force, 1000)
   print(len(result))
   print(result)
