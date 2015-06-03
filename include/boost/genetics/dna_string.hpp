@@ -300,22 +300,25 @@ namespace boost { namespace genetics {
             for (size_t i = pos/bpv; i < nv; ++i) {
                 word_type v0 = values[i];
                 word_type v1 = values[i+1];
-                size_t hits[bases_per_value];
-                size_t *hp = hits;
-                size_t search_pos = i * bpv;
-                for (size_t j = 0; j != bpv; ++j) {
-                    *hp = search_pos++;
-                    hp = popcnt((v0 ^ s0) & s0mask, cpu_has_popcnt) <= max_distance*2 ? hp + 1 : hp;
-                    v0 = (v0 << 2) | v1 >> (bpv*2-2);
+                word_type s0x = s0;
+                int have_hits = 0;
+                #define BOOST_GENETICS_UNROLL \
+                    have_hits |= popcnt((v0 ^ s0x) & s0mask, cpu_has_popcnt) - (int)(max_distance*2+1); \
+                    v0 = (v0 << 2) | v1 >> (bpv*2-2); \
                     v1 <<= 2;
+                for (size_t j = 0; j != bpv/4; ++j) {
+                    BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL
                 }
-                for (size_t *p = hits; p != hp; ++p) {
-                    size_t search_pos = *p;
-                    if (
-                        search_pos >= pos && search_pos <= last - ssz &&
-                        compare_inexact(search_pos, ssz, search_str, max_distance) == 0
-                    ) {
-                        return search_pos;
+                #undef BOOST_GENETICS_UNROLL
+                if (have_hits < 0) {
+                    for (size_t j = 0; j != bpv; ++j) {
+                        size_t search_pos = i * bpv + j;
+                        if (
+                            search_pos >= pos && search_pos <= last - ssz &&
+                            compare_inexact(search_pos, ssz, search_str, max_distance) == 0
+                        ) {
+                            return search_pos;
+                        }
                     }
                 }
             }
