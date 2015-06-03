@@ -302,16 +302,16 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     //BOOST_MESSAGE(tsi);
 
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
-    if (0) {
-      two_stage_index::iterator i = tsi.find(key1, 0, 0);
+    {
+      two_stage_index::iterator i = tsi.find_inexact(key1, 0, 0, 0, false);
       BOOST_CHECK(i == 120);
       ++i;
       BOOST_CHECK(i == 1200);
       ++i;
       BOOST_CHECK(i == augmented_string::npos);
     }
-    if (0) {
-      two_stage_index::iterator i = tsi.find(key1, 121, 1);
+    {
+      two_stage_index::iterator i = tsi.find_inexact(key1, 121, 1, 0, false);
       BOOST_CHECK(i == 1200);
       ++i;
       BOOST_CHECK(i == 1260);
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
       BOOST_CHECK(i == augmented_string::npos);
     }
     {
-      two_stage_index::iterator i = tsi.find(key1, 1201, 2);
+      two_stage_index::iterator i = tsi.find_inexact(key1, 1201, 2, 0, false);
       BOOST_CHECK(i == 1260);
       ++i;
       BOOST_CHECK(i == 1320);
@@ -337,13 +337,14 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
     
     {
         dna_string dna("TTTTTTTTGGGGGGGGCCCCCCCCAAAA");
-        writer wr((char*)buf, (char*)(buf + 3));
+        writer wr((char*)buf, (char*)(buf + 4));
         dna.write_binary(wr);
         ptr = wr.get_ptr();
         BOOST_CHECK(wr.is_end());
         BOOST_CHECK(buf[0] == 28);
-        BOOST_CHECK(buf[1] == 1);
-        BOOST_CHECK(buf[2] == 0xffffaaaa55550000);
+        BOOST_CHECK(buf[1] == 8);
+        BOOST_CHECK(buf[2] == 1);
+        BOOST_CHECK(buf[3] == 0xffffaaaa55550000);
     }
 
     {
@@ -383,7 +384,7 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
         BOOST_CHECK(map.is_end());
         BOOST_CHECK(std::string(dna) == "TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
         augmented_string key("GG");
-        mapped_two_stage_index::iterator i = tsi.find(key, 0);
+        mapped_two_stage_index::iterator i = tsi.find_inexact(key, 0, 0, 0, false);
         BOOST_CHECK(i == 10);
         i++;
         BOOST_CHECK(i == 11);

@@ -9,6 +9,7 @@
 #include <boost/genetics/fasta.hpp>
 #include <boost/python.hpp>
 
+#include <memory>
 #include <iostream>
 #include <fstream>
 
@@ -95,7 +96,7 @@ public:
         fasta->write_ascii(os);
     }
 
-    std::shared_ptr<fasta_file_interface> fasta;
+    std::shared_ptr<boost::genetics::fasta_file_interface> fasta;
     std::shared_ptr<boost::interprocess::file_mapping> fm;
     std::shared_ptr<boost::interprocess::mapped_region> region;
 }; 
