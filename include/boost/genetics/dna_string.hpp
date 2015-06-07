@@ -3,6 +3,7 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+
 #ifndef BOOST_GENETICS_DNA_STRING_HPP
 #define BOOST_GENETICS_DNA_STRING_HPP
 
@@ -11,7 +12,12 @@
 #include <string>
 
 namespace boost { namespace genetics {
-    /// variable length vector of packed bases
+    /// This class stores DNA strings compactly allowing 32 or more bases to
+    /// be accessed in a single instruction.
+
+    /// Like many of the container classes in this library it can be specialised
+    /// into a standard (std::vector) version for construction and a read-only
+    /// mapped (mapped_vector) version for high performance use.
     template<class WordType, class ArrayType>
     class basic_dna_string {
     public:
@@ -424,6 +430,11 @@ namespace boost { namespace genetics {
     operator<<(std::basic_ostream<charT, traits>& os, const basic_dna_string<WordType, Allocator>&x) {
         os << (std::string)x;
         return os;
+    }
+
+    template <class WordType, class ArrayType>
+    basic_dna_string<WordType, ArrayType> rev_comp(const basic_dna_string<WordType, ArrayType> &x) {
+        return x.substr(0, x.size(), true);
     }
 
     // conventional dna string

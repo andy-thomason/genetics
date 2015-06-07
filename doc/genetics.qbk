@@ -1,9 +1,9 @@
 [/
-  (c) 2015 Andy Thomason
-
-  Distributed under the Boost Software
-  License, Version 1.0.
-  http://boost.org/LICENSE_1_0.txt
+ / (c) 2015 Andy Thomason
+ /
+ / Distributed under the Boost Software
+ / License, Version 1.0.
+ / http://boost.org/LICENSE_1_0.txt
 ]
 
 [library Boost.Genetics
@@ -50,6 +50,10 @@ than DNA as it shows a snapshot of the working activity of each cell type.
   ]
 ]
 
+[endsect]
+
+[section examples]
+[include examples.qbk]
 [endsect]
 
 [section Rationale]

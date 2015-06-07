@@ -157,11 +157,6 @@ namespace boost { namespace genetics {
     // consistent reverse complement interface
     // A <-> T  C <-> G and reverse string
     // this is because DNA has two strands in opposite directions.
-    // this one is for dna_string and augmented_string
-    template <class Type>
-    Type rev_comp(const Type &x, typename Type::word_type *y = 0) {
-        return x.substr(0, x.size(), true);
-    }
 
     // this one is for std::string and other strings
     template <class Type>
