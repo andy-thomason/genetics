@@ -7,6 +7,7 @@
 #define BOOST_GENETICS_TWO_STAGE_INDEX_HPP
 
 #include <boost/genetics/augmented_string.hpp>
+
 #include <stdexcept>
 
 namespace boost { namespace genetics {
