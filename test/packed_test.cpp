@@ -244,11 +244,6 @@ BOOST_AUTO_TEST_CASE( rev_comp_test )
         std::string b("TGNAACACACA");
         BOOST_CHECK( rev_comp(b) == "TGTGTGTTNCA" );
     }
-    {
-        augmented_string b("TGNAACACACA");
-        BOOST_MESSAGE( rev_comp(b) );
-        BOOST_CHECK( rev_comp(b) == "TGTGTGTTNCA" );
-    }
 }
 
 

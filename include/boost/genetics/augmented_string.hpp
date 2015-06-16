@@ -74,12 +74,12 @@ namespace boost { namespace genetics {
         }
 
         void resize(size_t new_size, char chr='A') {
-            size_t num_bases = parent::size();
+            size_t old_size = parent::size();
             parent::resize(new_size);
-            if (new_size > num_bases) {
-                while (num_bases < new_size) {
-                    internal_append(num_bases, &chr, &chr+1);
-                    num_bases++;
+            if (new_size > old_size) {
+                while (old_size < new_size) {
+                    internal_append(old_size, &chr, &chr+1);
+                    old_size++;
                 }
             } else {
                 index.resize(new_size / bases_per_index);
