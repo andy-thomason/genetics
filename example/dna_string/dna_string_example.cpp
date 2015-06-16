@@ -11,7 +11,7 @@
 #include <fstream>
 
 // simple substring search
-void example1() {
+void substring_search() {
     using namespace boost::genetics;
 
     // make a DNA string. Only A, C, G or T allowed.
@@ -26,7 +26,7 @@ void example1() {
 }
 
 // reverse complement
-void example2() {
+void reverse_complement() {
     using namespace boost::genetics;
 
     // in this example the string is reversed to AACCTTTT
@@ -42,7 +42,7 @@ void example2() {
 }
 
 // brute-force inexact find
-void example3() {
+void brute_force_search() {
     using namespace boost::genetics;
 
     // make a DNA string. Only A, C, G or T allowed.
@@ -64,7 +64,7 @@ void example3() {
 }
 
 int main() {
-    example1();
-    example2();
-    example3();
+    substring_search();
+    reverse_complement();
+    brute_force_search();
 }
