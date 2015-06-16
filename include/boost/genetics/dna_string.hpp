@@ -71,7 +71,7 @@ namespace boost { namespace genetics {
             num_bases = 0;
             const charT *b = str + pos;
             const charT *e = str + pos;
-            while (e - b != n && *e) ++e;
+            while ((size_t)(e - b) != n && *e) ++e;
             append(b, e);
         }
 
