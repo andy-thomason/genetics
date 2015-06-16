@@ -234,15 +234,15 @@ namespace boost { namespace genetics {
             bool cpu_has_lzcnt = has_lzcnt();
             //printf("%d %d\n", cpu_has_popcnt, cpu_has_lzcnt);
 
-            // come gentle pedantry, shine upon this code.
+            // Come gentle pedantry, shine upon this code.
             const size_t bpv = bases_per_value;
             size_t nv = std::min(values.size() - 1, last/bpv);
             const word_type *search_values = search_str.get_values().data();
             word_type s0 = search_values[0];
             word_type s0mask = ssz >= bpv ? ~(word_type)0 : ~(word_type)0 << (bpv*2-ssz*2);
             if (ssz >= 4 && max_distance == 0 && pos < nv * bpv) {
-                // search for four characters, bpv at a time.
-                // this should be about 32 times faster than strstr.
+                // Search for four characters, bpv at a time.
+                // This should be about 32 times faster than strstr.
                 word_type r1c = 0x5555555555555555ull;
                 word_type rep0 = ~((s0 >> (bpv*2-2)) * r1c);
                 word_type rep1 = ~(((s0 >> (bpv*2-4)) & 3) * r1c);
@@ -411,7 +411,7 @@ namespace boost { namespace genetics {
         }
 
     private:
-        // note: order matters!
+        // Note: order matters!
         size_t num_bases;
         ArrayType values;
     };
@@ -437,10 +437,10 @@ namespace boost { namespace genetics {
         return x.substr(0, x.size(), true);
     }
 
-    // conventional dna string
+    // Conventional dna string
     typedef basic_dna_string<uint64_t, std::vector<uint64_t> > dna_string;
     
-    // file mapped dna string
+    // File mapped dna string
     typedef basic_dna_string<uint64_t, mapped_vector<uint64_t> > mapped_dna_string;
 
     template <>

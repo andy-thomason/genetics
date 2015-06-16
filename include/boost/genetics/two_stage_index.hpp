@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 namespace boost { namespace genetics {
-    /// two stage index, first index ordered by value, second by address.
+    /// Two stage index, first index ordered by value, second by address.
     template <class StringType, class IndexArrayType, class AddrArrayType, bool Writable>
     class basic_two_stage_index {
     public:
@@ -90,16 +90,16 @@ namespace boost { namespace genetics {
                     }
 
                     //long long t0 = __rdtsc();
-                    // get seed values from string
-                    // touch the index in num_seeds places (with NTA hint)
+                    // Get seed values from string.
+                    // Touch the index in num_seeds places (with NTA hint).
                     for (size_t i = 0; i != num_seeds; ++i) {
                         active_state &s = active[i];
                         s.idx = (index_type)get_index(search_str, i * num_indexed_chars, num_indexed_chars);
                         touch_nta(tsi->addr.data() + tsi->index[i]);
                     }
 
-                    // get seed values from string
-                    // touch the address vector in num_seeds places (with stream hint)
+                    // Get seed values from string.
+                    // Touch the address vector in num_seeds places (with stream hint).
                     for (size_t i = 0; i != num_seeds; ++i) {
                         active_state &s = active[i];
                         const addr_type *ptr = tsi->addr.data() + tsi->index[s.idx];
@@ -147,7 +147,7 @@ namespace boost { namespace genetics {
         private:
             void find_next(bool is_start) {
                 if (pos == dna_string::npos) {
-                    // if we have already reached the end, stop.
+                    // If we have already reached the end, stop.
                     return;
                 } else if (is_brute_force) {
                     size_t start = is_start ? pos : pos + 1;
@@ -158,7 +158,7 @@ namespace boost { namespace genetics {
                     }
                     return;
                 } else {
-                    // for a small number of unknowns, use a merge to find potential starts.
+                    // For a small number of unknowns, use a merge to find potential starts.
                     addr_type prev_start = (addr_type)-1;
                     size_t repeat_count = 0;
                     pos = dna_string::npos;
@@ -181,12 +181,8 @@ namespace boost { namespace genetics {
                         }
 
                         if (s.start == (addr_type)-1) {
-                            //printf("merges_done=%lld\n", (long long)merges_done);
-                            //printf("compares_done=%lld\n", (long long)compares_done);
                             return;
                         }
-
-                        // printf("xxx %5d %2d/%2d [%2d]\n", (int)s.start, (int)repeat_count, (int)(num_seeds - max_distance), (int)s.elem);
 
                         const addr_type *ptr = s.ptr + 1;
                         const addr_type *end = s.end;
@@ -196,8 +192,6 @@ namespace boost { namespace genetics {
                         std::pop_heap(active.begin(), active.end());
                         active.back() = s;
                         std::push_heap(active.begin(), active.end());
-                        
-                        // printf("xxx next: %d\n", (int)active.front().start);
                         repeat_count++;
                     }
                 }
@@ -276,7 +270,7 @@ namespace boost { namespace genetics {
             addr.swap(rhs.addr);
         }
     private:
-        // mapped version has no reindex() as we can't write to the vectors
+        // Mapped version has no reindex() as we can't write to the vectors.
         template<bool B>
         void reindex_impl() {
             throw (std::exception("two_stage_index::reindex(): attempt to reindex a read-only index"));
@@ -285,7 +279,7 @@ namespace boost { namespace genetics {
         // std::vector version has reindex()
         template<>
         void reindex_impl<true>() {
-            // todo: use threads to speed this up.
+            // Todo: use threads to speed this up.
             //       consider using std::sort for better cache performance.
             if (
                 num_indexed_chars <= 1 ||
@@ -303,13 +297,13 @@ namespace boost { namespace genetics {
             index.resize(index_size+1);
             addr.resize(str_size);
 
-            // lead-in: fill acc0 with first DNA codes
+            // Lead-in: fill acc0 with first DNA codes.
             size_t acc0 = 0;
             for (size_t i = 0; i != num_indexed_chars-1; ++i) {
                 acc0 = acc0 * 4 + get_code(*string, i);
             }
 
-            // count phase: count bucket sizes
+            // Count phase: count bucket sizes
             size_t acc = acc0;
             for (size_t i = num_indexed_chars; i != str_size; ++i) {
                 acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
@@ -317,7 +311,7 @@ namespace boost { namespace genetics {
                 if (i % 0x100000 == 0) printf("c %5.2f\n", (double)i * (100.0/str_size));
             }
             
-            // compute running sum of buckets to convert counts to offsets.
+            // Compute running sum of buckets to convert counts to offsets.
             addr_type cur = 0;
             for (size_t i = 0; i != index_size; ++i) {
                 addr_type val = index[i];
@@ -326,7 +320,7 @@ namespace boost { namespace genetics {
             }
             index[index_size] = cur;
 
-            // store phase: fill "addr" with addresses of values.
+            // Store phase: fill "addr" with addresses of values.
             acc = acc0;
             for (size_t i = num_indexed_chars; i != str_size; ++i) {
                 acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
@@ -334,14 +328,14 @@ namespace boost { namespace genetics {
                 if (i % 0x100000 == 0) printf("s %5.2f\n", (double)i * (100.0/str_size));
             }
 
-            // shift the index up one so ends become starts.
+            // Shift the index up one so ends become starts.
             addr_type prev = 0;
             for (size_t i = 0; i != index_size; ++i) {
                 std::swap(prev, index[i]);
             }
         }
 
-        // note: order matters
+        // Note: order matters
         StringType *string;
         size_t num_indexed_chars;
         IndexArrayType index;

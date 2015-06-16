@@ -15,7 +15,7 @@
 
 namespace boost { namespace genetics {
     struct chromosome {
-        char name[80]; /// note: these need to be fixed length strings for binary mapping
+        char name[80]; /// Note: these need to be fixed length strings for binary mapping.
         char info[80];
         size_t start;
         size_t end;
@@ -60,16 +60,16 @@ namespace boost { namespace genetics {
         typedef StringType string_type;
         typedef IndexType index_type;
 
-        /// create an empty FASTA reference file. Use append() to add files.
+        /// Create an empty FASTA reference file. Use append() to add files.
         basic_fasta_file() {
         }
 
-        /// create a FASTA reference from a single text file
+        /// Create a FASTA reference from a single text file.
         basic_fasta_file(const std::string &filename) {
             append(filename);
         }
         
-        /// use a mapper to instantly load from a mapped file.
+        /// Use a mapper to instantly load from a mapped file.
         template <class Mapper>
         basic_fasta_file(Mapper &map, typename Mapper::is_mapper *p=0) :
             chromosomes(map),
@@ -78,7 +78,7 @@ namespace boost { namespace genetics {
         {
         }
 
-        /// move from another reference of the same type
+        /// Move from another reference of the same type.
         basic_fasta_file &operator=(basic_fasta_file &&rhs) {
             chromosomes = std::move(rhs.chromosomes);
             str = std::move(rhs.str);
@@ -89,7 +89,7 @@ namespace boost { namespace genetics {
         virtual ~basic_fasta_file() {
         }
 
-        /// append a single FASTA file to this file.
+        /// Append a single FASTA file to this file.
         void append(const std::string &filename) {
             using namespace boost::interprocess;
             file_mapping fm(filename.c_str(), read_only);
@@ -99,7 +99,7 @@ namespace boost { namespace genetics {
             append(p, end);
         }
 
-        /// append the image of a FASTA file to this file.
+        /// Append the image of a FASTA file to this file.
         void append(const char *p, const char *end) {
             chromosome g;
             g.start = 0;
@@ -127,7 +127,7 @@ namespace boost { namespace genetics {
             }
         }
         
-        /// swap FASTA files.
+        /// Swap FASTA files.
         void swap(basic_fasta_file &rhs) {
             std::swap(str, rhs.str);
             std::swap(chromosomes, rhs.chromosomes);
@@ -168,7 +168,7 @@ namespace boost { namespace genetics {
 
         }
         
-        /// search the FASTA file for strings with some allowable errors.
+        /// Search the FASTA file for strings with some allowable errors.
         void find_inexact(
             std::vector<fasta_result> &result,
             const std::string &dstr,
@@ -201,7 +201,7 @@ namespace boost { namespace genetics {
             }
         }
         
-        /// get the chromosomes in this file.
+        /// Get the chromosomes in this file.
         const chromosome &get_chromosome(size_t index) const {
             return chromosomes[index];
         }
@@ -210,17 +210,17 @@ namespace boost { namespace genetics {
             return chromosomes.size();
         }
 
-        /// must be called after appending FASTA data.
+        /// Must be called after appending FASTA data.
         void make_index(size_t num_indexed_chars) {
             idx = index_type(str, num_indexed_chars);
         }
 
-        /// number of base pairs in this file.
+        /// Number of base pairs in this file.
         size_t size() const {
             return str.size();
         }
 
-        /// find a chomosome for a location.
+        /// Find a chomosome for a location.
         const chromosome &find_chromosome(size_t location) const {
             const chromosome *end = chromosomes.data() + chromosomes.size();
             const chromosome *i = std::lower_bound(chromosomes.data(), end, location);
@@ -233,27 +233,27 @@ namespace boost { namespace genetics {
     private:
         // Note: for these data members, order matters because the map constructor requires this.
 
-        /// empty chromosome for out-of-range queries.
+        /// Empty chromosome for out-of-range queries.
         chromosome null_chr;
 
-        /// vector of chromosomes.
+        /// Vector of chromosomes.
         chromosome_type chromosomes;
 
-        /// usually an augmented_string type to store bases.
+        /// Usually an augmented_string type to store bases.
         string_type str;
 
-        /// index on str
+        /// Index on str
         index_type idx;
     };
 
-    /// this container is a writable type for conversion from ASCII files.
+    /// This container is a writable type for conversion from ASCII files.
     typedef basic_fasta_file<
         std::vector<chromosome>,
         augmented_string,
         two_stage_index
     > fasta_file;
 
-    /// this container is read only for mapped files.
+    /// This container is read only for mapped files.
     typedef basic_fasta_file<
         mapped_vector<chromosome>,
         mapped_augmented_string,

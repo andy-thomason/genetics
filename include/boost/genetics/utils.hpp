@@ -85,7 +85,7 @@ namespace boost { namespace genetics {
         return result;
     }
 
-    // some older hardware treats lzcnt like bsr
+    // Some older hardware treats lzcnt like bsr.
     static inline bool has_lzcnt() {
         #if BOOST_GENETICS_IS_WIN64
             int result[4];
@@ -96,7 +96,7 @@ namespace boost { namespace genetics {
         #endif
     }
 
-    // some older X86 hardware does not have popcnt
+    // Some older X86 hardware does not have popcnt.
     static inline bool has_popcnt() {
         #if BOOST_GENETICS_IS_WIN64
             int result[4];
@@ -107,7 +107,7 @@ namespace boost { namespace genetics {
         #endif
     }
 
-    // leading zero count: either use machine instruction or C version.
+    // Leading zero count: either use machine instruction or C version.
     static inline int lzcnt(uint64_t value, bool has_lzcnt) {
         #if defined(_MSC_VER) && defined(_M_X64)
             return (int)__lzcnt64(value) ^ (has_lzcnt ? 0x00 : 0x1f);
@@ -129,7 +129,7 @@ namespace boost { namespace genetics {
         #endif
     }
 
-    // non-zero bit population count: either use machine instruction or C version.
+    // Non-zero bit population count: either use machine instruction or C version.
     static inline int popcnt(uint64_t value, bool has_popcnt) {
         #if defined(_MSC_VER) && defined(_M_X64)
             if (has_popcnt) {
@@ -159,11 +159,11 @@ namespace boost { namespace genetics {
         return popcnt(x, has_popcnt);
     }
 
-    // consistent reverse complement interface
+    // Consistent reverse complement interface:
     // A <-> T  C <-> G and reverse string
-    // this is because DNA has two strands in opposite directions.
+    // This is because DNA has two strands in opposite directions.
 
-    // this one is for std::string and other strings
+    // This one is for std::string and other strings
     template <class Type>
     Type rev_comp(const Type &x, typename Type::iterator *b = 0) {
         Type result = x;
@@ -212,7 +212,7 @@ namespace boost { namespace genetics {
 
         template <class A, class B> struct exists { typedef B type; };
 
-        // todo: in C++11 use alignof
+        // Todo: in C++11 use alignof.
         template <class VecType>
         void write(const VecType &vec, size_t align = sizeof(VecType::value_type)) {
             write64(sizeof(VecType::value_type));
@@ -277,8 +277,8 @@ namespace boost { namespace genetics {
     };
     
     
-    /// read only mapped vector
-    /// todo: investigate using boost::interprocess containers
+    /// Read only mapped vector.
+    /// Todo: investigate using boost::interprocess containers.
     template<class Type>
     class mapped_vector {
     public:
@@ -291,7 +291,6 @@ namespace boost { namespace genetics {
         
         mapped_vector(mapper &map) {
             size_t value_size = (size_t)map.read64();
-            //printf("mapped_vector: %d\n", (int)value_size);
             if (value_size != sizeof(value_type)) {
                 throw(std::exception("mapped file: item size mismatch (check file format)"));
             }

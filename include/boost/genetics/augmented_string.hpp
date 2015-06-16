@@ -9,7 +9,7 @@
 #include <boost/genetics/dna_string.hpp>
 
 namespace boost { namespace genetics {
-    /// containter for bases ACGT and occasional runs of 'N' and other letters.
+    /// Containter for bases ACGT and occasional runs of 'N' and other letters.
     template<
         class WordType, class ParentType,
         class IndexArrayType, class RleArrayType
@@ -152,7 +152,7 @@ namespace boost { namespace genetics {
             }
         }
 
-        // note: order matters
+        // Note: order matters
         IndexArrayType index;
         RleArrayType rle;
     };
