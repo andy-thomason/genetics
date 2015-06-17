@@ -71,10 +71,10 @@ void acgt_container_tests() {
         Type b;
         std::stringstream ss("TGCAACGTttttXXXX\nAACCGGTT");
         ss >> b;
-        //BOOST_MESSAGE( b );
+        //BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( b == "TGCAACGTTTTTAAAA" );
         ss >> b;
-        BOOST_MESSAGE( b );
+        BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( b == "AACCGGTT" );
     }
 
@@ -84,13 +84,13 @@ template <class Type>
 void generic_string_tests() {
     {
         Type b("ACGT");
-        BOOST_MESSAGE( b );
+        BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( std::string(b) == "ACGT" );
         b.append("TTGA");
-        BOOST_MESSAGE( b );
+        BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( std::string(b) == "ACGTTTGA" );
         b.append("ACCGACCG" "ACCGACCG" "TGCGACCG" "ACCGACCG");
-        BOOST_MESSAGE( b );
+        BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( std::string(b) == "ACGTTTGA" "ACCGACCG" "ACCGACCG" "TGCGACCG" "ACCGACCG" );
         //BOOST_CHECK( b[-1] == 'N' );
         BOOST_CHECK( b[0] == 'A' );
@@ -102,7 +102,7 @@ void generic_string_tests() {
 
     {
         Type b("TGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACAT");
-        BOOST_MESSAGE( b );
+        BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( b == "TGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACATGCAACACACAT");
     }
 
@@ -111,7 +111,7 @@ void generic_string_tests() {
         char buf[64] = {0};
         std::stringstream ss(buf);
         ss << b;
-        BOOST_MESSAGE( std::string(ss.str()) );
+        BOOST_TEST_MESSAGE( std::string(ss.str()) );
         BOOST_CHECK( std::string(ss.str()) == "ACGTACGTACGT" );
     }
 }
@@ -234,13 +234,13 @@ BOOST_AUTO_TEST_CASE( rev_comp_test )
 
     {
         dna_string b("ACGTACGTACGTACGTACGTACGTACGTACGT");
-        BOOST_MESSAGE( rev_comp(b) );
+        BOOST_TEST_MESSAGE( rev_comp(b) );
         BOOST_CHECK( rev_comp(b) == "ACGTACGTACGTACGTACGTACGTACGTACGT" );
     }
 
     {
         dna_string b("TGCAACACACA");
-        BOOST_MESSAGE( rev_comp(b) );
+        BOOST_TEST_MESSAGE( rev_comp(b) );
         BOOST_CHECK( rev_comp(b) == "TGTGTGTTGCA" );
     }
 
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( substr )
         dna_string b("ACGT");
         b.resize(3);
         b.resize(4);
-        BOOST_MESSAGE( b );
+        BOOST_TEST_MESSAGE( b );
         BOOST_CHECK( b == "ACGA" );
     }
 
@@ -270,12 +270,12 @@ BOOST_AUTO_TEST_CASE( substr )
         dna_string b(test_string);
         dna_string c;
         c = b.substr(8, 8);
-        BOOST_MESSAGE( c );
+        BOOST_TEST_MESSAGE( c );
         BOOST_CHECK( c == "ACCGACCG" );
         c = b.substr(8, 40);
-        BOOST_MESSAGE( c );
+        BOOST_TEST_MESSAGE( c );
         dna_string d(test_string + 8);
-        BOOST_MESSAGE( dna_string(test_string + 8) );
+        BOOST_TEST_MESSAGE( dna_string(test_string + 8) );
         BOOST_CHECK( c == test_string + 8);
     }
 
@@ -283,10 +283,10 @@ BOOST_AUTO_TEST_CASE( substr )
         std::string b(test_string);
         std::string c;
         c = b.substr(8, 8);
-        BOOST_MESSAGE( c );
+        BOOST_TEST_MESSAGE( c );
         BOOST_CHECK( c == "ACCGACCG" );
         c = b.substr(8, 40);
-        BOOST_MESSAGE( c );
+        BOOST_TEST_MESSAGE( c );
         BOOST_CHECK( c == test_string + 8);
     }
 
@@ -295,10 +295,10 @@ BOOST_AUTO_TEST_CASE( substr )
 BOOST_AUTO_TEST_CASE( two_stage_index_test )
 {
     using namespace boost::genetics;
-    
+
     augmented_string as(chr1);
     two_stage_index tsi(as, 4);
-    //BOOST_MESSAGE(tsi);
+    //BOOST_TEST_MESSAGE(tsi);
 
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
     {
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
 
     boost::genetics::uint64_t buf[64];
     char *ptr = 0;
-    
+
     {
         dna_string dna("TTTTTTTTGGGGGGGGCCCCCCCCAAAA");
         writer wr((char*)buf, (char*)(buf + 4));
