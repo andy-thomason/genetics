@@ -1,0 +1,149 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Chapter&#160;1.&#160;Boost.Genetics</title>
+<link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="index.html" title="Chapter&#160;1.&#160;Boost.Genetics">
+<link rel="next" href="genetics/introduction.html" title="Introduction">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../boost.png"></td>
+<td align="center"><a href="../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="genetics/introduction.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="chapter">
+<div class="titlepage"><div>
+<div><h2 class="title">
+<a name="genetics"></a>Chapter&#160;1.&#160;Boost.Genetics</h2></div>
+<div><div class="author"><h3 class="author">
+<span class="firstname">Andy</span> <span class="surname">Thomason</span>
+</h3></div></div>
+<div><p class="copyright">Copyright &#169; 2015 Andy Thomason</p></div>
+<div><div class="legalnotice">
+<a name="genetics.legal"></a><p>
+        Distributed under the <a href="http://boost.org/LICENSE_1_0.txt" target="_top">Boost
+        Software License, Version 1.0</a>.
+      </p>
+</div></div>
+</div></div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="section"><a href="index.html#genetics.readme">Readme</a></span></dt>
+<dt><span class="section"><a href="genetics/introduction.html">Introduction</a></span></dt>
+<dt><span class="section"><a href="genetics/examples.html">Examples</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="genetics/examples.html#genetics.examples.dna_string">DNA string</a></span></dt>
+<dt><span class="section"><a href="genetics/examples/reverse_complement.html">Reverse complement</a></span></dt>
+<dt><span class="section"><a href="genetics/examples/inexact_find.html">Inexact searches (or
+      distance searches)</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="genetics/rationale.html">Rationale</a></span></dt>
+<dt><span class="section"><a href="genetics/history.html">History</a></span></dt>
+</dl>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="genetics.readme"></a><a class="link" href="index.html#genetics.readme" title="Readme">Readme</a>
+</h2></div></div></div>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        This duplicates stuff in the instruction and needs revision
+      </p></td></tr>
+</table></div>
+<p>
+      Reference data is usually in FASTA format which is a series of chromomosome
+      names and bases.
+    </p>
+<p>
+      Read data from the<a href="http://www.illumina.com/applications/sequencing.html" target="_top">Illumina
+      machines</a> is in FASTQ format with large numbers of shorter sequences
+      of around 30-200 bases. Currently this is around 100, but the trend is for
+      longer sequences.
+    </p>
+<p>
+      Aligned data the result of an aligner such as Tophat or Star is usually in
+      the SAM or BAM (compressed SAM) format and is similar to the __FASTA but has
+      additional metadata.
+    </p>
+<p>
+      We provide both packed (2 bits/base) and unpacked data (eg. <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span></code>)
+      algorithms.
+    </p>
+<p>
+      Most genetic searches revolve around the creation of Suffix Arrays which are
+      a sort of all the substrings of a sequence to the end.
+    </p>
+<p>
+      For example:
+    </p>
+<pre class="programlisting">"hello" consists of the substrings "hello", "ello", "llo", "lo", "p" and ""
+</pre>
+<p>
+      The suffix array is:
+    </p>
+<pre class="programlisting">5 "" 1 "ello" 0 "hello" 3 "lo" 2 "llo" 4 "o"
+</pre>
+<p>
+      See Wikipedia for a more comprehensive discussion. TODO Reference needed here!
+    </p>
+<p>
+      We can use the suffix array to look up the position of any sequence by, for
+      example, doing a binary chop on the substrings. In practice this is not a sensible
+      thing to do as each of the memory accesses to the substrings may cost thousands
+      of cycles.
+    </p>
+<p>
+      We can also calculate the <a href="https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform" target="_top">Burrows-Wheeler
+      transform</a> (BWT) which simplifies the task of finding the sequence prior
+      to the current one, allowing you to extend the search by one letter in each
+      operation. This also is a very inefficient use of modern memory architectures
+      which are deeply heirarchical.
+    </p>
+<p>
+      Calculating a full suffix array for the 3.2 billion letters of the human genome
+      is an expensive process, but fortunately we don't need to compute a full suffix
+      array as sequences of 16 or more letters are likely to be unique.
+    </p>
+<p>
+      Far better is to calculate a hybrid indexed suffix array which gives you all
+      the substrings starting with a fixed number of letters. For this we add an
+      index of 2^(2N) entries for N letters the suffixes sorted by address in the
+      array instead of value.
+    </p>
+<p>
+      This means that we can use two very expensive memory accesses to find a set
+      of addresses for a sequence and then a small number of very inexpensive accesses
+      and a merge operation to find exact matches of any length (N x M).
+    </p>
+<p>
+      For inexact matches, we can filter the M matches we have to a much smaller
+      set where we can then do expensive tests on the reference itself.
+    </p>
+<p>
+      For a very large number of potential errors, such as 6 errors in a 20 character
+      string, it is fastest to brute-force search the genome. Here we can make use
+      of leading zero and population count operations to rapidly screen large number
+      of bases.
+    </p>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"><p><small>Last revised: June 18, 2015 at 16:58:10 GMT</small></p></td>
+<td align="right"><div class="copyright-footer"></div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="genetics/introduction.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+</body>
+</html>

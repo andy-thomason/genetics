@@ -30,7 +30,7 @@ void simple_substring_search()
     if (gataca_pos != dna_string::npos) {
         std::cout << "'GATACA' found at location " << gataca_pos << "\n";
     }
-}
+} // void simple_substring_search()
 //] [/simple_substring_search]
 
 
@@ -39,18 +39,17 @@ void reverse_complement()
 {
     using namespace boost::genetics;
 
-    // in this example the string is reversed to AACCTTTT
-    // and then complemented (T <-> A and C <-> G) to TTGGAAAA
+    // In this example the string is reversed to AACCTTTT
+    // and then complemented (T <-> A and C <-> G) to TTGGAAAA.
     dna_string str("TTTTCCAA");
 
     std::cout << "reverse complement of " << str << " is " << rev_comp(str) << "\n";
 
-    // this also works for std::string
+    // This also works for `std::string`.
     std::string stdstr("TTGGAAAA");
 
     std::cout << "reverse complement of " << stdstr << " is " << rev_comp(stdstr) << "\n";
-}
-
+} // void reverse_complement()
 //] [/reverse_complement]
 
 
@@ -59,24 +58,23 @@ void inexact_find()
 {
     using namespace boost::genetics;
 
-    // make a DNA string. Only A, C, G or T allowed.
+    // Make a DNA string. Only A, C, G or T allowed.
     dna_string str("ACAGAAACAGTACGTAGGATACAGGTACA");
     //                 GAAACA        GATACA
 
-    // search the string for a substring with up to one error.
+    // Search the string for a substring with up to one error.
     dna_string GATACA = "GATACA";
     size_t gaaaca_pos = str.find_inexact(GATACA, 0, (size_t)-1, 1);
     if (gaaaca_pos != dna_string::npos) {
-        // the first search finds GAAACA (distance one from GATACA)
+        // The first search finds GAAACA (distance one from GATACA)
         std::cout << str.substr(gaaaca_pos, 6) << " found at location " << gaaaca_pos << "\n";
         size_t gataca_pos = str.find_inexact(GATACA, gaaaca_pos+1, (size_t)-1, 1);
         if (gataca_pos != dna_string::npos) {
-            // the second search finds GATACA itself.
+            // The second search finds GATACA itself.
             std::cout << str.substr(gataca_pos, 6) << " found at location " << gataca_pos << "\n";
         }
     }
-}
-
+} // void inexact_find()
 //] [/brute_force_inexact_find]
 
 int main()

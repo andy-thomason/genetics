@@ -1,104 +1,54 @@
 [/
- / (c) 2015 Andy Thomason
- /
- / Distributed under the Boost Software
- / License, Version 1.0.
- / http://boost.org/LICENSE_1_0.txt
+  Copyright 2015 Andy Thomason
+  Distributed under the Boost Software License, Version 1.0.
+  (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
 ]
 
-[section:dna_string]
-    dna_string is a container class like std::string that efficiently stores
-    raw DNA sequences without markup.
+[import ../example/misc_dna_examples.cpp] [/snippets]
 
-    The DNA bases A, C, G, T are represented using two bits per base and are accessed
-    64 bits at a time or more depending on architecture.
+[section:dna_string DNA string]
+`dna_string` is a container class like `std::string` that efficiently stores
+raw DNA sequences without markup.
 
-    Having a packed representation makes it possible to use bit twiddling tricks to perform
-    linear searches faster and reduce level 1 and 2 cache loads.
+The DNA bases A, C, G, T are represented using two bits-per-base and are accessed
+64-bits at a time or more depending on architecture.
 
-    [section:example 1: simple substring search]
+Having a packed representation makes it possible to use bit-twiddling tricks to perform
+linear searches faster and reduce level 1 and 2 cache loads.
 
-    [c++]
-void example1() {
-    using namespace boost::genetics;
+[simple_substring_search] [/Pull in named snippet of C++ from misc_dna_examples.cpp]
 
-    // make a DNA string. Only A, C, G or T allowed.
-    dna_string str("ACAGTACGTAGGATACAGGTACA");
+[endsect] [/section:dna_string]
 
-    // search the string for a substring
-    dna_string GATACA = "GATACA";
-    size_t gataca_pos = str.find(GATACA);
-    if (gataca_pos != dna_string::npos) {
-        std::cout << "'GATACA' found at location " << gataca_pos << "\n";
-    }
-}
-        
-    [endsect]
+[section:reverse_complement Reverse complement]
 
-    [section:example 2: reverse complement]
+Reverse complement converts one strand of DNA to its ['complement]
+which travels in the opposite direction.
 
-    Reverse complement converts one strand of DNA to its "complement"
-    which travels in the opposite direction.
+DNA is a double strand which means that information can be stored
+on either of these two strands. Therefore one must search twice
+using the reverse complement string also to find sequences on the
+opposite strand.
 
-    DNA is a double strand which means that information can be stored
-    on either of these two strands. Therefore one must search twice
-    using the reverse complement string also to find sequences on the
-    opposite strand.
+[reverse_complement]
+[endsect] [/section:Reverse_complement Reverse complement]
 
-    [c++]
-void example2() {
-    using namespace boost::genetics;
+[section:inexact_find Inexact searches (or distance searches)]
 
-    // in this example the string is reversed to AACCTTTT
-    // and then complemented (T <-> A and C <-> G) to TTGGAAAA
-    dna_string str("TTTTCCAA");
+Our genomes are more or less identical with only the occasional
+tiny difference between them. When we have a sequence to search
+against a reference, we often allow a few errors.
 
-    std::cout << "reverse complement of " << str << " is " << rev_comp(str) << "\n";
+For RNA-SEQ searches, for example, matching gene translation to
+a reference such as ENSEMBL, we will possibly allow two errors
+out of 100. For CRISPR searches, for gene editing, this can be more
+like 6 out of 20. These are two very different search criteria
+and different algorithms are used for different mixes.
 
-    // this also works for std::string
-    std::string stdstr("TTGGAAAA");
+For the 6/20 case, at present we use a brute force search, checking
+6.4 billion subsequences against the search string.
 
-    std::cout << "reverse complement of " << stdstr << " is " << rev_comp(stdstr) << "\n";
-}
-        
-    [endsect]
+[brute_force_inexact_find]
 
-    [section:example 3: ineaxct searches (or distance searches)]
-
-    Our genomes are more or less identical with only the occasional
-    tiny difference between them. When we have a sequence to search
-    against a reference, we often allow a few errors.
-
-    For RNA-SEQ searches, for example, matching gene translation to
-    a reference such as ENSEMBL, we will possibly allow two errors
-    out of 100. For CRISPR searches, for gene editing, this can be more
-    like 6 out of 20. These are two very different search criteria
-    and different algorithms are used for different mixes.
-
-    For the 6/20 case, at present we use a brute force search, checking
-    6.4 billion subsequences against the search string.
-
-
-    [c++]
-void example3() {
-    using namespace boost::genetics;
-
-    // make a DNA string. Only A, C, G or T allowed.
-    dna_string str("ACAGAAACAGTACGTAGGATACAGGTACA");
-    //                 GAAACA        GATACA
-
-    // search the string for a substring with up to one error.
-    dna_string GATACA = "GATACA";
-    size_t gaaaca_pos = str.find_inexact(GATACA, 0, (size_t)-1, 1);
-    if (gaaaca_pos != dna_string::npos) {
-        // the first search finds GAAACA (distance one from GATACA)
-        std::cout << str.substr(gaaaca_pos, 6) << " found at location " << gaaaca_pos << "\n";
-        size_t gataca_pos = str.find_inexact(GATACA, gaaaca_pos+1, (size_t)-1, 1);
-        if (gataca_pos != dna_string::npos) {
-            // the second search finds GATACA itself.
-            std::cout << str.substr(gataca_pos, 6) << " found at location " << gataca_pos << "\n";
-        }
-    }
-}
-    [endsect]
-[endsect]
+[endsect] [/section:inexact_find: Inexact searches (or distance searches)]

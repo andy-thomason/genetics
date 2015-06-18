@@ -4,6 +4,8 @@
 # License, Version 1.0.
 # http://boost.org/LICENSE_1_0.txt
 
+# jamfile for building Quickbok documentation of Boost.Genetics library.
+
 import quickbook ;
 
 xml genetics : genetics.qbk ;
@@ -15,3 +17,6 @@ boostbook standalone
     <xsl:param>boost.root=../../../..
     <xsl:param>chunk.section.depth=2
   ;
+
+
+
