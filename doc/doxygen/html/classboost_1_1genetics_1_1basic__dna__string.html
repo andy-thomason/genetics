@@ -159,7 +159,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2a44ff567b61216c3b863468a4aaec68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f60a9450bde96c72f139ead8d273a26"><td class="memTemplParams" colspan="2">template&lt;class String &gt; </td></tr>
 <tr class="memitem:a6f60a9450bde96c72f139ead8d273a26"><td class="memTemplItemLeft" align="right" valign="top">size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classboost_1_1genetics_1_1basic__dna__string.html#a6f60a9450bde96c72f139ead8d273a26">find_inexact</a> (const String &amp;search_str, size_t pos=0, size_t n=~(size_t) 0, size_t max_distance=0) const </td></tr>
-<tr class="memdesc:a6f60a9450bde96c72f139ead8d273a26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Brute force string search. For a more refined aproach, use two_stage_index.  <a href="#a6f60a9450bde96c72f139ead8d273a26">More...</a><br /></td></tr>
 <tr class="separator:a6f60a9450bde96c72f139ead8d273a26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63a67788a64930253b2131630f0caa03"><td class="memTemplParams" colspan="2">template&lt;class String , bool cpu_has_popcnt&gt; </td></tr>
 <tr class="memitem:a63a67788a64930253b2131630f0caa03"><td class="memTemplItemLeft" align="right" valign="top">size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classboost_1_1genetics_1_1basic__dna__string.html#a63a67788a64930253b2131630f0caa03">inexact_search</a> (const String &amp;search_str, size_t pos, size_t nv, <a class="el" href="classboost_1_1genetics_1_1basic__dna__string.html#adc84a854b72ee648df7e85f9842bc39f">word_type</a> s0, <a class="el" href="classboost_1_1genetics_1_1basic__dna__string.html#adc84a854b72ee648df7e85f9842bc39f">word_type</a> s0mask, size_t max_distance, size_t ssz, size_t last) const </td></tr>
@@ -193,7 +192,13 @@ Static Public Attributes</h2></td></tr>
 <div class="textblock"><h3>template&lt;class WordType, class ArrayType&gt;<br />
 class boost::genetics::basic_dna_string&lt; WordType, ArrayType &gt;</h3>
 
-<p>This class stores DNA strings compactly allowing 32 or more bases to be accessed in a single instruction. Like many of the container classes in this library it can be specialised into a standard (std::vector) version for construction and a read-only mapped (<a class="el" href="classboost_1_1genetics_1_1mapped__vector.html">mapped_vector</a>) version for high performance use. </p>
+<p>This class stores DNA strings compactly allowing 32 or more bases to be accessed in a single instruction. Like many of the container classes in this library it can be specialised into a standard (<code>std::vector</code>) version for construction and a read-only mapped (<code><a class="el" href="classboost_1_1genetics_1_1mapped__vector.html">mapped_vector</a></code>) version for high performance use. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">WordType</td><td>Integer word type, typically 64-bit unsigned integer <code>uint64_t</code>. </td></tr>
+    <tr><td class="paramname">ArrayType</td><td>Container array type, typically <code>std::vector&lt;uint64_t</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a class="anchor" id="a83b34d644ce10c836d0197ac7c145d2d"></a>
 <div class="memitem">
@@ -721,8 +726,21 @@ template&lt;class String &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Brute force string search. For a more refined aproach, use two_stage_index. </p>
+<p>Brute force string search. For a more refined aproach, use two_stage_index. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">String</td><td>DNA sequence string type, typically default dna_string. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">search_str</td><td>DNA string to search. </td></tr>
+    <tr><td class="paramname">pos</td><td>start earch??? </td></tr>
+    <tr><td class="paramname">n</td><td>number of ??? </td></tr>
+    <tr><td class="paramname">max_distance</td><td>distance to search ??? </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1337,12 +1355,12 @@ template&lt;class WordType, class ArrayType&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>I:/modular-boost/libs/Boost.Genetics/include/boost/genetics/<a class="el" href="dna__string_8hpp_source.html">dna_string.hpp</a></li>
+<li>I:/modular-boost/libs/genetics/include/boost/genetics/<a class="el" href="dna__string_8hpp_source.html">dna_string.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jun 16 2015 15:28:40 for genetics by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jun 19 2015 17:46:08 for genetics by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

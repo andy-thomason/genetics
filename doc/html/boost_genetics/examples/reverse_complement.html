@@ -1,0 +1,68 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Reverse complement</title>
+<link rel="stylesheet" href="../../genetics.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Boost.Genetics 0.1">
+<link rel="up" href="../examples.html" title="Examples">
+<link rel="prev" href="../examples.html" title="Examples">
+<link rel="next" href="inexact_find.html" title="Inexact searches (or distance searches)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../examples.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="inexact_find.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="boost_genetics.examples.reverse_complement"></a><a class="link" href="reverse_complement.html" title="Reverse complement">Reverse complement</a>
+</h3></div></div></div>
+<p>
+        Reverse complement converts one strand of DNA to its <span class="emphasis"><em>complement</em></span>
+        which travels in the opposite direction.
+      </p>
+<p>
+        DNA is a double strand which means that information can be stored on either
+        of these two strands. Therefore one must search twice using the reverse complement
+        string also to find sequences on the opposite strand.
+      </p>
+<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">reverse_complement</span><span class="special">()</span>
+<span class="special">{</span>
+    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">genetics</span><span class="special">;</span>
+
+    <span class="comment">// In this example the string is reversed to AACCTTTT</span>
+    <span class="comment">// and then complemented (T &lt;-&gt; A and C &lt;-&gt; G) to TTGGAAAA.</span>
+    <span class="identifier">dna_string</span> <span class="identifier">str</span><span class="special">(</span><span class="string">"TTTTCCAA"</span><span class="special">);</span>
+
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"reverse complement of "</span> <span class="special">&lt;&lt;</span> <span class="identifier">str</span> <span class="special">&lt;&lt;</span> <span class="string">" is "</span> <span class="special">&lt;&lt;</span> <span class="identifier">rev_comp</span><span class="special">(</span><span class="identifier">str</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"\n"</span><span class="special">;</span>
+
+    <span class="comment">// This also works for `std::string`.</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="identifier">stdstr</span><span class="special">(</span><span class="string">"TTGGAAAA"</span><span class="special">);</span>
+
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"reverse complement of "</span> <span class="special">&lt;&lt;</span> <span class="identifier">stdstr</span> <span class="special">&lt;&lt;</span> <span class="string">" is "</span> <span class="special">&lt;&lt;</span> <span class="identifier">rev_comp</span><span class="special">(</span><span class="identifier">stdstr</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"\n"</span><span class="special">;</span>
+<span class="special">}</span> <span class="comment">// void reverse_complement()</span>
+</pre>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../examples.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="inexact_find.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

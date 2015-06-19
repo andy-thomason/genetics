@@ -1,0 +1,215 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>File Formats</title>
+<link rel="stylesheet" href="../genetics.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Boost.Genetics 0.1">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Boost.Genetics 0.1">
+<link rel="prev" href="../index.html" title="Chapter&#160;1.&#160;Boost.Genetics 0.1">
+<link rel="next" href="containers.html" title="Containers and Datatypes">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="containers.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="boost_genetics.file_formats"></a><a class="link" href="file_formats.html" title="File Formats">File Formats</a>
+</h2></div></div></div>
+<div class="table">
+<a name="boost_genetics.file_formats.formats"></a><p class="title"><b>Table&#160;1.1.&#160;Common DNA data File Formats</b></p>
+<div class="table-contents"><table class="table" summary="Common DNA data File Formats">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+              <p>
+                Name
+              </p>
+            </th>
+<th>
+              <p>
+                data type
+              </p>
+            </th>
+<th>
+              <p>
+                link
+              </p>
+            </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+              <p>
+                FASTA
+              </p>
+            </td>
+<td>
+              <p>
+                Chromosome data (DNA)
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="http://en.wikipedia.org/wiki/FASTA_format" target="_top">FASTA</a>
+              </p>
+            </td>
+</tr>
+<tr>
+<td>
+              <p>
+                FASTQ
+              </p>
+            </td>
+<td>
+              <p>
+                Read data from sequencing machines
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="http://en.wikipedia.org/wiki/FASTQ_format" target="_top">FASTQ</a>
+              </p>
+            </td>
+</tr>
+<tr>
+<td>
+              <p>
+                SAM/BAM
+              </p>
+            </td>
+<td>
+              <p>
+                Output from aligners
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="../samtools.github.io/hts-specs/SAMv1.pdf" target="_top">SAM</a>
+              </p>
+            </td>
+</tr>
+<tr>
+<td>
+              <p>
+                GTF
+              </p>
+            </td>
+<td>
+              <p>
+                Gene annotation
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="http://en.wikipedia.org/wiki/GENCODE" target="_top">GENCODE</a>
+              </p>
+            </td>
+</tr>
+<tr>
+<td>
+              <p>
+                EMBL
+              </p>
+            </td>
+<td>
+              <p>
+                Individual genes and DNA
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="http://www.bioperl.org/wiki/EMBL_sequence_format" target="_top">http://www.bioperl.org/wiki/EMBL_sequence_format</a>
+              </p>
+            </td>
+</tr>
+<tr>
+<td>
+              <p>
+                VEP
+              </p>
+            </td>
+<td>
+              <p>
+                Variant end predictor
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="http://www.ensembl.org/info/docs/tools/vep/vep_formats.html" target="_top">VEP
+                formats</a>
+              </p>
+            </td>
+</tr>
+<tr>
+<td>
+              <p>
+                VCF
+              </p>
+            </td>
+<td>
+              <p>
+                Variant call format
+              </p>
+            </td>
+<td>
+              <p>
+                <a href="http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf" target="_top">VEP
+                formats</a>
+              </p>
+            </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<br class="table-break"><p>
+      These are mostly (with the exception of BAM) ASCII files. All consist of partitioned
+      sequences of the letters 'A' 'C' 'G' and 'T' with very occasional 'N' and other
+      annotations. This means that a two-bit representation allows us to fit 32 bases
+      into a 64-bit word and 256 into a 512-bit word, for example, so we can process
+      many characters in a single operation.
+    </p>
+<p>
+      On X86-64 architectures some new instructions have been added largely for the
+      purpose of searching 2-bit encoded DNA databases such as the POPCNT64 and LZCNT64
+      instructions.
+    </p>
+<p>
+      The existence of the non-ACTG variants requires that all algorithms we propose
+      in this specification also work with plain-old string data, however, and the
+      C++ iterator paradigm lends itself to flexible algorithms.
+    </p>
+<p>
+      We should support as many of these formats as possible using file mapping (like
+      the boost/interprocess/file_mapping) and iterators. This has been proven to
+      be the most efficient way of dealing with large data files.
+    </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="containers.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

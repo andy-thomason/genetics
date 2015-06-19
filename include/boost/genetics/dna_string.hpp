@@ -3,6 +3,9 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+//! \file
+//! \brief DNA string Container class definitions.
+
 
 #ifndef BOOST_GENETICS_DNA_STRING_HPP
 #define BOOST_GENETICS_DNA_STRING_HPP
@@ -16,8 +19,11 @@ namespace boost { namespace genetics {
     /// be accessed in a single instruction.
 
     /// Like many of the container classes in this library it can be specialised
-    /// into a standard (std::vector) version for construction and a read-only
-    /// mapped (mapped_vector) version for high performance use.
+    /// into a standard (`std::vector`) version for construction and a read-only
+    /// mapped (`mapped_vector`) version for high performance use.
+
+    //! \tparam WordType Integer word type, typically 64-bit unsigned integer `uint64_t`.
+    //! \tparam ArrayType Container array type, typically `std::vector<uint64_t`.
     template<class WordType, class ArrayType>
     class basic_dna_string {
     public:
@@ -30,7 +36,7 @@ namespace boost { namespace genetics {
         basic_dna_string() {
             num_bases = 0;
         }
-        
+
         basic_dna_string(size_t size) {
             num_bases = size;
             values.resize((num_bases+bases_per_value-1)/bases_per_value);
@@ -81,7 +87,7 @@ namespace boost { namespace genetics {
             values(map)
         {
         }
-        
+
         char operator[](size_t index) const {
             size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
             size_t off = index / bases_per_value;
@@ -209,10 +215,17 @@ namespace boost { namespace genetics {
 
 
         /// Brute force string search. For a more refined aproach, use two_stage_index.
+        //! \tparam String DNA sequence string type, typically default dna_string.
+        //! \param search_str DNA string to search.
+        //! \param pos start earch???
+        //! \param n number of ???
+        //! \param max_distance distance to search ???
         template <class String>
         size_t find_inexact(
-            const String& search_str, size_t pos = 0,
-            size_t n = ~(size_t)0, size_t max_distance = 0
+            const String& search_str,
+            size_t pos = 0,
+            size_t n = ~(size_t)0,
+            size_t max_distance = 0
         ) const {
             size_t ssz = search_str.size();
             if (ssz == 0) {
@@ -395,12 +408,12 @@ namespace boost { namespace genetics {
                 return v0 << sh | v1 >> (64-sh);
             }
         }
-        
+
         void swap(basic_dna_string &rhs) {
             std::swap(num_bases, rhs.num_bases);
             values.swap(rhs.values);
         }
-        
+
         void write_binary(writer &wr) const {
             wr.write64(num_bases);
             wr.write(values);
@@ -439,7 +452,7 @@ namespace boost { namespace genetics {
 
     // Conventional dna string
     typedef basic_dna_string<uint64_t, std::vector<uint64_t> > dna_string;
-    
+
     // File mapped dna string
     typedef basic_dna_string<uint64_t, mapped_vector<uint64_t> > mapped_dna_string;
 

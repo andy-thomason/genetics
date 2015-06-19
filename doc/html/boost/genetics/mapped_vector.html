@@ -1,0 +1,95 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Class template mapped_vector</title>
+<link rel="stylesheet" href="../../genetics.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Genetics 0.1">
+<link rel="up" href="../../header/boost/genetics/utils_hpp.html" title="Header &lt;boost/genetics/utils.hpp&gt;">
+<link rel="prev" href="../../header/boost/genetics/utils_hpp.html" title="Header &lt;boost/genetics/utils.hpp&gt;">
+<link rel="next" href="mapper.html" title="Class mapper">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="mapper.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="refentry">
+<a name="boost.genetics.mapped_vector"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2><span class="refentrytitle">Class template mapped_vector</span></h2>
+<p>boost::genetics::mapped_vector &#8212; Read only mapped vector. Todo: investigate using boost::interprocess containers. </p>
+</div>
+<h2 xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv-title">Synopsis</h2>
+<div xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv"><pre class="synopsis"><span class="comment">// In header: &lt;<a class="link" href="../../header/boost/genetics/utils_hpp.html" title="Header &lt;boost/genetics/utils.hpp&gt;">boost/genetics/utils.hpp</a>&gt;
+
+</span><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> 
+<span class="keyword">class</span> <a class="link" href="mapped_vector.html" title="Class template mapped_vector">mapped_vector</a> <span class="special">{</span>
+<span class="keyword">public</span><span class="special">:</span>
+  <span class="comment">// types</span>
+  <span class="keyword">typedef</span> <span class="identifier">Type</span> <a name="boost.genetics.mapped_vector.value_type"></a><span class="identifier">value_type</span><span class="special">;</span>
+
+  <span class="comment">// <a class="link" href="mapped_vector.html#boost.genetics.mapped_vectorconstruct-copy-destruct">construct/copy/destruct</a></span>
+  <a class="link" href="mapped_vector.html#id270590-bb"><span class="identifier">mapped_vector</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="mapped_vector.html#id270591-bb"><span class="identifier">mapped_vector</span></a><span class="special">(</span><a class="link" href="mapper.html" title="Class mapper">mapper</a> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+
+  <span class="comment">// <a class="link" href="mapped_vector.html#id270518-bb">public member functions</a></span>
+  <span class="identifier">value_type</span> <span class="special">&amp;</span> <a class="link" href="mapped_vector.html#id270523-bb"><span class="identifier">back</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">*</span> <a class="link" href="mapped_vector.html#id270534-bb"><span class="identifier">data</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">bool</span> <a class="link" href="mapped_vector.html#id270555-bb"><span class="identifier">empty</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="identifier">value_type</span> <span class="special">&amp;</span> <a class="link" href="mapped_vector.html#id270549-bb"><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">value_type</span> <a class="link" href="mapped_vector.html#id270558-bb"><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="mapped_vector.html#id270540-bb"><span class="identifier">push_back</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="mapped_vector.html#id270565-bb"><span class="identifier">resize</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">size_t</span> <a class="link" href="mapped_vector.html#id270580-bb"><span class="identifier">size</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+<span class="special">}</span><span class="special">;</span></pre></div>
+<div class="refsect1">
+<a name="id932030"></a><h2>Description</h2>
+<div class="refsect2">
+<a name="id932039"></a><h3>
+<a name="boost.genetics.mapped_vectorconstruct-copy-destruct"></a><code class="computeroutput">mapped_vector</code> 
+        public
+       construct/copy/destruct</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem"><pre class="literallayout"><a name="id270590-bb"></a><span class="identifier">mapped_vector</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><a name="id270591-bb"></a><span class="identifier">mapped_vector</span><span class="special">(</span><a class="link" href="mapper.html" title="Class mapper">mapper</a> <span class="special">&amp;</span> map<span class="special">)</span><span class="special">;</span></pre></li>
+</ol></div>
+</div>
+<div class="refsect2">
+<a name="id932134"></a><h3>
+<a name="id270518-bb"></a><code class="computeroutput">mapped_vector</code> public member functions</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem"><pre class="literallayout"><span class="identifier">value_type</span> <span class="special">&amp;</span> <a name="id270523-bb"></a><span class="identifier">back</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">*</span> <a name="id270534-bb"></a><span class="identifier">data</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">bool</span> <a name="id270555-bb"></a><span class="identifier">empty</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="identifier">value_type</span> <span class="special">&amp;</span> <a name="id270549-bb"></a><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span><span class="special">(</span><span class="identifier">size_t</span> idx<span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="identifier">value_type</span> <a name="id270558-bb"></a><span class="keyword">operator</span><span class="special">[</span><span class="special">]</span><span class="special">(</span><span class="identifier">size_t</span> idx<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="id270540-bb"></a><span class="identifier">push_back</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> val<span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="id270565-bb"></a><span class="identifier">resize</span><span class="special">(</span><span class="identifier">size_t</span> new_size<span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="identifier">size_t</span> <a name="id270580-bb"></a><span class="identifier">size</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+</ol></div>
+</div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="mapper.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

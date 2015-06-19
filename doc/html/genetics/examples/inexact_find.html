@@ -2,9 +2,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Inexact searches (or distance searches)</title>
-<link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
+<link rel="stylesheet" href="../../genetics.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
-<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Boost.Genetics">
+<link rel="home" href="../../index.html" title="Boost.Genetics 0.1">
 <link rel="up" href="../examples.html" title="Examples">
 <link rel="prev" href="reverse_complement.html" title="Reverse complement">
 <link rel="next" href="../rationale.html" title="Rationale">
@@ -27,6 +27,13 @@
 <a name="genetics.examples.inexact_find"></a><a class="link" href="inexact_find.html" title="Inexact searches (or distance searches)">Inexact searches (or
       distance searches)</a>
 </h3></div></div></div>
+<p>
+        <code class="computeroutput"><span class="identifier">dna_string</span></code> is a specialization
+        of <code class="computeroutput"><a class="link" href="../../boost/genetics/basic_dna_string.html" title="Class template basic_dna_string">boost::genetics::basic_dna_string</a></code>.
+      </p>
+<p>
+        <code class="computeroutput"><a class="link" href="../../header/boost/genetics/dna_string_hpp.html#boost.genetics.rev_comp_id266855">boost::genetics::rev_comp</a></code>
+      </p>
 <p>
         Our genomes are more or less identical with only the occasional tiny difference
         between them. When we have a sequence to search against a reference, we often
@@ -65,12 +72,15 @@
     <span class="special">}</span>
 <span class="special">}</span> <span class="comment">// void inexact_find()</span>
 </pre>
+<p>
+        The full code for these is at <a href="../../../../example/misc_dna_examples.cpp" target="_top">misc_dna_examples.cpp</a>.
+      </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
 <td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
-        Distributed under the <a href="http://boost.org/LICENSE_1_0.txt" target="_top">Boost
-        Software License, Version 1.0</a>.
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
 </div></td>
 </tr></table>

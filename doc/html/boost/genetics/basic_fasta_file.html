@@ -1,0 +1,130 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Class template basic_fasta_file</title>
+<link rel="stylesheet" href="../../genetics.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Genetics 0.1">
+<link rel="up" href="../../header/boost/genetics/fasta_hpp.html" title="Header &lt;boost/genetics/fasta.hpp&gt;">
+<link rel="prev" href="../../header/boost/genetics/fasta_hpp.html" title="Header &lt;boost/genetics/fasta.hpp&gt;">
+<link rel="next" href="chromosome.html" title="Struct chromosome">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../../header/boost/genetics/fasta_hpp.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/fasta_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="chromosome.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="refentry">
+<a name="boost.genetics.basic_fasta_file"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2><span class="refentrytitle">Class template basic_fasta_file</span></h2>
+<p>boost::genetics::basic_fasta_file</p>
+</div>
+<h2 xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv-title">Synopsis</h2>
+<div xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv"><pre class="synopsis"><span class="comment">// In header: &lt;<a class="link" href="../../header/boost/genetics/fasta_hpp.html" title="Header &lt;boost/genetics/fasta.hpp&gt;">boost/genetics/fasta.hpp</a>&gt;
+
+</span><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> ChromosomeType<span class="special">,</span> <span class="keyword">typename</span> StringType<span class="special">,</span> <span class="keyword">typename</span> IndexType<span class="special">&gt;</span> 
+<span class="keyword">class</span> <a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">genetics</span><span class="special">::</span><span class="identifier">fasta_file_interface</span> <span class="special">{</span>
+<span class="keyword">public</span><span class="special">:</span>
+  <span class="comment">// types</span>
+  <span class="keyword">typedef</span> <span class="identifier">ChromosomeType</span> <a name="boost.genetics.basic_fasta_file.chromosome_type"></a><span class="identifier">chromosome_type</span><span class="special">;</span>
+  <span class="keyword">typedef</span> <span class="identifier">IndexType</span>      <a name="boost.genetics.basic_fasta_file.index_type"></a><span class="identifier">index_type</span><span class="special">;</span>     
+  <span class="keyword">typedef</span> <span class="identifier">StringType</span>     <a name="boost.genetics.basic_fasta_file.string_type"></a><span class="identifier">string_type</span><span class="special">;</span>    
+
+  <span class="comment">// <a class="link" href="basic_fasta_file.html#boost.genetics.basic_fasta_fileconstruct-copy-destruct">construct/copy/destruct</a></span>
+  <a class="link" href="basic_fasta_file.html#id269685-bb"><span class="identifier">basic_fasta_file</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="basic_fasta_file.html#id269716-bb"><span class="identifier">basic_fasta_file</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Mapper<span class="special">&gt;</span> 
+    <a class="link" href="basic_fasta_file.html#id269724-bb"><span class="identifier">basic_fasta_file</span></a><span class="special">(</span><span class="identifier">Mapper</span> <span class="special">&amp;</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Mapper</span><span class="special">::</span><span class="identifier">is_mapper</span> <span class="special">*</span> <span class="special">=</span> <span class="number">0</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">&amp;</span> <a class="link" href="basic_fasta_file.html#id269745-bb"><span class="keyword">operator</span><span class="special">=</span></a><span class="special">(</span><a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">&amp;&amp;</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="basic_fasta_file.html#id269764-bb"><span class="special">~</span><span class="identifier">basic_fasta_file</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+
+  <span class="comment">// <a class="link" href="basic_fasta_file.html#id266942-bb">public member functions</a></span>
+  <span class="keyword">virtual</span> <span class="keyword">void</span> <a class="link" href="basic_fasta_file.html#id266933-bb"><span class="identifier">append</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="basic_fasta_file.html#id266977-bb"><span class="identifier">append</span></a><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">,</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="link" href="chromosome.html" title="Struct chromosome">chromosome</a> <span class="special">&amp;</span> <a class="link" href="basic_fasta_file.html#id266992-bb"><span class="identifier">find_chromosome</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="keyword">void</span> 
+  <a class="link" href="basic_fasta_file.html#id266988-bb"><span class="identifier">find_inexact</span></a><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span> <a class="link" href="fasta_result.html" title="Struct fasta_result">fasta_result</a> <span class="special">&gt;</span> <span class="special">&amp;</span><span class="special">,</span> <span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> 
+               <span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> <span class="keyword">bool</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="link" href="chromosome.html" title="Struct chromosome">chromosome</a> <span class="special">&amp;</span> <a class="link" href="basic_fasta_file.html#id267058-bb"><span class="identifier">get_chromosome</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="identifier">size_t</span> <a class="link" href="basic_fasta_file.html#id267079-bb"><span class="identifier">get_num_chromosomes</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="keyword">void</span> <a class="link" href="basic_fasta_file.html#id267068-bb"><span class="identifier">make_index</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">size_t</span> <a class="link" href="basic_fasta_file.html#id267104-bb"><span class="identifier">size</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="basic_fasta_file.html#id267108-bb"><span class="identifier">swap</span></a><span class="special">(</span><a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="keyword">void</span> <a class="link" href="basic_fasta_file.html#id267115-bb"><span class="identifier">write_ascii</span></a><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">ostream</span> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">virtual</span> <span class="keyword">void</span> <a class="link" href="basic_fasta_file.html#id269703-bb"><span class="identifier">write_binary</span></a><span class="special">(</span><a class="link" href="writer.html" title="Class writer">writer</a> <span class="special">&amp;</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+<span class="special">}</span><span class="special">;</span></pre></div>
+<div class="refsect1">
+<a name="id920969"></a><h2>Description</h2>
+<div class="refsect2">
+<a name="id920972"></a><h3>
+<a name="boost.genetics.basic_fasta_fileconstruct-copy-destruct"></a><code class="computeroutput">basic_fasta_file</code> 
+        public
+       construct/copy/destruct</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem">
+<pre class="literallayout"><a name="id269685-bb"></a><span class="identifier">basic_fasta_file</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre>Create an empty FASTA reference file. Use append() to add files. </li>
+<li class="listitem">
+<pre class="literallayout"><a name="id269716-bb"></a><span class="identifier">basic_fasta_file</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span> filename<span class="special">)</span><span class="special">;</span></pre>Create a FASTA reference from a single text file. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Mapper<span class="special">&gt;</span> 
+  <a name="id269724-bb"></a><span class="identifier">basic_fasta_file</span><span class="special">(</span><span class="identifier">Mapper</span> <span class="special">&amp;</span> map<span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Mapper</span><span class="special">::</span><span class="identifier">is_mapper</span> <span class="special">*</span> p <span class="special">=</span> <span class="number">0</span><span class="special">)</span><span class="special">;</span></pre>Use a mapper to instantly load from a mapped file. </li>
+<li class="listitem">
+<pre class="literallayout"><a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">&amp;</span> <a name="id269745-bb"></a><span class="keyword">operator</span><span class="special">=</span><span class="special">(</span><a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">&amp;&amp;</span> rhs<span class="special">)</span><span class="special">;</span></pre>Move from another reference of the same type. </li>
+<li class="listitem"><pre class="literallayout"><a name="id269764-bb"></a><span class="special">~</span><span class="identifier">basic_fasta_file</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
+</ol></div>
+</div>
+<div class="refsect2">
+<a name="id921202"></a><h3>
+<a name="id266942-bb"></a><code class="computeroutput">basic_fasta_file</code> public member functions</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">void</span> <a name="id266933-bb"></a><span class="identifier">append</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span> filename<span class="special">)</span><span class="special">;</span></pre>Append a single FASTA file to this file. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">void</span> <a name="id266977-bb"></a><span class="identifier">append</span><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> p<span class="special">,</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> end<span class="special">)</span><span class="special">;</span></pre>Append the image of a FASTA file to this file. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">const</span> <a class="link" href="chromosome.html" title="Struct chromosome">chromosome</a> <span class="special">&amp;</span> <a name="id266992-bb"></a><span class="identifier">find_chromosome</span><span class="special">(</span><span class="identifier">size_t</span> location<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>Find a chomosome for a location. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">void</span> 
+<a name="id266988-bb"></a><span class="identifier">find_inexact</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span> <a class="link" href="fasta_result.html" title="Struct fasta_result">fasta_result</a> <span class="special">&gt;</span> <span class="special">&amp;</span> result<span class="special">,</span> <span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span> dstr<span class="special">,</span> 
+             <span class="identifier">size_t</span> max_distance<span class="special">,</span> <span class="identifier">size_t</span> max_results<span class="special">,</span> <span class="identifier">size_t</span> max_gap<span class="special">,</span> 
+             <span class="keyword">bool</span> is_brute_force<span class="special">)</span><span class="special">;</span></pre>Search the FASTA file for strings with some allowable errors. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">const</span> <a class="link" href="chromosome.html" title="Struct chromosome">chromosome</a> <span class="special">&amp;</span> <a name="id267058-bb"></a><span class="identifier">get_chromosome</span><span class="special">(</span><span class="identifier">size_t</span> index<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>Get the chromosomes in this file. </li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">virtual</span> <span class="identifier">size_t</span> <a name="id267079-bb"></a><span class="identifier">get_num_chromosomes</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">void</span> <a name="id267068-bb"></a><span class="identifier">make_index</span><span class="special">(</span><span class="identifier">size_t</span> num_indexed_chars<span class="special">)</span><span class="special">;</span></pre>Must be called after appending FASTA data. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="identifier">size_t</span> <a name="id267104-bb"></a><span class="identifier">size</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>Number of base pairs in this file. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">void</span> <a name="id267108-bb"></a><span class="identifier">swap</span><span class="special">(</span><a class="link" href="basic_fasta_file.html" title="Class template basic_fasta_file">basic_fasta_file</a> <span class="special">&amp;</span> rhs<span class="special">)</span><span class="special">;</span></pre>Swap FASTA files. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">void</span> <a name="id267115-bb"></a><span class="identifier">write_ascii</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">ostream</span> <span class="special">&amp;</span> os<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>copy the bytes in this file to an image. </li>
+<li class="listitem">
+<pre class="literallayout"><span class="keyword">virtual</span> <span class="keyword">void</span> <a name="id269703-bb"></a><span class="identifier">write_binary</span><span class="special">(</span><a class="link" href="writer.html" title="Class writer">writer</a> <span class="special">&amp;</span> wr<span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre>copy the bytes in this file to an image. </li>
+</ol></div>
+</div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../../header/boost/genetics/fasta_hpp.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/fasta_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="chromosome.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

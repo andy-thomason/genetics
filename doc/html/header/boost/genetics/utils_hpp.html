@@ -1,0 +1,80 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Header &lt;boost/genetics/utils.hpp&gt;</title>
+<link rel="stylesheet" href="../../../genetics.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../../index.html" title="Boost.Genetics 0.1">
+<link rel="up" href="../../../boost_genetics_c___reference.html" title="Boost.Genetics C++ Reference">
+<link rel="prev" href="../../../boost/genetics/basic_two_stage_index/iterator/active_state.html" title="Struct active_state">
+<link rel="next" href="../../../boost/genetics/mapped_vector.html" title="Class template mapped_vector">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../../../boost/genetics/basic_two_stage_index/iterator/active_state.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../../boost_genetics_c___reference.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../../../boost/genetics/mapped_vector.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="header.boost.genetics.utils_hpp"></a>Header &lt;<a href="../../../../../../../boost/genetics/utils.hpp" target="_top">boost/genetics/utils.hpp</a>&gt;</h3></div></div></div>
+<pre class="synopsis">
+
+<a class="link" href="../../../BOOST_GENETICS_IS_WIN64.html" title="Macro BOOST_GENETICS_IS_WIN64">BOOST_GENETICS_IS_WIN64</a></pre>
+<pre class="synopsis"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
+  <span class="keyword">namespace</span> <span class="identifier">genetics</span> <span class="special">{</span>
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="keyword">class</span> <a class="link" href="../../../boost/genetics/mapped_vector.html" title="Class template mapped_vector">mapped_vector</a><span class="special">;</span>
+    <span class="keyword">class</span> <a class="link" href="../../../boost/genetics/mapper.html" title="Class mapper">mapper</a><span class="special">;</span>
+    <span class="keyword">class</span> <a class="link" href="../../../boost/genetics/writer.html" title="Class writer">writer</a><span class="special">;</span>
+
+    <span class="keyword">typedef</span> <span class="keyword">long</span> <span class="keyword">long</span> <a name="boost.genetics.int64_t"></a><span class="identifier">int64_t</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">short</span> <a name="boost.genetics.uint16_t"></a><span class="identifier">uint16_t</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> <a name="boost.genetics.uint32_t"></a><span class="identifier">uint32_t</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> <a name="boost.genetics.uint64_t"></a><span class="identifier">uint64_t</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> <a name="boost.genetics.uint8_t"></a><span class="identifier">uint8_t</span><span class="special">;</span>
+    <span class="keyword">int</span> <a name="boost.genetics.base_to_code"></a><span class="identifier">base_to_code</span><span class="special">(</span><span class="keyword">unsigned</span> <span class="keyword">int</span> chr<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">char</span> <a name="boost.genetics.code_to_base"></a><span class="identifier">code_to_base</span><span class="special">(</span><span class="keyword">int</span> code<span class="special">)</span><span class="special">;</span>
+    <span class="identifier">size_t</span> <a name="boost.genetics.count_word"></a><span class="identifier">count_word</span><span class="special">(</span><span class="identifier">uint64_t</span> x<span class="special">,</span> <span class="keyword">bool</span> has_popcnt<span class="special">)</span><span class="special">;</span>
+
+    <span class="comment">// Consistent interface to get a code (0..3) from a string. Note there is a specialisation for dna_string. </span>
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> StringType<span class="special">&gt;</span> 
+      <span class="keyword">int</span> <a name="boost.genetics.get_code"></a><span class="identifier">get_code</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">StringType</span> <span class="special">&amp;</span> str<span class="special">,</span> <span class="identifier">size_t</span> index<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> StringType<span class="special">&gt;</span> 
+      <span class="identifier">uint64_t</span> <a name="boost.genetics.get_index"></a><span class="identifier">get_index</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">StringType</span> <span class="special">&amp;</span> str<span class="special">,</span> <span class="identifier">size_t</span> pos<span class="special">,</span> 
+                         <span class="identifier">size_t</span> num_index_chars<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">bool</span> <a name="boost.genetics.has_lzcnt"></a><span class="identifier">has_lzcnt</span><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+    <span class="keyword">bool</span> <a name="boost.genetics.has_popcnt"></a><span class="identifier">has_popcnt</span><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+    <span class="keyword">bool</span> <a name="boost.genetics.is_base"></a><span class="identifier">is_base</span><span class="special">(</span><span class="keyword">unsigned</span> <span class="keyword">int</span> chr<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">bool</span> <a name="boost.genetics.is_whitespace"></a><span class="identifier">is_whitespace</span><span class="special">(</span><span class="keyword">int</span> chr<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">int</span> <a name="boost.genetics.lzcnt"></a><span class="identifier">lzcnt</span><span class="special">(</span><span class="identifier">uint64_t</span> value<span class="special">,</span> <span class="keyword">bool</span> has_lzcnt<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">int</span> <a name="boost.genetics.popcnt"></a><span class="identifier">popcnt</span><span class="special">(</span><span class="identifier">uint64_t</span> value<span class="special">,</span> <span class="keyword">bool</span> has_popcnt<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> 
+      <span class="identifier">Type</span> <a name="boost.genetics.rev_comp_id268732"></a><span class="identifier">rev_comp</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Type</span> <span class="special">&amp;</span> x<span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Type</span><span class="special">::</span><span class="identifier">iterator</span> <span class="special">*</span> b <span class="special">=</span> <span class="number">0</span><span class="special">)</span><span class="special">;</span>
+    <span class="identifier">uint64_t</span> <a name="boost.genetics.rev_comp_word"></a><span class="identifier">rev_comp_word</span><span class="special">(</span><span class="identifier">uint64_t</span> x<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <a name="boost.genetics.to_dna"></a><span class="identifier">to_dna</span><span class="special">(</span><span class="identifier">uint64_t</span> value<span class="special">,</span> <span class="identifier">size_t</span> len<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Ptr<span class="special">&gt;</span> <span class="keyword">void</span> <a name="boost.genetics.touch_nta"></a><span class="identifier">touch_nta</span><span class="special">(</span><span class="identifier">Ptr</span> ptr<span class="special">)</span><span class="special">;</span>
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Ptr<span class="special">&gt;</span> <span class="keyword">void</span> <a name="boost.genetics.touch_stream"></a><span class="identifier">touch_stream</span><span class="special">(</span><span class="identifier">Ptr</span> ptr<span class="special">)</span><span class="special">;</span>
+  <span class="special">}</span>
+<span class="special">}</span></pre>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../../../boost/genetics/basic_two_stage_index/iterator/active_state.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../../boost_genetics_c___reference.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../../../boost/genetics/mapped_vector.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Examples</title>
+<link rel="stylesheet" href="../genetics.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Boost.Genetics 0.1">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Boost.Genetics 0.1">
+<link rel="prev" href="introduction.html" title="Introduction">
+<link rel="next" href="examples/reverse_complement.html" title="Reverse complement">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="introduction.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="examples/reverse_complement.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="boost_genetics.examples"></a><a class="link" href="examples.html" title="Examples">Examples</a>
+</h2></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="examples.html#boost_genetics.examples.dna_string">DNA string</a></span></dt>
+<dt><span class="section"><a href="examples/reverse_complement.html">Reverse complement</a></span></dt>
+<dt><span class="section"><a href="examples/inexact_find.html">Inexact searches
+      (or distance searches)</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="boost_genetics.examples.dna_string"></a><a class="link" href="examples.html#boost_genetics.examples.dna_string" title="DNA string">DNA string</a>
+</h3></div></div></div>
+<p>
+        Uses <code class="computeroutput">basic_dna_string</code>
+        with most efficient C++ type. Search uses <code class="computeroutput">find_inexact</code>.
+      </p>
+<p>
+        <code class="computeroutput"><span class="identifier">dna_string</span></code> is a container
+        class like <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span></code> that efficiently stores raw DNA
+        sequences without markup.
+      </p>
+<p>
+        The DNA bases A, C, G, T are represented using two bits-per-base and are
+        accessed 64-bits at a time or more depending on architecture.
+      </p>
+<p>
+        Having a packed representation makes it possible to use bit-twiddling tricks
+        to perform linear searches faster and reduce level 1 and 2 cache loads.
+      </p>
+<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">simple_substring_search</span><span class="special">()</span>
+<span class="special">{</span>
+    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">genetics</span><span class="special">;</span>
+
+    <span class="comment">// Make a DNA string. Only A, C, G or T allowed.</span>
+    <span class="identifier">dna_string</span> <span class="identifier">str</span><span class="special">(</span><span class="string">"ACAGTACGTAGGATACAGGTACA"</span><span class="special">);</span>
+
+    <span class="comment">// Search the string for a substring.</span>
+    <span class="identifier">dna_string</span> <span class="identifier">GATACA</span> <span class="special">=</span> <span class="string">"GATACA"</span><span class="special">;</span>
+    <span class="identifier">size_t</span> <span class="identifier">gataca_pos</span> <span class="special">=</span> <span class="identifier">str</span><span class="special">.</span><span class="identifier">find</span><span class="special">(</span><span class="identifier">GATACA</span><span class="special">);</span>
+    <span class="keyword">if</span> <span class="special">(</span><span class="identifier">gataca_pos</span> <span class="special">!=</span> <span class="identifier">dna_string</span><span class="special">::</span><span class="identifier">npos</span><span class="special">)</span> <span class="special">{</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"'GATACA' found at location "</span> <span class="special">&lt;&lt;</span> <span class="identifier">gataca_pos</span> <span class="special">&lt;&lt;</span> <span class="string">"\n"</span><span class="special">;</span>
+    <span class="special">}</span>
+<span class="special">}</span> <span class="comment">// void simple_substring_search()</span>
+</pre>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2015 Andy Thomason<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="introduction.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="examples/reverse_complement.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

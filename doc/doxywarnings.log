@@ -1,0 +1,122 @@
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:67: warning: Compound boost::genetics::basic_two_stage_index::iterator is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:244: warning: Compound boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:32: warning: Compound boost::genetics::fasta_result is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:196: warning: Compound boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:37: warning: Compound boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:213: warning: Compound boost::genetics::writer::exists is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:57: warning: Compound boost::genetics::basic_fasta_file is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:17: warning: Compound boost::genetics::chromosome is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:324: warning: Member BOOST_GENETICS_UNROLL (macro definition) of file dna_string.hpp is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:454: warning: Member dna_string (typedef) of namespace boost::genetics is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:457: warning: Member mapped_dna_string (typedef) of namespace boost::genetics is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:460: warning: Member get_code< dna_string >(const dna_string &str, size_t index) (function) of namespace boost::genetics is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:434: warning: Member operator<<(std::basic_ostream< charT, traits > &os, const basic_dna_string< WordType, Allocator > &x) (function) of namespace boost::genetics is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:434: warning: Member operator>>(std::basic_istream< charT, traits > &is, basic_dna_string< WordType, Allocator > &x) (function) of namespace boost::genetics is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:449: warning: Member rev_comp(const basic_dna_string< WordType, ArrayType > &x) (function) of namespace boost::genetics is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:22: warning: Member index_type (typedef) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:24: warning: Member parent (typedef) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:23: warning: Member rle_type (typedef) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:70: warning: Member append(const char *str) (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:118: warning: Member append(InIter b, InIter e) (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:29: warning: Member basic_augmented_string(const char *str) (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:36: warning: Member basic_augmented_string(const StringType &str, size_t pos=0, size_t n=~(size_t) 0) (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:44: warning: Member basic_augmented_string(Mapper &map, typename Mapper::is_mapper *p=0) (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:90: warning: Member operator std::string() const  (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:51: warning: Member operator[](size_t base) const  (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:76: warning: Member resize(size_t new_size, char chr='A') (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:99: warning: Member substr(size_t offset=0, size_t length=~(size_t) 0, bool rev_comp=false) const  (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:124: warning: Member swap(basic_dna_string &rhs) (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/augmented_string.hpp:130: warning: Member write_binary(writer &wr) const  (function) of class boost::genetics::basic_augmented_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:33: warning: Member this_type (typedef) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:30: warning: Member word_type (typedef) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:148: warning: Member append(const char *str) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:155: warning: Member append(InIter b, InIter e) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:40: warning: Member basic_dna_string(size_t size) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:50: warning: Member basic_dna_string(size_t num_bases, const ArrayType &values) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:57: warning: Member basic_dna_string(InIter b, InIter e) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:63: warning: Member basic_dna_string(const std::basic_string< Char, Traits, Allocator > &str, size_t pos=0, size_t n=~(size_t) 0) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:73: warning: Member basic_dna_string(const charT *str, size_t pos=0, size_t n=~(size_t) 0) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:85: warning: Member basic_dna_string(Mapper &map, typename Mapper::is_mapper *p=0) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:348: warning: Member compare(size_t pos, size_t ssz, const basic_dna_string &str) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:353: warning: Member compare_inexact(size_t pos, size_t ssz, const basic_dna_string< WordType, ArrayType > &str, size_t max_distance=0) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:212: warning: Member find(const this_type &str, size_t pos=0, size_t n=~(size_t) 0) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:386: warning: Member get_code(size_t index) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:392: warning: Member get_index(size_t pos, size_t num_index_chars) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:422: warning: Member get_values() const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:317: warning: Member inexact_search(const String &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t ssz, size_t last) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:97: warning: Member operator std::string() const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:192: warning: Member operator!=(const basic_dna_string &rhs) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:200: warning: Member operator<(const basic_dna_string &rhs) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:208: warning: Member operator<=(const basic_dna_string &rhs) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:188: warning: Member operator==(const basic_dna_string &rhs) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:196: warning: Member operator>(const basic_dna_string &rhs) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:204: warning: Member operator>=(const basic_dna_string &rhs) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:91: warning: Member operator[](size_t index) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:135: warning: Member reserve(size_t size) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:139: warning: Member resize(size_t size) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:131: warning: Member size() const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:106: warning: Member substr(size_t offset=0, size_t length=~(size_t) 0, bool rev_comp=false) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:412: warning: Member swap(basic_dna_string &rhs) (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:396: warning: Member window(size_t base) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:417: warning: Member write_binary(writer &wr) const  (function) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:31: warning: Member bases_per_value (variable) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/dna_string.hpp:32: warning: Member npos (variable) of class boost::genetics::basic_dna_string is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:59: warning: Member chromosome_type (typedef) of class boost::genetics::basic_fasta_file is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:61: warning: Member index_type (typedef) of class boost::genetics::basic_fasta_file is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:60: warning: Member string_type (typedef) of class boost::genetics::basic_fasta_file is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:209: warning: Member get_num_chromosomes() const  (function) of class boost::genetics::basic_fasta_file is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:19: warning: Member addr_type (typedef) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:18: warning: Member index_type (typedef) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:40: warning: Member basic_two_stage_index(StringType &string, Mapper &map, typename Mapper::is_mapper *p=0) (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:52: warning: Member basic_two_stage_index(StringType &string, size_t num_indexed_chars) (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:63: warning: Member end() const  (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:31: warning: Member operator=(basic_two_stage_index &&rhs) (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:59: warning: Member reindex() (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:266: warning: Member swap(basic_two_stage_index &rhs) (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:252: warning: Member write_ascii(std::basic_ostream< charT, traits > &os) const  (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:25: warning: Member write_binary(writer &wr) const  (function) of class boost::genetics::basic_two_stage_index is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:72: warning: Member iterator(const basic_two_stage_index *tsi, const dna_string &search_str, size_t min_pos, size_t max_distance, size_t max_gap, bool is_brute_force) (function) of class boost::genetics::basic_two_stage_index::iterator is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:134: warning: Member operator size_t() const  (function) of class boost::genetics::basic_two_stage_index::iterator is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:138: warning: Member operator++() (function) of class boost::genetics::basic_two_stage_index::iterator is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/two_stage_index.hpp:143: warning: Member operator++(int) (function) of class boost::genetics::basic_two_stage_index::iterator is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:23: warning: Member operator<(size_t pos) const  (function) of class boost::genetics::chromosome is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:21: warning: Member end (variable) of class boost::genetics::chromosome is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:18: warning: Member name[80] (variable) of class boost::genetics::chromosome is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:20: warning: Member start (variable) of class boost::genetics::chromosome is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:49: warning: Member append(const std::string &filename)=0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:50: warning: Member find_chromosome(size_t location) const =0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:38: warning: Member find_inexact(std::vector< fasta_result > &result, const std::string &dstr, size_t max_distance, size_t max_results, size_t max_gap, bool is_brute_force)=0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:46: warning: Member get_chromosome(size_t index) const =0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:47: warning: Member get_num_chromosomes() const =0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:48: warning: Member make_index(size_t num_indexed_chars)=0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:52: warning: Member write_ascii(std::ostream &str) const =0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:51: warning: Member write_binary(writer &wr) const =0 (function) of class boost::genetics::fasta_file_interface is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:34: warning: Member distance (variable) of class boost::genetics::fasta_result is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/fasta.hpp:33: warning: Member location (variable) of class boost::genetics::fasta_result is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:285: warning: Member value_type (typedef) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:325: warning: Member back() (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:321: warning: Member data() const  (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:329: warning: Member empty() const  (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:292: warning: Member mapped_vector(mapper &map) (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:305: warning: Member operator[](size_t idx) (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:309: warning: Member operator[](size_t idx) const  (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:317: warning: Member push_back(const value_type &val) (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:313: warning: Member resize(size_t new_size) (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:301: warning: Member size() const  (function) of class boost::genetics::mapped_vector is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:246: warning: Member is_mapper (typedef) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:270: warning: Member get_ptr() const  (function) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:266: warning: Member is_end() const  (function) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:258: warning: Member map(size_t size, size_t align) (function) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:248: warning: Member mapper(const char *begin, const char *end) (function) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:253: warning: Member read64() (function) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:274: warning: Member begin (variable) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:276: warning: Member end (variable) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:275: warning: Member ptr (variable) of class boost::genetics::mapper is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:235: warning: Member get_ptr() const  (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:231: warning: Member is_end() const  (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:204: warning: Member write(const Type *src, size_t size, size_t align) (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:217: warning: Member write(const VecType &vec, size_t align=sizeof(VecType::value_type)) (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:227: warning: Member write(const std::string &str) (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:223: warning: Member write64(uint64_t value) (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:198: warning: Member writer(char *begin, char *end) (function) of class boost::genetics::writer is not documented.
+I:/modular-boost/libs/genetics/include/boost/genetics/utils.hpp:213: warning: Member type (typedef) of class boost::genetics::writer::exists is not documented.

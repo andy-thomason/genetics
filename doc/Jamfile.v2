@@ -7,8 +7,114 @@
 # jamfile for building Quickbok documentation of Boost.Genetics library.
 
 import quickbook ;
+using auto-index ;
+using doxygen ;
+import modules ;
+
+path-constant images_location : html ;
+path-constant here : . ;
+
+if --enable-index in  [ modules.peek : ARGV ]
+{
+   ECHO "Building the Genetics docs with automatic index generation enabled." ;
+   using auto-index ;
+   project : requirements
+        <auto-index>on # Turns on index (or off).
+
+        <auto-index-verbose>on
+
+        # Choose indexing method (separately for html and pdf):
+        <format>html:<auto-index-internal>on  # on (or off) to use internally generated indexes.
+        # <format>html:<xsl:param>generate.index=0 # Don't let the XSL stylesheets generate indexes.
+
+        <format>pdf:<auto-index-internal>off # on (or off) to use internally generated indexes.
+        # <auto-index-type>index  # Use <index>...</index> as the XML wrapper.
+
+        <format>pdf:<xsl:param>index.on.type=1 # For the native stylesheets to generate the different indexes.
+        # PDF native index support is probably better for PDFs as then you actually get page numbers.
+
+        <auto-index-script>genetics.idx # Specifies the name of the script to load.
+        # <auto-index-prefix>../../../ # OK for Boost /boost and /libs normal directory layout
+        # using scan-path in index.idx, for example:
+
+        # Assume all header files are in boost/quick_auto_dox_index and sub-folders.
+        #!scan-path boost/genetics ".*\.hpp" true
+
+        # Assume all Quickbook files are in /docs (none in sub-folders).
+        #!scan-path "libs/genetics" ".*\.qbk"
+
+        <auto-index-prefix>../
+        <quickbook-define>enable_index ;
+}
+else
+{
+   ECHO "Building the Genetics docs with automatic index generation disabled. To get an AutoIndex, try building with --enable-index." ;
+}
 
 xml genetics : genetics.qbk ;
+
+doxygen autodoc
+  :
+    # [ glob ../../../boost/genetics/*.hpp ]
+    [ glob ../include/boost/genetics/*.hpp ]
+  :
+    #<doxygen:param>INPUT="filename1 directoryname2" # Separate with spaces.
+    # But also see paths specified above.
+    <doxygen:param>RECURSIVE=YES # Search subdirectories as well.
+    # <doxygen:param>STRIP_FROM_PATH=I:/ # Strip this from full path name.
+    <doxygen:param>TAB_SIZE=2
+    # <doxygen:param>EXTRACT_ALL=YES
+    # If the EXTRACT_ALL tag is set to YES doxygen will assume all entities in
+    # documentation are documented, even if no documentation was available.
+    # Private class members and static file members will be hidden unless
+    # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+    <doxygen:param>HIDE_UNDOC_MEMBERS=NO
+    <doxygen:param>INLINE_INHERITED_MEMB=YES # Show all inherited members of a class in the documentation of that class as if those members were ordinary class members.
+    <doxygen:param>SORT_MEMBER_DOCS=YES
+    <doxygen:param>EXTRACT_STATIC=YES # If the EXTRACT_STATIC tag is set to YES all static members of a file
+       # will be included in the documentation.
+    <doxygen:param>EXTRACT_PRIVATE=NO
+    # If the EXTRACT_PRIVATE tag is set to YES all private members of a class will be included in the documentation
+    # If the EXTRACT_STATIC tag is set to YES all static members of a file
+    # will be included in the documentation.
+    # <doxygen:param>EXTRACT_LOCAL_STATIC=YES # ? Not supported.
+    <doxygen:param>EXTRACT_LOCAL_METHODS=NO # Only useful for Objective C?
+    <doxygen:param>EXTRACT_LOCAL_CLASSES=NO # If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs)
+    # defined locally in source files will be included in the documentation.
+    # If set to NO only classes defined in header files are included.
+    <doxygen:param>ENABLE_PREPROCESSING=YES # Doxygen will expand all macro names in the source code.
+    <doxygen:param>MACRO_EXPANSION=YES # If the MACRO_EXPANSION tag is set to YES all macro
+    # Doxygen will expand all names in the source code.
+    <doxygen:param>EXPAND_ONLY_PREDEF=NO # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES
+    # then the macro expansion is limited to the macros specified with the
+    # PREDEFINED and EXPAND_AS_DEFINED tags.
+    <doxygen:param>SEARCH_INCLUDES=YES # If the SEARCH_INCLUDES tag is set to YES (the default) the includes files in the INCLUDE_PATH.
+    <doxygen:param>INLINE_INFO=YES # If the INLINE_INFO tag is set to YES (the default) then a tag [inline] is inserted in the documentation for inline members.
+    <doxygen:param>SORT_BRIEF_DOCS=YES # If the SORT_BRIEF_DOCS tag is set to YES then doxygen will sort the brief descriptions of file, namespace and class members alphabetically by member name.
+    <doxygen:param>SORT_MEMBER_DOCS=YES # If the SORT_MEMBER_DOCS tag is set to YES (the default) then doxygen will sort the (detailed) documentation of file and class members alphabetically by member name.
+    <doxygen:param>SHOW_INCLUDE_FILES=YES # List of the files that are included by a file in the documentation of that file.
+    <doxygen:param>REPEAT_BRIEF=YES # Prepend the brief description of a member or function before the detailed description
+    <doxygen:param>BRIEF_MEMBER_DESC=YES # Include brief member descriptions after the members that are listed in the file and class
+    <doxygen:param>MULTILINE_CPP_IS_BRIEF=YES # Treat a multi-line C++ special comment block (i.e. a block of //! or /// comments) as a brief description.
+    # May be best to always use \brief and \details to avoid ambiguity?
+    #<doxygen:param>INCLUDE_PATH=$(BOOST_ROOT) # The INCLUDE_PATH tag can be used to specify one or more directories that
+    # contain include files that are not input files but should be processed by the preprocessor.
+    <doxygen:param>WARNINGS=YES # If WARN_IF_UNDOCUMENTED is set to YES, then doxygen will generate warnings for undocumented members.
+    # If EXTRACT_ALL is set to YES then this flag will automatically be disabled.
+    <doxygen:param>WARN_IF_UNDOCUMENTED=YES # If WARN_IF_UNDOCUMENTED is set to YES,
+    # then doxygen will generate warnings for undocumented members.
+    <doxygen:param>WARN_IF_DOC_ERROR=YES # If WARN_IF_DOC_ERROR is set to YES, Doxygen will generate warnings for
+    # potential errors in the documentation.
+    <doxygen:param>WARN_LOGFILE=../../../libs/genetics/doc/doxywarnings.log # Specific log file - ideally this should be empty!
+    <doxygen:param>EXCLUDE="../../../boost/genetics/svg_fwd.hpp ../../../boost/genetics/stylesheet.hpp"
+    # Exclude to avoid warnings about file(s) undocumented.
+    # Note: no commas required but need quotes if more than one file.
+
+    <xsl:param>"boost.doxygen.reftitle=Boost.Genetics C++ Reference"
+;
+    #<doxygen:param>"PREDEFINED=\"BOOST_DEDUCED_TYPENAME=typename\" "
+    # See Doxygen configuration for detailed explanation of these options
+
 
 boostbook standalone
   :
@@ -16,7 +122,23 @@ boostbook standalone
   :
     <xsl:param>boost.root=../../../..
     <xsl:param>chunk.section.depth=2
+    <xsl:param>html.stylesheet=genetics.css
+
+   # HTML options first:
+    # Use graphics not text for navigation:
+    <xsl:param>navig.graphics=1
+   # PDF Options:
+     # Use local preference for syntax coloring.
+      <format>pdf:<xsl:param>html.stylesheet=boostbook.css
+
+    <dependency>autodoc
+
   ;
 
+install cssinstall :  : <location>./html <install-type>css <name>genetics.css ;
+explicit cssinstall ;
 
+
+install pdfinstall : standalone/<format>pdf : <location>. <install-type>PDF <name>genetics.pdf ;
+explicit pdfinstall ;
 

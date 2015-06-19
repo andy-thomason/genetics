@@ -8,6 +8,9 @@
 [import ../example/misc_dna_examples.cpp] [/snippets]
 
 [section:dna_string DNA string]
+
+Uses __dna_string with most efficient C++ type.
+
 `dna_string` is a container class like `std::string` that efficiently stores
 raw DNA sequences without markup.
 
@@ -36,12 +39,24 @@ opposite strand.
 
 [section:inexact_find Inexact searches (or distance searches)]
 
+[/examples of using a links]
+`dna_string` is a specialization of [classref boost::genetics::basic_dna_string].
+
+[funcref boost::genetics::rev_comp] [/OK but ambiguous]
+
+[/ but these are all wrong :-(]
+[/funcref boost::genetics::find_inexact]
+[/funcref boost::genetics::basic_dna_string::find_inexact]
+[/funcref boost::genetics::basic_dna_string.find_inexact]
+[/funcref std::string::find_inexact ]
+[/funcref std::string::find]
+
 Our genomes are more or less identical with only the occasional
 tiny difference between them. When we have a sequence to search
 against a reference, we often allow a few errors.
 
 For RNA-SEQ searches, for example, matching gene translation to
-a reference such as ENSEMBL, we will possibly allow two errors
+a reference such as ENSEMBL, we will possibly allow two errors but
 out of 100. For CRISPR searches, for gene editing, this can be more
 like 6 out of 20. These are two very different search criteria
 and different algorithms are used for different mixes.
@@ -50,5 +65,7 @@ For the 6/20 case, at present we use a brute force search, checking
 6.4 billion subsequences against the search string.
 
 [brute_force_inexact_find]
+
+The full code for these is at [@../../example/misc_dna_examples.cpp misc_dna_examples.cpp].
 
 [endsect] [/section:inexact_find: Inexact searches (or distance searches)]

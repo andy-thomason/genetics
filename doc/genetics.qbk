@@ -5,37 +5,87 @@
   http://www.boost.org/LICENSE_1_0.txt)
 ]
 
-[library Boost.Genetics
+[article Boost.Genetics
   [quickbook 1.6]
-  [id genetics]
   [copyright 2015 Andy Thomason]
   [authors [Thomason, Andy]]
-  [dirname genetics]
-  [license Distributed under the
-    [@http://boost.org/LICENSE_1_0.txt
-      Boost Software License, Version 1.0].
+   [license
+      Distributed under the Boost Software License, Version 1.0.
+      (See accompanying file LICENSE_1_0.txt or copy at
+      [@http://www.boost.org/LICENSE_1_0.txt])
   ]
+  [id genetics]
+  [version 0.1]
 ]
 
+[/ For Quickbook manual see:]
+
+[def __quickbook [@http://www.boost.org/doc/libs/release/doc/html/quickbook/ Quickbook]]
+
+[def __caution This is NOT an official Boost library, but remains a library under
+               development, the code is fully functional and robust, but
+               interfaces, library structure, and function and distribution names
+               may still be changed without notice.]
+
+[import ../../../tools/auto_index/include/auto_index_helpers.qbk]
+[/ Required only for autoindex when MUST be first included file!]
+
+[import html4_symbols.qbk]
+
+[/ Macro definitions, conventionally prefixed by two underscores, and used in text as just __spaces]
+[def __spaces '''&#x2000;&#x2000;'''] [/ two spaces - useful for an indent (as space is bizarrely a format as code item!]
+[def __green_tick [role aligncenter [role green \u2714]]] [/ u2714 is a HEAVY CHECK MARK tick (2713 check mark)]
+[def __red_cross [role aligncenter [role red \u2718]]] [/ u2718 is a heavy cross]
+[def __red_star [role aligncenter [role red \u2736]]] [/ 6-point star]
+
 [/ examples of links that you are likely to re-use in the text - recommended - you very often will do!]
+[def __DNA_sequencing [@https://en.wikipedia.org/wiki/DNA_sequencing DNA sequencing]]
 [def __BWT [@https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform Burrows-Wheeler transform]]
 [/ Hint - non-ASCII chars are used in wikipedia heading like the dash in  Burrows-Wheeler so type them in]
 [def __FASTQ [@https://en.wikipedia.org/wiki/FASTQ_format FASTQ format]]
+[def __FASTA [@https://en.wikipedia.org/wiki/FASTA_format FASTA format]]
+[def __SAM [@samtools.github.io/hts-specs/SAMv1.pdf Sequence Alignment/Map Format Specification]]
+[def __BAM [@samtools.github.io/hts-specs/SAMv1.pdf Section 4 The BAM Format Specification]]
+[/Link to a section in the text, using the section id (not the actual section title]
+[def __file_formats [link genetics.readme]]
+[def __file_formats [link genetics.file_formats]]
 
+[/ Misc references]
+[def __R [@http://www.r-project.org/ The R Project for Statistical Computing]]
+[def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
 
+ [/links to Boost libraries - Boost.Test, Timer ...]
+ [/Note the use of @boost:/libs/etc... to make it version independent - always most recent version.]
+[def __boost_test [@boost:/libs/test/doc/html/index.html Boost.Test]]
+[def __boost_timer [@boost:/libs/timer/doc/index.html Boost.Timer]]
+
+[/links to classes and functions in header files]
+[/ see http://www.boost.org/doc/libs/release/doc/html/quickbook/syntax/phrase.html#quickbook.syntax.phrase.code_links]
+[/funcref fully::qualified::function_name The link text]
+[def __dna_string [classref boost::genetics::basic_dna_string basic_dna_string]]
+[/def __find_inexact [funcref boost::genetics::find_inexact find_inexact]]
+
+[/ Some composite templates, call example [super -2] ]
+[template super[x]'''<superscript>'''[x]'''</superscript>''']
+[template sub[x]'''<subscript>'''[x]'''</subscript>''']
+[template floor[x]'''&#x230A;'''[x]'''&#x230B;''']
+[template floorlr[x][lfloor][x][rfloor]]
+[template ceil[x] '''&#x2308;'''[x]'''&#x2309;''']
+
+[template header_file[file] [@../../../../[file] [file]]]
 
 [section:readme Readme]
 [/ Copied and pasted from readme]
 
-[note This duplicates stuff in the instruction and needs revision]
+[note This duplicates stuff in and needs drastic revision]
 
 Reference data is usually in FASTA format which is a series of chromomosome names and bases.
 
-Read data from the[@http://www.illumina.com/applications/sequencing.html Illumina machines]
-is in FASTQ format with large numbers of shorter sequences of around 30-200 bases.
+Read data from the [@http://www.illumina.com/applications/sequencing.html Illumina machines]
+is in __FASTQ format with large numbers of shorter sequences of around 30-200 bases.
 Currently this is around 100, but the trend is for longer sequences.
 
-Aligned data the result of an aligner such as Tophat or Star is usually in the SAM or BAM (compressed SAM) format
+Aligned data the result of an aligner such as Tophat or Star is usually in the __SAM (or __BAM (compressed SAM)) format
 and is similar to the __FASTA but has additional metadata.
 
 We provide both packed (2 bits/base) and unpacked data (eg. `std::string`) algorithms.
@@ -45,7 +95,7 @@ which are a sort of all the substrings of a sequence to the end.
 
 For example:
 [pre
-"hello" consists of the substrings "hello", "ello", "llo", "lo", "p" and ""
+SA \"hello\" consists of the substrings \"hello\", \"ello\", \"llo\", \"lo\", \"p\" and \"\"
 ]
 
 The suffix array is:
@@ -53,7 +103,7 @@ The suffix array is:
 5 "" 1 "ello" 0 "hello" 3 "lo" 2 "llo" 4 "o"
 ]
 
-See Wikipedia for a more comprehensive discussion.  TODO  Reference needed here!
+See __DNA_sequencing for a more comprehensive discussion.
 
 We can use the suffix array to look up the position of any sequence by,
 for example, doing a binary chop on the substrings.
@@ -68,7 +118,7 @@ This also is a very inefficient use of modern memory architectures which are dee
 Calculating a full suffix array for the 3.2 billion letters of the human genome is an expensive process,
 but fortunately we don't need to compute a full suffix array as sequences of 16 or more letters are likely to be unique.
 
-Far better is to calculate a hybrid indexed suffix array which gives you all the substrings
+Far better is to calculate a hybrid-indexed suffix array which gives you all the substrings
 starting with a fixed number of letters.
 For this we add an index of 2^(2N) entries for N letters the suffixes sorted by address in the array instead of value.
 
@@ -84,6 +134,54 @@ it is fastest to brute-force search the genome.
 Here we can make use of leading zero and population count operations to rapidly screen large number of bases.
 
 [endsect] [/section:readme Readme]
+
+[section:file_formats  File Formats]
+
+[/I think that this needs another column for the link text?]
+[table:formats Common DNA data File Formats
+[[Name] [data type][link]]
+[[FASTA][Chromosome data (DNA)] [ [@http://en.wikipedia.org/wiki/FASTA_format FASTA]]]
+[[FASTQ][Read data from sequencing machines] [ [@http://en.wikipedia.org/wiki/FASTQ_format FASTQ]]]
+[[SAM/BAM][Output from aligners][[@samtools.github.io/hts-specs/SAMv1.pdf SAM]]]
+[[GTF][Gene annotation][[@http://en.wikipedia.org/wiki/GENCODE GENCODE]]]
+[[EMBL][Individual genes and DNA][[@http://www.bioperl.org/wiki/EMBL_sequence_format]]]
+[[VEP][Variant end predictor][[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html VEP formats]]]
+[[VCF][Variant call format][[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf VEP formats]]]
+] [/table:formats]
+
+These are mostly (with the exception of BAM) ASCII files.
+All consist of partitioned sequences of the letters 'A' 'C' 'G' and 'T' with very occasional 'N' and other annotations.
+This means that a two-bit representation allows us to fit 32 bases into a 64-bit word and 256 into a 512-bit word,
+for example, so we can process many characters in a single operation.
+
+On X86-64 architectures some new instructions have been added largely
+for the purpose of searching 2-bit encoded DNA databases such as the POPCNT64 and LZCNT64 instructions.
+
+The existence of the non-ACTG variants requires that all algorithms we propose in this specification
+also work with plain-old string data, however, and the C++ iterator paradigm lends itself to flexible algorithms.
+
+We should support as many of these formats as possible using file mapping
+(like the boost/interprocess/file_mapping) and iterators.
+This has been proven to be the most efficient way of dealing with large data files.
+
+[endsect] [/section:file_formats  File Formats]
+
+[section:containers Containers and Datatypes]
+
+In order to work with the restricted alphabet, we need a 2-bit data type similar to the 1-bit bool datatype.
+As there is not such datatype in the language, we can add a boxed datatype with a restricted constructor.
+
+[endsect] [/section:containers Containers and Datatypes]
+
+[section:algorithms Algorithms]
+
+Most searching algorithms in genetics start with string searches
+of a small (<100char) string within a much larger (>1Gchar) string.
+These can be facilitated with a Suffix Array (SA) which is a sorted array of substrings within the string.
+
+For example, SA("hello") to  {"", "ello", "hello", "llo", "lo", "o"}.
+
+[endsect] [/section:algorithms Algorithms]
 
 [section:introduction Introduction]
 
@@ -104,7 +202,7 @@ A, C, G, U but it is common to use the DNA letters, often because we
 read RNA by converting it to DNA first. RNA is often more interesting
 than DNA as it shows a snapshot of the working activity of each cell type.
 
-[table:genetics The Boost.Genetics Library
+[table:genetics The Boost.Genetics Library DNA formats
 [ [Component] [Description] ]
 [ [`dna_string`]
 [Compact container for DNA sequences with fast linear search. Can only hold A, C, T or G]
@@ -139,5 +237,103 @@ TODO
 Expression of interest in a genetic algorthms library.  Date?
 
 [endsect] [/section:history History]
+
+
+[section:faq Frequently Asked Questions FAQ]
+[/use of br (new paragraph) causes warnings but ignore them.]
+
+You might want a FAQ?
+
+# ['I'm a R user and I don't see why I should bother with Boost?] [br]
+# I have another problem... [br]
+
+[endsect] [/section:faq Frequently Asked Questions FAQ]
+
+[section:credits Credits and Acknowledgements]
+The documentation was produce in Quickbook format by Paul A. Bristow.
+[endsect] [/section:credits Credits and Acknowledgements]
+
+[section:navigation Navigation]
+
+Boost.Genetics documentation is available in both HTML and PDF formats.
+
+* [*Tutorials] are listed in the ['Table of Contents] and
+include many examples that should help you get started quickly.
+* [*Source code] of the many ['Examples] will often be your quickest starting point.
+* [*Index] (general) includes all entries.
+* [*Specific Indexes] list only functions, class signatures, macros and typedefs.
+
+[h5 Using the Indexes]
+
+The main index will usually help,
+especially if you know a word describing what it does,
+without needing to know the exact name chosen for the function.
+
+[tip When using the index, keep in mind that clicking on an index term
+only takes you to the [*section] containing the index entry.
+This section may be several pages long,
+so you may need to use the [*find] facility of your browser or PDF reader
+to get to the index term itself.]
+
+[tip A PDF reader usually allows a [*global] find; this can be really useful
+if the term you expect to be indexed is not the one chosen by the authors.
+You might find searching the PDF version and viewing the HTML version
+will locate an elusive item.]
+
+[endsect] [/section:navigation Navigation]
+
+[section:tickets Trac Tickets]
+
+[/ If accepted, you can link to Trac system for bug and fixes like this.]
+Existing open tickets for this library alone can be viewed
+[@https://svn.boost.org/trac/boost/query?status=assigned&status=new&status=reopened&component=genetics&col=id&col=summary&col=status&col=owner&col=type&col=milestone&order=priority here].
+
+[endsect] [/section:tickets Trac Tickets]
+
+[section:conventions Document Conventions]
+
+This documentation aims to use of the following naming and formatting conventions.
+
+* C++ Code is in `fixed width font` and is syntax-highlighted in color, for example `double`.
+* Other code is in block [^teletype fixed-width font].
+* Replaceable text that [*you] will need to supply is in [~italics].
+* If a name refers to a free function, it is specified like this:
+  `free_function()`; that is, it is in [~code font] and its name is followed by `()`
+  to indicate that it is a free function.
+* If a name refers to a class template, it is specified like this:
+  `class_template<>`; that is, it is in code font and its name is followed by `<>`
+  to indicate that it is a class template.
+* If a name refers to a function-like macro, it is specified like this: `MACRO()`;
+  that is, it is uppercase in code font and its name is followed by `()` to
+  indicate that it is a function-like macro. Object-like macros appear without the
+  trailing `()`.
+* Names that refer to ['concepts] in the generic programming sense
+(like template parameter names) are specified in CamelCase.
+
+[endsect] [/section:conventions Document Conventions]
+
+[section:version_id Documentation Version Info]
+
+Last edit to Quickbook file __FILENAME__ was at __TIME__ on __DATE__.
+
+[tip This should appear on the pdf version
+(but may be redundant on a html version where the last edit date is on the first (home) page).]
+
+[warning Home page "Last revised" is GMT, not local time.  Last edit date is local time.]
+[/See also Adobe Reader pdf File Properties for creation date, and PDF producer, version and page count.]
+
+[endsect] [/section:version_id Version Info]
+
+[xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
+[/ The position of this in the Quickbook determines the location of the Doxygen references section.]
+[/ Index(es) should be invoked in the main module, not within a section.]
+
+'''
+  <index/>
+'''
+
+
+
+
 
 

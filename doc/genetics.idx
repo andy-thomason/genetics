@@ -1,0 +1,21 @@
+#index.idx for Genetics Quickbook, Doxygen and Auto-index.
+#  Caution: only / in file names!
+
+#!debug "\<\w*\>"
+
+# Genetics Header files.
+# see also auto-index-prefix
+# Assume <auto-index-prefix>.. modular-boost/libs/genetics
+!scan-path "/include/boost/genetics" ".*\.hpp" true
+
+# All example source files, assuming no sub-folders.
+# genetics example files.
+!scan-path "/example" ".*\.cpp" true
+
+# Allow alternative spellings colour | color, and plurals etc.
+color  \<\w*(colour|color)\w*\>
+container \<contain\w*\>
+data
+deque \<deque\w*\>
+example \<example\w*\>
+vector \<\w*\vector\w*\>

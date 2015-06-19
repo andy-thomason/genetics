@@ -1,11 +1,11 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>Chapter&#160;1.&#160;Boost.Genetics</title>
-<link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
+<title>Boost.Genetics 0.1</title>
+<link rel="stylesheet" href="genetics.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
-<link rel="home" href="index.html" title="Chapter&#160;1.&#160;Boost.Genetics">
-<link rel="next" href="genetics/introduction.html" title="Introduction">
+<link rel="home" href="index.html" title="Boost.Genetics 0.1">
+<link rel="next" href="genetics/file_formats.html" title="File Formats">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -17,26 +17,32 @@
 <td align="center"><a href="../../../../more/index.htm">More</a></td>
 </tr></table>
 <hr>
-<div class="spirit-nav"><a accesskey="n" href="genetics/introduction.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
-<div class="chapter">
-<div class="titlepage"><div>
+<div class="spirit-nav"><a accesskey="n" href="genetics/file_formats.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="article">
+<div class="titlepage">
+<div>
 <div><h2 class="title">
-<a name="genetics"></a>Chapter&#160;1.&#160;Boost.Genetics</h2></div>
-<div><div class="author"><h3 class="author">
+<a name="genetics"></a>Boost.Genetics 0.1</h2></div>
+<div><div class="authorgroup"><div class="author"><h3 class="author">
 <span class="firstname">Andy</span> <span class="surname">Thomason</span>
-</h3></div></div>
+</h3></div></div></div>
 <div><p class="copyright">Copyright &#169; 2015 Andy Thomason</p></div>
 <div><div class="legalnotice">
 <a name="genetics.legal"></a><p>
-        Distributed under the <a href="http://boost.org/LICENSE_1_0.txt" target="_top">Boost
-        Software License, Version 1.0</a>.
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
 </div></div>
-</div></div>
+</div>
+<hr>
+</div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
 <dt><span class="section"><a href="index.html#genetics.readme">Readme</a></span></dt>
+<dt><span class="section"><a href="genetics/file_formats.html">File Formats</a></span></dt>
+<dt><span class="section"><a href="genetics/containers.html">Containers and Datatypes</a></span></dt>
+<dt><span class="section"><a href="genetics/algorithms.html">Algorithms</a></span></dt>
 <dt><span class="section"><a href="genetics/introduction.html">Introduction</a></span></dt>
 <dt><span class="section"><a href="genetics/examples.html">Examples</a></span></dt>
 <dd><dl>
@@ -47,6 +53,21 @@
 </dl></dd>
 <dt><span class="section"><a href="genetics/rationale.html">Rationale</a></span></dt>
 <dt><span class="section"><a href="genetics/history.html">History</a></span></dt>
+<dt><span class="section"><a href="genetics/faq.html">Frequently Asked Questions FAQ</a></span></dt>
+<dt><span class="section"><a href="genetics/credits.html">Credits and Acknowledgements</a></span></dt>
+<dt><span class="section"><a href="genetics/navigation.html">Navigation</a></span></dt>
+<dt><span class="section"><a href="genetics/tickets.html">Trac Tickets</a></span></dt>
+<dt><span class="section"><a href="genetics/conventions.html">Document Conventions</a></span></dt>
+<dt><span class="section"><a href="genetics/version_id.html">Documentation Version Info</a></span></dt>
+<dt><span class="section"><a href="boost_genetics_c___reference.html">Boost.Genetics C++ Reference</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="boost_genetics_c___reference.html#header.boost.genetics.augmented_string_hpp">Header &lt;boost/genetics/augmented_string.hpp&gt;</a></span></dt>
+<dt><span class="section"><a href="header/boost/genetics/dna_string_hpp.html">Header &lt;boost/genetics/dna_string.hpp&gt;</a></span></dt>
+<dt><span class="section"><a href="header/boost/genetics/fasta_hpp.html">Header &lt;boost/genetics/fasta.hpp&gt;</a></span></dt>
+<dt><span class="section"><a href="header/boost/genetics/two_stage_index_hpp.html">Header &lt;boost/genetics/two_stage_index.hpp&gt;</a></span></dt>
+<dt><span class="section"><a href="header/boost/genetics/utils_hpp.html">Header &lt;boost/genetics/utils.hpp&gt;</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="index/s16.html">Index</a></span></dt>
 </dl>
 </div>
 <div class="section">
@@ -59,7 +80,7 @@
 <th align="left">Note</th>
 </tr>
 <tr><td align="left" valign="top"><p>
-        This duplicates stuff in the instruction and needs revision
+        This duplicates stuff in and needs drastic revision
       </p></td></tr>
 </table></div>
 <p>
@@ -67,15 +88,18 @@
       names and bases.
     </p>
 <p>
-      Read data from the<a href="http://www.illumina.com/applications/sequencing.html" target="_top">Illumina
-      machines</a> is in FASTQ format with large numbers of shorter sequences
-      of around 30-200 bases. Currently this is around 100, but the trend is for
-      longer sequences.
+      Read data from the <a href="http://www.illumina.com/applications/sequencing.html" target="_top">Illumina
+      machines</a> is in <a href="https://en.wikipedia.org/wiki/FASTQ_format" target="_top">FASTQ
+      format</a> format with large numbers of shorter sequences of around 30-200
+      bases. Currently this is around 100, but the trend is for longer sequences.
     </p>
 <p>
       Aligned data the result of an aligner such as Tophat or Star is usually in
-      the SAM or BAM (compressed SAM) format and is similar to the __FASTA but has
-      additional metadata.
+      the <a href="samtools.github.io/hts-specs/SAMv1.pdf" target="_top">Sequence Alignment/Map
+      Format Specification</a> (or <a href="samtools.github.io/hts-specs/SAMv1.pdf" target="_top">Section
+      4 The BAM Format Specification</a> (compressed SAM)) format and is similar
+      to the <a href="https://en.wikipedia.org/wiki/FASTA_format" target="_top">FASTA format</a>
+      but has additional metadata.
     </p>
 <p>
       We provide both packed (2 bits/base) and unpacked data (eg. <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span></code>)
@@ -88,7 +112,7 @@
 <p>
       For example:
     </p>
-<pre class="programlisting">"hello" consists of the substrings "hello", "ello", "llo", "lo", "p" and ""
+<pre class="programlisting">SA "hello" consists of the substrings "hello", "ello", "llo", "lo", "p" and ""
 </pre>
 <p>
       The suffix array is:
@@ -96,7 +120,8 @@
 <pre class="programlisting">5 "" 1 "ello" 0 "hello" 3 "lo" 2 "llo" 4 "o"
 </pre>
 <p>
-      See Wikipedia for a more comprehensive discussion. TODO Reference needed here!
+      See <a href="https://en.wikipedia.org/wiki/DNA_sequencing" target="_top">DNA sequencing</a>
+      for a more comprehensive discussion.
     </p>
 <p>
       We can use the suffix array to look up the position of any sequence by, for
@@ -117,7 +142,7 @@
       array as sequences of 16 or more letters are likely to be unique.
     </p>
 <p>
-      Far better is to calculate a hybrid indexed suffix array which gives you all
+      Far better is to calculate a hybrid-indexed suffix array which gives you all
       the substrings starting with a fixed number of letters. For this we add an
       index of 2^(2N) entries for N letters the suffixes sorted by address in the
       array instead of value.
@@ -140,10 +165,10 @@
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: June 18, 2015 at 16:58:10 GMT</small></p></td>
+<td align="left"><p><small>Last revised: June 19, 2015 at 17:19:01 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>
-<div class="spirit-nav"><a accesskey="n" href="genetics/introduction.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="spirit-nav"><a accesskey="n" href="genetics/file_formats.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
 </body>
 </html>
