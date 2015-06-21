@@ -38,14 +38,23 @@
 [def __red_cross [role aligncenter [role red \u2718]]] [/ u2718 is a heavy cross]
 [def __red_star [role aligncenter [role red \u2736]]] [/ 6-point star]
 
+[def __A [role red A]]
+[def __G [role green G]]
+[def __C [role blue C]]
+[def __T [role gold T]]
+
 [/ examples of links that you are likely to re-use in the text - recommended - you very often will do!]
 [def __DNA_sequencing [@https://en.wikipedia.org/wiki/DNA_sequencing DNA sequencing]]
 [def __BWT [@https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform Burrows-Wheeler transform]]
 [/ Hint - non-ASCII chars are used in wikipedia heading like the dash in  Burrows-Wheeler so type them in]
 [def __FASTQ [@https://en.wikipedia.org/wiki/FASTQ_format FASTQ format]]
 [def __FASTA [@https://en.wikipedia.org/wiki/FASTA_format FASTA format]]
-[def __SAM [@samtools.github.io/hts-specs/SAMv1.pdf Sequence Alignment/Map Format Specification]]
-[def __BAM [@samtools.github.io/hts-specs/SAMv1.pdf Section 4 The BAM Format Specification]]
+[def __SAM [@http://samtools.github.io/hts-specs/SAMv1.pdf Sequence Alignment/Map Format Specification]]
+[def __BAM [@http://samtools.github.io/hts-specs/SAMv1.pdf Section 4 The BAM Format Specification]]
+[/todo]
+[/def __Tophat [@http://???  TOPHAT]]
+[/def __Star [@http://???  STAR]]
+
 [/Link to a section in the text, using the section id (not the actual section title]
 [def __file_formats [link genetics.readme]]
 [def __file_formats [link genetics.file_formats]]
@@ -79,6 +88,12 @@
 
 [note This duplicates stuff in and needs drastic revision]
 
+You could use color for the letter thus:
+
+__A  __G __C __T
+
+(or you could make a Quickbook template).
+
 Reference data is usually in FASTA format which is a series of chromomosome names and bases.
 
 Read data from the [@http://www.illumina.com/applications/sequencing.html Illumina machines]
@@ -87,6 +102,8 @@ Currently this is around 100, but the trend is for longer sequences.
 
 Aligned data the result of an aligner such as Tophat or Star is usually in the __SAM (or __BAM (compressed SAM)) format
 and is similar to the __FASTA but has additional metadata.
+
+
 
 We provide both packed (2 bits/base) and unpacked data (eg. `std::string`) algorithms.
 
@@ -142,7 +159,7 @@ Here we can make use of leading zero and population count operations to rapidly 
 [[Name] [data type][link]]
 [[FASTA][Chromosome data (DNA)] [ [@http://en.wikipedia.org/wiki/FASTA_format FASTA]]]
 [[FASTQ][Read data from sequencing machines] [ [@http://en.wikipedia.org/wiki/FASTQ_format FASTQ]]]
-[[SAM/BAM][Output from aligners][[@samtools.github.io/hts-specs/SAMv1.pdf SAM]]]
+[[SAM/BAM][Output from aligners][[__SAM]]]
 [[GTF][Gene annotation][[@http://en.wikipedia.org/wiki/GENCODE GENCODE]]]
 [[EMBL][Individual genes and DNA][[@http://www.bioperl.org/wiki/EMBL_sequence_format]]]
 [[VEP][Variant end predictor][[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html VEP formats]]]

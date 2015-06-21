@@ -217,9 +217,11 @@ namespace boost { namespace genetics {
         /// Brute force string search. For a more refined aproach, use two_stage_index.
         //! \tparam String DNA sequence string type, typically default dna_string.
         //! \param search_str DNA string to search.
-        //! \param pos start earch???
+        //! \param pos start search???
         //! \param n number of ???
         //! \param max_distance distance to search ???
+        //! TODO need actual info here.
+
         template <class String>
         size_t find_inexact(
             const String& search_str,

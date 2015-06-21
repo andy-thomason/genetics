@@ -39,12 +39,19 @@ opposite strand.
 
 [section:inexact_find Inexact searches (or distance searches)]
 
-[/examples of using a links]
+[/examples of using a link]
 `dna_string` is a specialization of [classref boost::genetics::basic_dna_string].
 
-[funcref boost::genetics::rev_comp] [/OK but ambiguous]
+[/funcref boost::genetics::rev_comp] [/OK but ambiguous]
 
-[/ but these are all wrong :-(]
+[/ but these are all wrong and I can't yet see why :-(]
+
+[/funcref boost::genetics::basic_dna_string::append]
+[/funcref boost::genetics::basic_dna_string::compare]
+[/funcref boost::genetics::basic_dna_string::find]
+[/funcref boost::genetics::basic_dna_string::find_inexact]
+[/funcref boost::genetics::basic_dna_string::compare_inexact]
+
 [/funcref boost::genetics::find_inexact]
 [/funcref boost::genetics::basic_dna_string::find_inexact]
 [/funcref boost::genetics::basic_dna_string.find_inexact]
@@ -64,7 +71,7 @@ and different algorithms are used for different mixes.
 For the 6/20 case, at present we use a brute force search, checking
 6.4 billion subsequences against the search string.
 
-[brute_force_inexact_find]
+[brute_force_inexact_find] [/ code snippet]
 
 The full code for these is at [@../../example/misc_dna_examples.cpp misc_dna_examples.cpp].
 
