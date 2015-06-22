@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <string.h>
 #include <string>
 #include <iosfwd>
 #include <vector>
@@ -259,7 +260,7 @@ namespace boost { namespace genetics {
             const char *aptr = begin + (((ptr - begin) + align - 1) & (0-align));
             Type *res = (Type*)aptr;
             ptr = aptr + sizeof(Type) * size;
-            if (ptr > end) throw(std::exception("mapped file: overflow reading vector (check file format)"));
+            if (ptr > end) throw(std::runtime_error("mapped file: overflow reading vector (check file format)"));
             return res;
         }
         

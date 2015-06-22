@@ -351,8 +351,8 @@ namespace boost { namespace genetics {
             return compare_inexact(pos, ssz, str);
         }
 
-        template <class WordType, class ArrayType>
-        int compare_inexact(size_t pos, size_t ssz, const basic_dna_string<WordType, ArrayType> &str, size_t max_distance=0) const {
+        template <class CiWordType, class CiArrayType>
+        int compare_inexact(size_t pos, size_t ssz, const basic_dna_string<CiWordType, CiArrayType> &str, size_t max_distance=0) const {
             //printf("%s\n", std::string(str).c_str());
             pos = std::min(pos, num_bases);
             ssz = std::min(ssz, str.size());
@@ -459,7 +459,7 @@ namespace boost { namespace genetics {
     typedef basic_dna_string<uint64_t, mapped_vector<uint64_t> > mapped_dna_string;
 
     template <>
-    static inline int get_code<dna_string>(const dna_string &str, size_t index) {
+    inline int get_code<dna_string>(const dna_string &str, size_t index) {
         return str.get_code(index);
     }
 } }
