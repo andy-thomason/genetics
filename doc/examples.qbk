@@ -42,21 +42,21 @@ opposite strand.
 [/examples of using a link]
 `dna_string` is a specialization of [classref boost::genetics::basic_dna_string].
 
+[memberref  boost::genetics::basic_dna_string::find_inexact] is available for the search.
+
+There are other functions in the class [classref boost::genetics::basic_dna_string] too
+[memberref boost::genetics::basic_dna_string::append],
+[memberref  boost::genetics::basic_dna_string::compare],
+[memberref  boost::genetics::basic_dna_string::find],
+[memberref  boost::genetics::basic_dna_string::compare_inexact].
+
 [/funcref boost::genetics::rev_comp] [/OK but ambiguous]
-
-[/ but these are all wrong and I can't yet see why :-(]
-
-[/funcref boost::genetics::basic_dna_string::append]
-[/funcref boost::genetics::basic_dna_string::compare]
-[/funcref boost::genetics::basic_dna_string::find]
-[/funcref boost::genetics::basic_dna_string::find_inexact]
-[/funcref boost::genetics::basic_dna_string::compare_inexact]
-
-[/funcref boost::genetics::find_inexact]
-[/funcref boost::genetics::basic_dna_string::find_inexact]
-[/funcref boost::genetics::basic_dna_string.find_inexact]
-[/funcref std::string::find_inexact ]
-[/funcref std::string::find]
+[/ but these were all wrong because must use memberref not funcref for a method or function in a class.]
+[/ for example these are all OK]
+[/memberref boost::genetics::basic_dna_string::append]
+[/memberref  boost::genetics::basic_dna_string::compare]
+[/memberref  boost::genetics::basic_dna_string::find]
+[/memberref  boost::genetics::basic_dna_string::compare_inexact]
 
 Our genomes are more or less identical with only the occasional
 tiny difference between them. When we have a sequence to search
