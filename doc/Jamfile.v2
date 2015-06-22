@@ -135,8 +135,8 @@ boostbook standalone
 
   ;
 
-#install cssinstall : <location>./html : <name>genetics.css ;
-#explicit cssinstall ;
+# install cssinstall  : [ glob genetics.css ] : <location>html ;
+# explicit cssinstall ;
 # does not work, so if delete contents of /html, then need to copy /doc/genetics.css to doc/html/generics.css
 
 #   This gets any pdf version and installs it at /doc
