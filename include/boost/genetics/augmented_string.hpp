@@ -121,7 +121,7 @@ namespace boost { namespace genetics {
             internal_append(num_bases, b, e);
         }
 
-        void swap(basic_dna_string &rhs) {
+        void swap(basic_augmented_string &rhs) {
             parent::swap(rhs);
             index.swap(rhs.index);
             rle.swap(rhs.rle);
@@ -172,7 +172,7 @@ namespace boost { namespace genetics {
     > mapped_augmented_string;
 
     template <>
-    static inline int get_code<augmented_string>(const augmented_string &str, size_t index) {
+    inline int get_code<augmented_string>(const augmented_string &str, size_t index) {
         return str.get_code(index);
     }
 } }

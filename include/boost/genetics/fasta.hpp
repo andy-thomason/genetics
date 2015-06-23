@@ -6,6 +6,8 @@
 #ifndef BOOST_GENETICS_FASTA_HPP
 #define BOOST_GENETICS_FASTA_HPP
 
+#include <type_traits>
+
 #include <boost/genetics/dna_string.hpp>
 #include <boost/genetics/augmented_string.hpp>
 #include <boost/genetics/two_stage_index.hpp>
@@ -53,7 +55,7 @@ namespace boost { namespace genetics {
         virtual ~fasta_file_interface() {}
     };
     
-    template <class ChromosomeType, class StringType, class IndexType>
+    template <class ChromosomeType, class StringType, class IndexType, bool Writable>
     class basic_fasta_file : public fasta_file_interface { 
     public:
         typedef ChromosomeType chromosome_type;
@@ -68,10 +70,10 @@ namespace boost { namespace genetics {
         basic_fasta_file(const std::string &filename) {
             append(filename);
         }
-        
+
         /// Use a mapper to instantly load from a mapped file.
-        template <class Mapper>
-        basic_fasta_file(Mapper &map, typename Mapper::is_mapper *p=0) :
+        //template <class T, typename std::enable_if<(sizeof(T),!Writable), int>::type X = 0>
+        basic_fasta_file(mapper &map) :
             chromosomes(map),
             str(map),
             idx(str, map)
@@ -103,7 +105,6 @@ namespace boost { namespace genetics {
         void append(const char *p, const char *end) {
             chromosome g;
             g.start = 0;
-            size_t start = 0;
             while (p != end) {
                 //if (*p != '>') throw(std::exception("bad fasta"));
                 const char *b = p;
@@ -180,7 +181,7 @@ namespace boost { namespace genetics {
             result.resize(0);
             dna_string search_str = dstr;
             for (
-                index_type::iterator i = idx.find_inexact(search_str, 0, max_distance, max_gap, is_brute_force);
+                typename index_type::iterator i = idx.find_inexact(search_str, 0, max_distance, max_gap, is_brute_force);
                 i != idx.end();
                 ++i
             ) {
@@ -250,14 +251,16 @@ namespace boost { namespace genetics {
     typedef basic_fasta_file<
         std::vector<chromosome>,
         augmented_string,
-        two_stage_index
+        two_stage_index,
+        true
     > fasta_file;
 
     /// This container is read only for mapped files.
     typedef basic_fasta_file<
         mapped_vector<chromosome>,
         mapped_augmented_string,
-        mapped_two_stage_index
+        mapped_two_stage_index,
+        false
     > mapped_fasta_file;
 
 } }

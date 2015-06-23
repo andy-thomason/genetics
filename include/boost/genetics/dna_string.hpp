@@ -359,7 +359,7 @@ namespace boost { namespace genetics {
             ssz = std::min(ssz, num_bases - pos);
 
             bool cpu_has_popcnt = has_popcnt();
-            const ArrayType &str_values = str.get_values();
+            const auto str_values = str.get_values();
             const size_t bpv = bases_per_value;
             size_t nv = std::min(str_values.size(), (ssz+bpv-1)/bpv);
             size_t error = 0;

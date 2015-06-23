@@ -4,7 +4,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#pragma warning(disable : 4273)
+#ifdef _MSC_VER
+    #pragma warning(disable : 4273)
+#endif
+
 #include <boost/genetics/augmented_string.hpp>
 #include <boost/genetics/fasta.hpp>
 #include <boost/python.hpp>
@@ -52,11 +55,8 @@ public:
 
     /// return a list of matches to 
     list find_inexact(const std::string &str, int max_distance, int max_gap, bool is_brute_force, int max_results) const {
-        long long t0 = __rdtsc();
         std::vector<fasta_result> result;
         fasta->find_inexact(result, str, (size_t)max_distance, (size_t)max_results, (size_t)max_gap, is_brute_force);
-        long long t1 = __rdtsc();
-        printf("tot %lld\n", t1 - t0);
         list py_result;
         for (size_t i = 0; i != result.size(); ++i) {
             fasta_result &r = result[i];

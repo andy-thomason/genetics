@@ -6,9 +6,10 @@
 #ifndef BOOST_GENETICS_TWO_STAGE_INDEX_HPP
 #define BOOST_GENETICS_TWO_STAGE_INDEX_HPP
 
+#include <stdexcept>
+#include <type_traits>
 #include <boost/genetics/augmented_string.hpp>
 
-#include <stdexcept>
 
 namespace boost { namespace genetics {
     /// Two stage index, first index ordered by value, second by address.
@@ -50,16 +51,65 @@ namespace boost { namespace genetics {
         }
         
         basic_two_stage_index(
-            StringType &string,
+            StringType &str,
             size_t num_indexed_chars
-        ) : string(&string), num_indexed_chars(num_indexed_chars) {
-            reindex();
+        ) : string(&str), num_indexed_chars(num_indexed_chars) {
+            // Todo: use threads to speed this up.
+            //       consider using std::sort for better cache performance.
+            if (
+                num_indexed_chars <= 1 ||
+                num_indexed_chars > 32 ||
+                string->size() < num_indexed_chars ||
+                (addr_type)string->size() != string->size()
+            ) {
+                throw std::invalid_argument("two_stage_index::reindex()");
+            }
+
+            size_t str_size = string->size();
+            size_t index_size = (size_t)1 << (num_indexed_chars*2);
+
+            index.resize(0);
+            index.resize(index_size+1);
+            addr.resize(str_size);
+
+            // Lead-in: fill acc0 with first DNA codes.
+            size_t acc0 = 0;
+            for (size_t i = 0; i != num_indexed_chars-1; ++i) {
+                acc0 = acc0 * 4 + get_code(*string, i);
+            }
+
+            // Count phase: count bucket sizes
+            size_t acc = acc0;
+            for (size_t i = num_indexed_chars; i != str_size; ++i) {
+                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
+                index[acc]++;
+                if (i % 0x100000 == 0) printf("c %5.2f\n", (double)i * (100.0/str_size));
+            }
+            
+            // Compute running sum of buckets to convert counts to offsets.
+            addr_type cur = 0;
+            for (size_t i = 0; i != index_size; ++i) {
+                addr_type val = index[i];
+                index[i] = cur;
+                cur += val;
+            }
+            index[index_size] = cur;
+
+            // Store phase: fill "addr" with addresses of values.
+            acc = acc0;
+            for (size_t i = num_indexed_chars; i != str_size; ++i) {
+                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
+                addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
+                if (i % 0x100000 == 0) printf("s %5.2f\n", (double)i * (100.0/str_size));
+            }
+
+            // Shift the index up one so ends become starts.
+            addr_type prev = 0;
+            for (size_t i = 0; i != index_size; ++i) {
+                std::swap(prev, index[i]);
+            }
         }
 
-        void reindex() {
-            reindex_impl<Writable>();
-        }
-        
         size_t end() const {
             return (size_t)-1;
         }
@@ -168,7 +218,6 @@ namespace boost { namespace genetics {
                         active_state s = active.front();
 
                         if (s.start != prev_start) {
-                            size_t erc = 0;
                             if (repeat_count >= num_seeds - max_distance) {
                                 compares_done++;
                                 if (tsi->string->compare_inexact(prev_start, search_str.size(), search_str, max_distance) == 0) {
@@ -251,7 +300,6 @@ namespace boost { namespace genetics {
         template <class charT, class traits>
         void write_ascii(std::basic_ostream<charT, traits>& os) const {
             typename std::basic_ostream<charT, traits>::fmtflags save = os.flags();
-            size_t str_size = string->size();
             size_t index_size = (size_t)1 << (num_indexed_chars*2);
             for (size_t i = 0; i != index_size; ++i) {
                 for (index_type j = index[i]; j != index[i+1]; ++j) {
@@ -269,72 +317,8 @@ namespace boost { namespace genetics {
             index.swap(rhs.index);
             addr.swap(rhs.addr);
         }
+
     private:
-        // Mapped version has no reindex() as we can't write to the vectors.
-        template<bool B>
-        void reindex_impl() {
-            throw (std::exception("two_stage_index::reindex(): attempt to reindex a read-only index"));
-        }
-
-        // std::vector version has reindex()
-        template<>
-        void reindex_impl<true>() {
-            // Todo: use threads to speed this up.
-            //       consider using std::sort for better cache performance.
-            if (
-                num_indexed_chars <= 1 ||
-                num_indexed_chars > 32 ||
-                string->size() < num_indexed_chars ||
-                (addr_type)string->size() != string->size()
-            ) {
-                throw std::invalid_argument("two_stage_index::reindex()");
-            }
-
-            size_t str_size = string->size();
-            size_t index_size = (size_t)1 << (num_indexed_chars*2);
-
-            index.resize(0);
-            index.resize(index_size+1);
-            addr.resize(str_size);
-
-            // Lead-in: fill acc0 with first DNA codes.
-            size_t acc0 = 0;
-            for (size_t i = 0; i != num_indexed_chars-1; ++i) {
-                acc0 = acc0 * 4 + get_code(*string, i);
-            }
-
-            // Count phase: count bucket sizes
-            size_t acc = acc0;
-            for (size_t i = num_indexed_chars; i != str_size; ++i) {
-                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
-                index[acc]++;
-                if (i % 0x100000 == 0) printf("c %5.2f\n", (double)i * (100.0/str_size));
-            }
-            
-            // Compute running sum of buckets to convert counts to offsets.
-            addr_type cur = 0;
-            for (size_t i = 0; i != index_size; ++i) {
-                addr_type val = index[i];
-                index[i] = cur;
-                cur += val;
-            }
-            index[index_size] = cur;
-
-            // Store phase: fill "addr" with addresses of values.
-            acc = acc0;
-            for (size_t i = num_indexed_chars; i != str_size; ++i) {
-                acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
-                addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
-                if (i % 0x100000 == 0) printf("s %5.2f\n", (double)i * (100.0/str_size));
-            }
-
-            // Shift the index up one so ends become starts.
-            addr_type prev = 0;
-            for (size_t i = 0; i != index_size; ++i) {
-                std::swap(prev, index[i]);
-            }
-        }
-
         // Note: order matters
         StringType *string;
         size_t num_indexed_chars;

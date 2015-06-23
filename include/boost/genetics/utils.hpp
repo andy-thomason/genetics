@@ -215,8 +215,8 @@ namespace boost { namespace genetics {
 
         // Todo: in C++11 use alignof.
         template <class VecType>
-        void write(const VecType &vec, size_t align = sizeof(VecType::value_type)) {
-            write64(sizeof(VecType::value_type));
+        void write(const VecType &vec, size_t align = sizeof(typename VecType::value_type)) {
+            write64(sizeof(typename VecType::value_type));
             write64(vec.size());
             write(vec.data(), vec.size(), align);
         }
@@ -293,7 +293,7 @@ namespace boost { namespace genetics {
         mapped_vector(mapper &map) {
             size_t value_size = (size_t)map.read64();
             if (value_size != sizeof(value_type)) {
-                throw(std::exception("mapped file: item size mismatch (check file format)"));
+                throw(std::runtime_error("mapped file: item size mismatch (check file format)"));
             }
             sz = (size_t)map.read64();
             dat = map.map<value_type>(sz, sizeof(value_type));
@@ -307,7 +307,7 @@ namespace boost { namespace genetics {
             return dat[idx];
         }
         
-        value_type operator[](size_t idx) const {
+        const value_type &operator[](size_t idx) const {
             return dat[idx];
         }
         
