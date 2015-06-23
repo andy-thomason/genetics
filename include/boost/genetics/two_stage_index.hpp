@@ -173,10 +173,8 @@ namespace boost { namespace genetics {
                         s.ptr = ptr;
                     }
 
-                    //long long t1 = __rdtsc();
-                    //printf("touch %lld\n", t1 - t0);
-
                     std::make_heap(active.begin(), active.end());
+                    pos = min_pos;
                     find_next(true);
                 }
             }
