@@ -115,7 +115,6 @@ doxygen autodoc
     #<doxygen:param>"PREDEFINED=\"BOOST_DEDUCED_TYPENAME=typename\" "
     # See Doxygen configuration for detailed explanation of these options
 
-
 boostbook standalone
   :
     genetics
@@ -124,12 +123,13 @@ boostbook standalone
     <xsl:param>chunk.section.depth=2
     <xsl:param>html.stylesheet=genetics.css
 
-   # HTML options first:
+    # HTML options first:
     # Use graphics not text for navigation:
     <xsl:param>navig.graphics=1
-   # PDF Options:
-     # Use local preference for syntax coloring.
-      <format>pdf:<xsl:param>html.stylesheet=boostbook.css
+
+    # PDF Options:
+    # Use local preference for syntax coloring.
+    <format>pdf:<xsl:param>html.stylesheet=boostbook.css
 
     <dependency>autodoc
 

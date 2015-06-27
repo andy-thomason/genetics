@@ -42,6 +42,8 @@
 [def __G [role green G]]
 [def __C [role blue C]]
 [def __T [role gold T]]
+[def __U [role gold U]]
+[def __N [role cyan N]]
 
 [/ examples of links that you are likely to re-use in the text - recommended - you very often will do!]
 [def __DNA_sequencing [@https://en.wikipedia.org/wiki/DNA_sequencing DNA sequencing]]
@@ -51,20 +53,17 @@
 [def __FASTA [@https://en.wikipedia.org/wiki/FASTA_format FASTA format]]
 [def __SAM [@http://samtools.github.io/hts-specs/SAMv1.pdf Sequence Alignment/Map Format Specification]]
 [def __BAM [@http://samtools.github.io/hts-specs/SAMv1.pdf Section 4 The BAM Format Specification]]
-[/todo]
-[/def __Tophat [@http://???  TOPHAT]]
-[/def __Star [@http://???  STAR]]
+[def __VCF [@https://en.wikipedia.org/wiki/Variant_Call_Format Variant Call Format]]
 
 [/Link to a section in the text, using the section id (not the actual section title]
-[def __file_formats [link genetics.readme]]
 [def __file_formats [link genetics.file_formats]]
 
 [/ Misc references]
 [def __R [@http://www.r-project.org/ The R Project for Statistical Computing]]
 [def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
 
- [/links to Boost libraries - Boost.Test, Timer ...]
- [/Note the use of @boost:/libs/etc... to make it version independent - always most recent version.]
+[/links to Boost libraries - Boost.Test, Timer ...]
+[/Note the use of @boost:/libs/etc... to make it version independent - always most recent version.]
 [def __boost_test [@boost:/libs/test/doc/html/index.html Boost.Test]]
 [def __boost_timer [@boost:/libs/timer/doc/index.html Boost.Timer]]
 
@@ -83,82 +82,33 @@
 
 [template header_file[file] [@../../../../[file] [file]]]
 
-[section:readme Readme]
-[/ Copied and pasted from readme]
-
-[note This duplicates stuff in and needs drastic revision]
-
-You could use color for the letter thus:
+[section:overview Overview]
+This library provides containers and algorithms for working with genetic sequences
+which are mostly composed of the letters (or bases):
 
 __A  __G __C __T
 
-(or you could make a Quickbook template).
+When working with RNA the __T is replaced with __U and some files use __N
+to represent unknown values.
 
-Reference data is usually in FASTA format which is a series of chromomosome names and bases.
+Searches are usually inexact. For example we may wish to search for
 
-Read data from the [@http://www.illumina.com/applications/sequencing.html Illumina machines]
-is in __FASTQ format with large numbers of shorter sequences of around 30-200 bases.
-Currently this is around 100, but the trend is for longer sequences.
+__G __A __T __A __C __A
 
-Aligned data the result of an aligner such as Tophat or Star is usually in the __SAM (or __BAM (compressed SAM)) format
-and is similar to the __FASTA but has additional metadata.
+But allow one error so that
 
+__G __A __A __A __C __A or __T __A __T __A __C __A
 
-
-We provide both packed (2 bits/base) and unpacked data (eg. `std::string`) algorithms.
-
-Most genetic searches revolve around the creation of Suffix Arrays
-which are a sort of all the substrings of a sequence to the end.
-
-For example:
-[pre
-SA \"hello\" consists of the substrings \"hello\", \"ello\", \"llo\", \"lo\", \"p\" and \"\"
-]
-
-The suffix array is:
-[pre
-5 "" 1 "ello" 0 "hello" 3 "lo" 2 "llo" 4 "o"
-]
-
-See __DNA_sequencing for a more comprehensive discussion.
-
-We can use the suffix array to look up the position of any sequence by,
-for example, doing a binary chop on the substrings.
-In practice this is not a sensible thing to do as each of the memory accesses
-to the substrings may cost thousands of cycles.
-
-We can also calculate the __BWT (BWT) which
-simplifies the task of finding the sequence prior to the current one,
-allowing you to extend the search by one letter in each operation.
-This also is a very inefficient use of modern memory architectures which are deeply heirarchical.
-
-Calculating a full suffix array for the 3.2 billion letters of the human genome is an expensive process,
-but fortunately we don't need to compute a full suffix array as sequences of 16 or more letters are likely to be unique.
-
-Far better is to calculate a hybrid-indexed suffix array which gives you all the substrings
-starting with a fixed number of letters.
-For this we add an index of 2^(2N) entries for N letters the suffixes sorted by address in the array instead of value.
-
-This means that we can use two very expensive memory accesses to find a set of addresses
-for a sequence and then a small number of very inexpensive accesses
-and a merge operation to find exact matches of any length (N x M).
-
-For inexact matches, we can filter the M matches we have to a much smaller set
-where we can then do expensive tests on the reference itself.
-
-For a very large number of potential errors, such as 6 errors in a 20 character string,
-it is fastest to brute-force search the genome.
-Here we can make use of leading zero and population count operations to rapidly screen large number of bases.
-
-[endsect] [/section:readme Readme]
+Are allowed. This is very common because genomes vary by only a few
+bases or there may be errors in the data we read from sequencing machines.
+[endsect] [/section:overview Overview]
 
 [section:file_formats  File Formats]
 
-[/I think that this needs another column for the link text?]
 [table:formats Common DNA data File Formats
 [[Name] [data type][link]]
-[[FASTA][Chromosome data (DNA)] [ [@http://en.wikipedia.org/wiki/FASTA_format FASTA]]]
-[[FASTQ][Read data from sequencing machines] [ [@http://en.wikipedia.org/wiki/FASTQ_format FASTQ]]]
+[[FASTA][Chromosome data (DNA)] [ [__FASTA]]]
+[[FASTQ][Read data from sequencing machines] [ [__FASTQ]]]
 [[SAM/BAM][Output from aligners][[__SAM]]]
 [[GTF][Gene annotation][[@http://en.wikipedia.org/wiki/GENCODE GENCODE]]]
 [[EMBL][Individual genes and DNA][[@http://www.bioperl.org/wiki/EMBL_sequence_format]]]
@@ -167,72 +117,61 @@ Here we can make use of leading zero and population count operations to rapidly 
 ] [/table:formats]
 
 These are mostly (with the exception of BAM) ASCII files.
-All consist of partitioned sequences of the letters 'A' 'C' 'G' and 'T' with very occasional 'N' and other annotations.
-This means that a two-bit representation allows us to fit 32 bases into a 64-bit word and 256 into a 512-bit word,
-for example, so we can process many characters in a single operation.
 
-On X86-64 architectures some new instructions have been added largely
-for the purpose of searching 2-bit encoded DNA databases such as the POPCNT64 and LZCNT64 instructions.
-
-The existence of the non-ACTG variants requires that all algorithms we propose in this specification
-also work with plain-old string data, however, and the C++ iterator paradigm lends itself to flexible algorithms.
-
-We should support as many of these formats as possible using file mapping
-(like the boost/interprocess/file_mapping) and iterators.
-This has been proven to be the most efficient way of dealing with large data files.
+We aim to support all these file formats.
 
 [endsect] [/section:file_formats  File Formats]
 
 [section:containers Containers and Datatypes]
 
-In order to work with the restricted alphabet, we need a 2-bit data type similar to the 1-bit bool datatype.
-As there is not such datatype in the language, we can add a boxed datatype with a restricted constructor.
+We want to store the genetic data in a memory efficent way that allows
+the fastest access. Memory access will always be the dominant performance
+factor for search algorithms and compact storage will make the most
+difference.
+
+In the dna_string class, which behaves much like std::string, we store the
+bases as two bits per character. This is optimal for very large databases
+such as the human genome which contains around 3.2 billion bases.
+
+In the augmented_string class, we store the bases as two bits but allow
+long runs of 'N' and other characters. This should not be used for normal
+text data, however, std:string is the best choice for this.
+
+We can index a DNA string using the two_stage_index class. This class
+has an first index based on content and a second index based on position.
+After an initial content look-up we can then search on position without
+having to touch the reference data - important as random memory access
+is very slow.
+
+The 'fasta' class uses an augmented_string, a two_stage_index and a
+vector of chromosome data to represent an entire genome.
 
 [endsect] [/section:containers Containers and Datatypes]
 
-[section:algorithms Algorithms]
+[section:file_mapping File Mapping]
+Because many of the data files used by this library are very large,
+especially the FASTA indexes which are normally around 13GB, we use file
+mapping to avoid having to load them.
 
-Most searching algorithms in genetics start with string searches
-of a small (<100char) string within a much larger (>1Gchar) string.
-These can be facilitated with a Suffix Array (SA) which is a sorted array of substrings within the string.
+The library Boost.Interprocess has a number of methods for dealing with
+file mapping which also allow two processes to share access to the same file
+without having to have two copies of the data.
 
-For example, SA("hello") to  {"", "ello", "hello", "llo", "lo", "o"}.
+With modern hardware, we should avoid reading files in the traditional manner
+unless we are processing data from the file sequentially. Databases and
+other random access files are usually mapped to process address space
+with the disk cache visible directly from the process. This also gives
+us the benefit of being able to have much more allocated memory than
+we would usually have due to the limits of size of the swap file.
 
-[endsect] [/section:algorithms Algorithms]
+Because of this, most of the classes come with mapped_* versions which can
+use an external memory image to represent their data. We construct the
+data using the non-mapped version and then write the binary data to disk.
+We can then map the disk image multiple times using the mapped_* classes
+or store the data in a managed object in Python, for example.
 
-[section:introduction Introduction]
+[endsect] [/section:file_mapping File Mapping]
 
-This library provides memory efficient containers and search
-algorithms for working with genetic sequences.
-
-The human genome consists of about 3.2 billion bases A, C, G or T
-packed into a number of chromosomes in the nucleus and in mitochondria,
-the little cell-like structures that generate energy for the cell.
-
-The genome is used as a template for building proteins which form
-complex nano-scale machines that implement the machinery of life
-and to encode complex control systems which switch on and off in the
-presence of signals.
-
-The DNA in the chromosomes is copied into RNA which has the alphabet
-A, C, G, U but it is common to use the DNA letters, often because we
-read RNA by converting it to DNA first. RNA is often more interesting
-than DNA as it shows a snapshot of the working activity of each cell type.
-
-[table:genetics The Boost.Genetics Library DNA formats
-[ [Component] [Description] ]
-[ [`dna_string`]
-[Compact container for DNA sequences with fast linear search. Can only hold A, C, T or G]
-]
-[ [`augmented_string`]
-[DNA string augmented by run-length encoded. Can hold any character.]
-]
-[ [`two_stage_index`]
-[Hybrid cache efficient index for DNA data]
-]
-] [/table:genetics]
-
-[endsect] [/section Introduction]
 
 [section:examples Examples]
 [include examples.qbk]
@@ -240,7 +179,6 @@ than DNA as it shows a snapshot of the working activity of each cell type.
 
 [section:rationale Rationale]
 [h4 Gene Searches]
-TODO
 [endsect] [/section Rationale]
 
 [section:history History]
@@ -261,8 +199,8 @@ Expression of interest in a genetic algorthms library.  Date?
 
 You might want a FAQ?
 
-# ['I'm a R user and I don't see why I should bother with Boost?] [br]
-# I have another problem... [br]
+# ['I'm a R user and I don't see why I should bother with Boost?]
+# I have another problem...
 
 [endsect] [/section:faq Frequently Asked Questions FAQ]
 
