@@ -6,7 +6,7 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="../../index.html" title="Boost.Genetics 0.1">
 <link rel="up" href="../../header/boost/genetics/utils_hpp.html" title="Header &lt;boost/genetics/utils.hpp&gt;">
-<link rel="prev" href="mapper.html" title="Class mapper">
+<link rel="prev" href="unmapped_traits.html" title="Struct unmapped_traits">
 <link rel="next" href="writer/exists.html" title="Struct template exists">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -20,7 +20,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="mapper.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="writer/exists.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="unmapped_traits.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="writer/exists.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="refentry">
 <a name="boost.genetics.writer"></a><div class="titlepage"></div>
@@ -41,39 +41,39 @@
     <span class="keyword">typedef</span> <span class="identifier">B</span> <a class="link" href="writer/exists.html#boost.genetics.writer.exists.type"><span class="identifier">type</span></a><span class="special">;</span>
   <span class="special">}</span><span class="special">;</span>
   <span class="comment">// <a class="link" href="writer.html#boost.genetics.writerconstruct-copy-destruct">construct/copy/destruct</a></span>
-  <a class="link" href="writer.html#idp27104240-bb"><span class="identifier">writer</span></a><span class="special">(</span><span class="keyword">char</span> <span class="special">*</span><span class="special">,</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="writer.html#idp25230848-bb"><span class="identifier">writer</span></a><span class="special">(</span><span class="keyword">char</span> <span class="special">*</span><span class="special">,</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">)</span><span class="special">;</span>
 
-  <span class="comment">// <a class="link" href="writer.html#idp27092496-bb">public member functions</a></span>
-  <span class="keyword">char</span> <span class="special">*</span> <a class="link" href="writer.html#idp27092992-bb"><span class="identifier">get_ptr</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
-  <span class="keyword">bool</span> <a class="link" href="writer.html#idp27093984-bb"><span class="identifier">is_end</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
-  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="keyword">void</span> <a class="link" href="writer.html#idp27094976-bb"><span class="identifier">write</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Type</span> <span class="special">*</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
+  <span class="comment">// <a class="link" href="writer.html#idp25219104-bb">public member functions</a></span>
+  <span class="keyword">char</span> <span class="special">*</span> <a class="link" href="writer.html#idp25219600-bb"><span class="identifier">get_ptr</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">bool</span> <a class="link" href="writer.html#idp25220592-bb"><span class="identifier">is_end</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="keyword">void</span> <a class="link" href="writer.html#idp25221584-bb"><span class="identifier">write</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Type</span> <span class="special">*</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
   <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> VecType<span class="special">&gt;</span> 
-    <span class="keyword">void</span> <a class="link" href="writer.html#idp27098352-bb"><span class="identifier">write</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">VecType</span> <span class="special">&amp;</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="special">=</span> <span class="keyword">sizeof</span><span class="special">(</span><span class="keyword">typename</span> <span class="identifier">VecType</span><span class="special">::</span><span class="identifier">value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
-  <span class="keyword">void</span> <a class="link" href="writer.html#idp27101360-bb"><span class="identifier">write</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
-  <span class="keyword">void</span> <a class="link" href="writer.html#idp27102736-bb"><span class="identifier">write64</span></a><span class="special">(</span><span class="identifier">uint64_t</span><span class="special">)</span><span class="special">;</span>
+    <span class="keyword">void</span> <a class="link" href="writer.html#idp25224960-bb"><span class="identifier">write</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">VecType</span> <span class="special">&amp;</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="special">=</span> <span class="keyword">sizeof</span><span class="special">(</span><span class="keyword">typename</span> <span class="identifier">VecType</span><span class="special">::</span><span class="identifier">value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="writer.html#idp25227968-bb"><span class="identifier">write</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+  <span class="keyword">void</span> <a class="link" href="writer.html#idp25229344-bb"><span class="identifier">write64</span></a><span class="special">(</span><span class="identifier">uint64_t</span><span class="special">)</span><span class="special">;</span>
 <span class="special">}</span><span class="special">;</span></pre></div>
 <div class="refsect1">
-<a name="idp93047888"></a><h2>Description</h2>
+<a name="idp82260288"></a><h2>Description</h2>
 <div class="refsect2">
-<a name="idp93048304"></a><h3>
+<a name="idp82260704"></a><h3>
 <a name="boost.genetics.writerconstruct-copy-destruct"></a><code class="computeroutput">writer</code> 
         public
        construct/copy/destruct</h3>
-<div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><pre class="literallayout"><a name="idp27104240-bb"></a><span class="identifier">writer</span><span class="special">(</span><span class="keyword">char</span> <span class="special">*</span> begin<span class="special">,</span> <span class="keyword">char</span> <span class="special">*</span> end<span class="special">)</span><span class="special">;</span></pre></li></ol></div>
+<div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><pre class="literallayout"><a name="idp25230848-bb"></a><span class="identifier">writer</span><span class="special">(</span><span class="keyword">char</span> <span class="special">*</span> begin<span class="special">,</span> <span class="keyword">char</span> <span class="special">*</span> end<span class="special">)</span><span class="special">;</span></pre></li></ol></div>
 </div>
 <div class="refsect2">
-<a name="idp93057584"></a><h3>
-<a name="idp27092496-bb"></a><code class="computeroutput">writer</code> public member functions</h3>
+<a name="idp82270048"></a><h3>
+<a name="idp25219104-bb"></a><code class="computeroutput">writer</code> public member functions</h3>
 <div class="orderedlist"><ol class="orderedlist" type="1">
-<li class="listitem"><pre class="literallayout"><span class="keyword">char</span> <span class="special">*</span> <a name="idp27092992-bb"></a><span class="identifier">get_ptr</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><span class="keyword">bool</span> <a name="idp27093984-bb"></a><span class="identifier">is_end</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">char</span> <span class="special">*</span> <a name="idp25219600-bb"></a><span class="identifier">get_ptr</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">bool</span> <a name="idp25220592-bb"></a><span class="identifier">is_end</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
 <li class="listitem"><pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> 
-  <span class="keyword">void</span> <a name="idp27094976-bb"></a><span class="identifier">write</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Type</span> <span class="special">*</span> src<span class="special">,</span> <span class="identifier">size_t</span> size<span class="special">,</span> <span class="identifier">size_t</span> align<span class="special">)</span><span class="special">;</span></pre></li>
+  <span class="keyword">void</span> <a name="idp25221584-bb"></a><span class="identifier">write</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">Type</span> <span class="special">*</span> src<span class="special">,</span> <span class="identifier">size_t</span> size<span class="special">,</span> <span class="identifier">size_t</span> align<span class="special">)</span><span class="special">;</span></pre></li>
 <li class="listitem"><pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> VecType<span class="special">&gt;</span> 
-  <span class="keyword">void</span> <a name="idp27098352-bb"></a><span class="identifier">write</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">VecType</span> <span class="special">&amp;</span> vec<span class="special">,</span> 
+  <span class="keyword">void</span> <a name="idp25224960-bb"></a><span class="identifier">write</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">VecType</span> <span class="special">&amp;</span> vec<span class="special">,</span> 
              <span class="identifier">size_t</span> align <span class="special">=</span> <span class="keyword">sizeof</span><span class="special">(</span><span class="keyword">typename</span> <span class="identifier">VecType</span><span class="special">::</span><span class="identifier">value_type</span><span class="special">)</span><span class="special">)</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="idp27101360-bb"></a><span class="identifier">write</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span> str<span class="special">)</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="idp27102736-bb"></a><span class="identifier">write64</span><span class="special">(</span><span class="identifier">uint64_t</span> value<span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="idp25227968-bb"></a><span class="identifier">write</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="special">&amp;</span> str<span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="idp25229344-bb"></a><span class="identifier">write64</span><span class="special">(</span><span class="identifier">uint64_t</span> value<span class="special">)</span><span class="special">;</span></pre></li>
 </ol></div>
 </div>
 </div>
@@ -88,7 +88,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="mapper.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="writer/exists.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="unmapped_traits.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/genetics/utils_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="writer/exists.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

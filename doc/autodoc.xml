@@ -67,71 +67,74 @@
 <para>DNA string Container class definitions. </para><namespace name="boost">
 <namespace name="genetics">
 <class name="basic_dna_string"><template>
-      <template-type-parameter name="WordType"><purpose><para>Integer word type, typically 64-bit unsigned integer <computeroutput>uint64_t</computeroutput>. </para></purpose></template-type-parameter>
-      <template-type-parameter name="ArrayType"><purpose><para>Container array type, typically <computeroutput>std::vector&lt;uint64_t</computeroutput>. </para></purpose></template-type-parameter>
+      <template-type-parameter name="Traits"/>
     </template><purpose>This class stores DNA strings compactly allowing 32 or more bases to be accessed in a single instruction. </purpose><description><para>Like many of the container classes in this library it can be specialised into a standard (<computeroutput>std::vector</computeroutput>) version for construction and a read-only mapped (<computeroutput><classname alt="boost::genetics::mapped_vector">mapped_vector</classname></computeroutput>) version for high performance use. 
-</para></description><typedef name="this_type"><type><classname>basic_dna_string</classname>&lt; WordType, ArrayType &gt;</type></typedef>
-<typedef name="word_type"><type>WordType</type></typedef>
+</para></description><typedef name="array_type"><type>Traits::DnaArrayType</type></typedef>
+<typedef name="this_type"><type><classname>basic_dna_string</classname>&lt; Traits &gt;</type></typedef>
+<typedef name="word_type"><type>Traits::DnaWordType</type></typedef>
 <data-member name="bases_per_value" specifiers="static"><type>const size_t</type></data-member>
 <data-member name="npos" specifiers="static"><type>const size_t</type></data-member>
 <method-group name="public member functions">
-<method name="append"><type>void</type><parameter name="str"><paramtype>const char *</paramtype></parameter></method>
+<method name="append"><type>void</type><parameter name="str"><paramtype>const char *</paramtype></parameter><purpose>Append a C string. </purpose></method>
 <method name="append"><type>void</type><template>
           <template-type-parameter name="InIter"/>
-        </template><parameter name="b"><paramtype>InIter</paramtype></parameter><parameter name="e"><paramtype>InIter</paramtype></parameter></method>
-<method name="compare" cv="const"><type>int</type><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="ssz"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
+        </template><parameter name="b"><paramtype>InIter</paramtype></parameter><parameter name="e"><paramtype>InIter</paramtype></parameter><purpose>Append ascii characters (A, C, G, T) to the string. </purpose></method>
+<method name="compare" cv="const"><type>int</type><parameter name="start_pos"><paramtype>size_t</paramtype></parameter><parameter name="max_bases"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Compare two substrings exactly. </purpose><description><para>
+</para></description></method>
 <method name="compare_inexact" cv="const"><type>int</type><template>
-          <template-type-parameter name="CiWordType"/>
-          <template-type-parameter name="CiArrayType"/>
-        </template><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="ssz"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname>&lt; CiWordType, CiArrayType &gt; &amp;</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype><default>0</default></parameter></method>
-<method name="find" cv="const"><type>size_t</type><parameter name="str"><paramtype>const <classname>this_type</classname> &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter></method>
+          <template-type-parameter name="CiTraits"/>
+        </template><parameter name="start_pos"><paramtype>size_t</paramtype></parameter><parameter name="max_bases"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname>&lt; CiTraits &gt; &amp;</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype><default>0</default></parameter></method>
+<method name="find" cv="const"><type>size_t</type><parameter name="str"><paramtype>const <classname>this_type</classname> &amp;</paramtype></parameter><parameter name="start_pos"><paramtype>size_t</paramtype><default>0</default><description><para>Zero-based offset to start the search. </para></description></parameter><parameter name="max_bases"><paramtype>size_t</paramtype><default>~(size_t) 0</default><description><para>maxiumum number of bases to search. </para></description></parameter><purpose>Brute force string search. For a more refined aproach, use two_stage_index. This method performs a linear search on DNA data taking O(max_bases) time. </purpose><description><para>
+
+</para></description></method>
 <method name="find_inexact" cv="const"><type>size_t</type><template>
           <template-type-parameter name="String"><purpose><para>DNA sequence string type, typically default dna_string. </para></purpose></template-type-parameter>
-        </template><parameter name="search_str"><paramtype>const String &amp;</paramtype><description><para>DNA string to search. </para></description></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default><description><para>start search??? </para></description></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default><description><para>number of ??? </para></description></parameter><parameter name="max_distance"><paramtype>size_t</paramtype><default>0</default><description><para>distance to search ??? TODO need actual info here. </para></description></parameter><purpose>Brute force string search. For a more refined aproach, use two_stage_index. </purpose><description><para>
+        </template><parameter name="search_str"><paramtype>const String &amp;</paramtype><description><para>DNA string to search. </para></description></parameter><parameter name="start_pos"><paramtype>size_t</paramtype><default>0</default><description><para>Zero-based offset to start the search. </para></description></parameter><parameter name="max_bases"><paramtype>size_t</paramtype><default>~(size_t) 0</default><description><para>maxiumum number of bases to search. </para></description></parameter><parameter name="max_distance"><paramtype>size_t</paramtype><default>0</default><description><para>number of allowable errors in the search. </para></description></parameter><purpose>Brute force string search. For a more refined aproach, use two_stage_index. This method performs a linear search on DNA data taking O(max_bases) time. </purpose><description><para>
 
 </para></description></method>
 <method name="get_code" cv="const"><type>int</type><parameter name="index"><paramtype>size_t</paramtype></parameter></method>
 <method name="get_index" cv="const"><type>uint64_t</type><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="num_index_chars"><paramtype>size_t</paramtype></parameter></method>
-<method name="get_values" cv="const"><type>const ArrayType &amp;</type></method>
-<method name="inexact_search" cv="const"><type>size_t</type><template>
-          <template-type-parameter name="String"/>
-          <template-nontype-parameter name="cpu_has_popcnt"><type>bool</type></template-nontype-parameter>
-        </template><parameter name="search_str"><paramtype>const String &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="nv"><paramtype>size_t</paramtype></parameter><parameter name="s0"><paramtype>word_type</paramtype></parameter><parameter name="s0mask"><paramtype>word_type</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype></parameter><parameter name="ssz"><paramtype>size_t</paramtype></parameter><parameter name="last"><paramtype>size_t</paramtype></parameter></method>
-<method name="conversion-operator" cv="const"><type>std::string</type></method>
-<method name="operator!=" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
-<method name="operator&lt;" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
-<method name="operator&lt;=" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
-<method name="operator==" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
-<method name="operator&gt;" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
-<method name="operator&gt;=" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
-<method name="operator[]" cv="const"><type>char</type><parameter name="index"><paramtype>size_t</paramtype></parameter></method>
-<method name="reserve"><type>void</type><parameter name="size"><paramtype>size_t</paramtype></parameter></method>
-<method name="resize"><type>void</type><parameter name="size"><paramtype>size_t</paramtype></parameter></method>
-<method name="size" cv="const"><type>size_t</type></method>
-<method name="substr" cv="const"><type><classname>basic_dna_string</classname></type><parameter name="offset"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="length"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter><parameter name="rev_comp"><paramtype>bool</paramtype><default>false</default></parameter></method>
+<method name="get_values" cv="const"><type>const array_type &amp;</type></method>
+<method name="conversion-operator" cv="const"><type>std::string</type><purpose>Convert to a C++ string. </purpose></method>
+<method name="operator!=" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Comparison operator. </purpose></method>
+<method name="operator&lt;" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Comparison operator. </purpose></method>
+<method name="operator&lt;=" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Comparison operator. </purpose></method>
+<method name="operator==" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Comparison operator. </purpose></method>
+<method name="operator&gt;" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Comparison operator. </purpose></method>
+<method name="operator&gt;=" cv="const"><type>bool</type><parameter name="rhs"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter><purpose>Comparison operator. </purpose></method>
+<method name="operator[]" cv="const"><type>char</type><parameter name="index"><paramtype>size_t</paramtype></parameter><purpose>Read a single base (in ASCII) from a dna_string. </purpose></method>
+<method name="reserve"><type>void</type><parameter name="size"><paramtype>size_t</paramtype></parameter><purpose>Reserve extra bases in the array for appending. This makes appending a little faster. </purpose></method>
+<method name="resize"><type>void</type><parameter name="size"><paramtype>size_t</paramtype></parameter><purpose>Resize the string, appending 'A' to the end if expanding. </purpose></method>
+<method name="size" cv="const"><type>size_t</type><purpose>Return the number of bases in this string. </purpose></method>
+<method name="substr" cv="const"><type><classname>basic_dna_string</classname></type><parameter name="offset"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="length"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter><parameter name="rev_comp"><paramtype>bool</paramtype><default>false</default></parameter><purpose>Get a substring from a dna_string. The rev_comp parameter allows this to be the reverse complement of the substring. </purpose></method>
 <method name="swap"><type>void</type><parameter name="rhs"><paramtype><classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
 <method name="window" cv="const"><type>word_type</type><parameter name="base"><paramtype>size_t</paramtype></parameter></method>
 <method name="write_binary" cv="const"><type>void</type><parameter name="wr"><paramtype><classname>writer</classname> &amp;</paramtype></parameter></method>
 </method-group>
-<constructor/>
-<constructor><parameter name="size"><paramtype>size_t</paramtype></parameter></constructor>
-<constructor specifiers="explicit"><parameter name="num_bases"><paramtype>size_t</paramtype></parameter><parameter name="values"><paramtype>const ArrayType &amp;</paramtype></parameter></constructor>
+<constructor><purpose>Default constructor. </purpose></constructor>
+<constructor><parameter name="size"><paramtype>size_t</paramtype></parameter><purpose>Construct and empty dna_string with size elements (all 'A') </purpose></constructor>
 <constructor><template>
           <template-type-parameter name="InIter"/>
-        </template><parameter name="b"><paramtype>InIter</paramtype></parameter><parameter name="e"><paramtype>InIter</paramtype></parameter></constructor>
+        </template><parameter name="b"><paramtype>InIter</paramtype></parameter><parameter name="e"><paramtype>InIter</paramtype></parameter><purpose>Construct a dna_string from a range of memory. </purpose></constructor>
 <constructor><template>
-          <template-type-parameter name="Char"/>
-          <template-type-parameter name="Traits"/>
-          <template-type-parameter name="Allocator"/>
-        </template><parameter name="str"><paramtype>const std::basic_string&lt; Char, Traits, Allocator &gt; &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter></constructor>
+          <template-type-parameter name="StrChar"/>
+          <template-type-parameter name="StrTraits"/>
+          <template-type-parameter name="StrAllocator"/>
+        </template><parameter name="str"><paramtype>const std::basic_string&lt; StrChar, StrTraits, StrAllocator &gt; &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter><purpose>Construct a dna_string from a C++ string. </purpose></constructor>
 <constructor><template>
           <template-type-parameter name="charT"/>
-        </template><parameter name="str"><paramtype>const charT *</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter></constructor>
+        </template><parameter name="str"><paramtype>const charT *</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter><purpose>Construct a dna_string from a substring. </purpose></constructor>
 <constructor><template>
           <template-type-parameter name="Mapper"/>
-        </template><parameter name="map"><paramtype>Mapper &amp;</paramtype></parameter><parameter name="p"><paramtype>typename Mapper::is_mapper *</paramtype><default>0</default></parameter></constructor>
-</class><typedef name="dna_string"><type><classname>basic_dna_string</classname>&lt; uint64_t, std::vector&lt; uint64_t &gt; &gt;</type></typedef>
-<typedef name="mapped_dna_string"><type><classname>basic_dna_string</classname>&lt; uint64_t, <classname>mapped_vector</classname>&lt; uint64_t &gt; &gt;</type></typedef>
+        </template><parameter name="map"><paramtype>Mapper &amp;</paramtype></parameter><parameter name="p"><paramtype>typename Mapper::is_mapper *</paramtype><default>0</default></parameter><purpose>Construct a dna_string from a mapper object (mapped_dna_string only). </purpose></constructor>
+<method-group name="private member functions">
+<method name="inexact_search" cv="const"><type>size_t</type><template>
+          <template-type-parameter name="String"/>
+          <template-nontype-parameter name="cpu_has_popcnt"><type>bool</type></template-nontype-parameter>
+        </template><parameter name="search_str"><paramtype>const String &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="nv"><paramtype>size_t</paramtype></parameter><parameter name="s0"><paramtype>word_type</paramtype></parameter><parameter name="s0mask"><paramtype>word_type</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype></parameter><parameter name="max_bases"><paramtype>size_t</paramtype></parameter><parameter name="last"><paramtype>size_t</paramtype></parameter></method>
+</method-group>
+</class><typedef name="dna_string"><type><classname>basic_dna_string</classname>&lt; <classname>unmapped_traits</classname> &gt;</type></typedef>
+<typedef name="mapped_dna_string"><type><classname>basic_dna_string</classname>&lt; <classname>mapped_traits</classname> &gt;</type></typedef>
 
 
 
@@ -149,21 +152,18 @@
 <function name="operator&lt;&lt;"><type>std::basic_ostream&lt; charT, traits &gt; &amp;</type><template>
           <template-type-parameter name="charT"/>
           <template-type-parameter name="traits"/>
-          <template-type-parameter name="WordType"/>
-          <template-type-parameter name="Allocator"/>
-        </template><parameter name="os"><paramtype>std::basic_ostream&lt; charT, traits &gt; &amp;</paramtype></parameter><parameter name="x"><paramtype>const <classname>basic_dna_string</classname>&lt; WordType, Allocator &gt; &amp;</paramtype></parameter></function>
+          <template-type-parameter name="DnaTraits"/>
+        </template><parameter name="os"><paramtype>std::basic_ostream&lt; charT, traits &gt; &amp;</paramtype></parameter><parameter name="x"><paramtype>const <classname>basic_dna_string</classname>&lt; DnaTraits &gt; &amp;</paramtype></parameter></function>
 <function name="operator&gt;&gt;"><type>std::basic_istream&lt; charT, traits &gt; &amp;</type><template>
           <template-type-parameter name="charT"/>
           <template-type-parameter name="traits"/>
-          <template-type-parameter name="WordType"/>
-          <template-type-parameter name="Allocator"/>
-        </template><parameter name="is"><paramtype>std::basic_istream&lt; charT, traits &gt; &amp;</paramtype></parameter><parameter name="x"><paramtype><classname>basic_dna_string</classname>&lt; WordType, Allocator &gt; &amp;</paramtype></parameter></function>
+          <template-type-parameter name="DnaTraits"/>
+        </template><parameter name="is"><paramtype>std::basic_istream&lt; charT, traits &gt; &amp;</paramtype></parameter><parameter name="x"><paramtype><classname>basic_dna_string</classname>&lt; DnaTraits &gt; &amp;</paramtype></parameter></function>
 
 
-<function name="rev_comp"><type><classname>basic_dna_string</classname>&lt; WordType, ArrayType &gt;</type><template>
-          <template-type-parameter name="WordType"/>
-          <template-type-parameter name="ArrayType"/>
-        </template><parameter name="x"><paramtype>const <classname>basic_dna_string</classname>&lt; WordType, ArrayType &gt; &amp;</paramtype></parameter></function>
+<function name="rev_comp"><type><classname>basic_dna_string</classname>&lt; DnaTraits &gt;</type><template>
+          <template-type-parameter name="DnaTraits"/>
+        </template><parameter name="x"><paramtype>const <classname>basic_dna_string</classname>&lt; DnaTraits &gt; &amp;</paramtype></parameter></function>
 
 
 
@@ -331,7 +331,10 @@
 <header name="boost/genetics/utils.hpp">
 <namespace name="boost">
 <namespace name="genetics">
-<class name="mapped_vector"><template>
+<struct name="common_traits"><typedef name="DnaWordType"><type>uint64_t</type></typedef>
+</struct><struct name="mapped_traits"><inherit access="public">boost::genetics::common_traits</inherit><typedef name="DnaArrayType"><type><classname>mapped_vector</classname>&lt; DnaWordType &gt;</type></typedef>
+<typedef name="DnaWordType"><type>uint64_t</type></typedef>
+</struct><class name="mapped_vector"><template>
       <template-type-parameter name="Type"/>
     </template><purpose>Read only mapped vector. Todo: investigate using boost::interprocess containers. </purpose><typedef name="value_type"><type>Type</type></typedef>
 <method-group name="public member functions">
@@ -359,7 +362,9 @@
 <method name="read64"><type>uint64_t</type></method>
 </method-group>
 <constructor><parameter name="begin"><paramtype>const char *</paramtype></parameter><parameter name="end"><paramtype>const char *</paramtype></parameter></constructor>
-</class><class name="writer"><struct name="exists"><template>
+</class><struct name="unmapped_traits"><inherit access="public">boost::genetics::common_traits</inherit><typedef name="DnaArrayType"><type>std::vector&lt; DnaWordType &gt;</type></typedef>
+<typedef name="DnaWordType"><type>uint64_t</type></typedef>
+</struct><class name="writer"><struct name="exists"><template>
       <template-type-parameter name="A"/>
       <template-type-parameter name="B"/>
     </template><typedef name="type"><type>B</type></typedef>

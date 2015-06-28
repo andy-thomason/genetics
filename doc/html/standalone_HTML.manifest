@@ -28,8 +28,11 @@ boost/genetics/basic_two_stage_index.html
 boost/genetics/basic_two_stage_index/iterator.html
 boost/genetics/basic_two_stage_index/iterator/active_state.html
 header/boost/genetics/utils_hpp.html
+boost/genetics/common_traits.html
+boost/genetics/mapped_traits.html
 boost/genetics/mapped_vector.html
 boost/genetics/mapper.html
+boost/genetics/unmapped_traits.html
 boost/genetics/writer.html
 boost/genetics/writer/exists.html
 BOOST_GENETICS_IS_WIN64.html
