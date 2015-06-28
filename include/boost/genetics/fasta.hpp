@@ -16,21 +16,6 @@
 #include <boost/interprocess/mapped_region.hpp>
 
 namespace boost { namespace genetics {
-    struct chromosome {
-        char name[80]; /// Note: these need to be fixed length strings for binary mapping.
-        char info[80];
-        size_t start;
-        size_t end;
-
-        bool operator <(size_t pos) const {
-            return end < pos;
-        }
-
-        chromosome() {
-            memset(this, 0, sizeof(*this));
-        }
-    };
-    
     struct fasta_result {
         size_t location;
         size_t distance;
@@ -55,13 +40,12 @@ namespace boost { namespace genetics {
         virtual ~fasta_file_interface() {}
     };
     
-    //template <class ChromosomeType, class StringType, class IndexType, bool Writable>
     template <class Traits>
     class basic_fasta_file : public fasta_file_interface { 
     public:
-        typedef Traits::ChromosomeType chromosome_type;
+        typedef typename Traits::FastaChromosomeType chromosome_type;
         typedef basic_augmented_string<Traits> string_type;
-        typedef two_stage_index<Traits> index_type;
+        typedef basic_two_stage_index<Traits> index_type;
 
         /// Create an empty FASTA reference file. Use append() to add files.
         basic_fasta_file() {
@@ -210,6 +194,10 @@ namespace boost { namespace genetics {
 
         size_t get_num_chromosomes() const {
             return chromosomes.size();
+        }
+
+        const string_type &get_string() const {
+            return str;
         }
 
         /// Must be called after appending FASTA data.

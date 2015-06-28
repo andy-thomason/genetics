@@ -43,5 +43,5 @@ project
 test-suite genetics
     :
     [ run packed_test.cpp /boost/test//boost_unit_test_framework/<link>static ]
-    #[ run fasta_test.cpp /boost/test//boost_unit_test_framework/<link>static ]
+    [ run fasta_test.cpp /boost/test//boost_unit_test_framework/<link>static ]
 ;

@@ -335,6 +335,21 @@ namespace boost { namespace genetics {
         value_type *dat;
     };
 
+    struct chromosome {
+        char name[80]; /// Note: these need to be fixed length strings for binary mapping.
+        char info[80];
+        size_t start;
+        size_t end;
+
+        bool operator <(size_t pos) const {
+            return end < pos;
+        }
+
+        chromosome() {
+            memset(this, 0, sizeof(*this));
+        }
+    };
+    
     struct common_traits {
         typedef uint64_t DnaWordType;
     };
@@ -346,6 +361,7 @@ namespace boost { namespace genetics {
         typedef std::vector<uint32_t> RleArrayType;
         typedef std::vector<uint32_t> TsiIndexArrayType;
         typedef std::vector<uint32_t> TsiAddrArrayType;
+        typedef std::vector<chromosome> FastaChromosomeType;
     };
 
     //! \brief traits for file mapped classes (mapped_vector)
@@ -355,6 +371,7 @@ namespace boost { namespace genetics {
         typedef mapped_vector<uint32_t> RleArrayType;
         typedef mapped_vector<uint32_t> TsiIndexArrayType;
         typedef mapped_vector<uint32_t> TsiAddrArrayType;
+        typedef mapped_vector<chromosome> FastaChromosomeType;
     };
 } }
 
