@@ -334,6 +334,18 @@ namespace boost { namespace genetics {
         size_t sz;
         value_type *dat;
     };
+
+    struct common_traits {
+        typedef uint64_t DnaWordType;
+    };
+    
+    struct unmapped_traits : common_traits {
+        typedef std::vector<DnaWordType> DnaArrayType; 
+    };
+
+    struct mapped_traits : common_traits {
+        typedef mapped_vector<DnaWordType> DnaArrayType; 
+    };
 } }
 
 

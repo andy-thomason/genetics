@@ -15,60 +15,54 @@
 #include <string>
 
 namespace boost { namespace genetics {
-    /// This class stores DNA strings compactly allowing 32 or more bases to
-    /// be accessed in a single instruction.
+    //! \brief This class stores DNA strings compactly allowing 32 or more bases to
+    //! be accessed in a single instruction.
 
-    /// Like many of the container classes in this library it can be specialised
-    /// into a standard (`std::vector`) version for construction and a read-only
-    /// mapped (`mapped_vector`) version for high performance use.
+    //! Like many of the container classes in this library it can be specialised
+    //! into a standard (`std::vector`) version for construction and a read-only
+    //! mapped (`mapped_vector`) version for high performance use.
 
     //! \tparam WordType Integer word type, typically 64-bit unsigned integer `uint64_t`.
     //! \tparam ArrayType Container array type, typically `std::vector<uint64_t`.
-    template<class WordType, class ArrayType>
+    template<class Traits>
     class basic_dna_string {
     public:
-        typedef WordType word_type;
+        typedef typename Traits::DnaWordType word_type;
+        typedef typename Traits::DnaArrayType array_type;
         static const size_t bases_per_value = sizeof(word_type) * 4;
         static const size_t npos = (size_t)-1;
-        typedef basic_dna_string<WordType, ArrayType> this_type;
+        typedef basic_dna_string<Traits> this_type;
 
     public:
+        //! \brief Default constructor.
         basic_dna_string() {
             num_bases = 0;
         }
 
+        //! \brief Construct and empty dna_string with size elements (all 'A')
         basic_dna_string(size_t size) {
             num_bases = size;
             values.resize((num_bases+bases_per_value-1)/bases_per_value);
-            /*if (word_value != 0) {
-                for (size_t i = 0; i != values.size(); ++i) {
-                    values[i] = word_value;
-                }
-            }*/
         }
 
-        explicit basic_dna_string(size_t num_bases, const ArrayType &values) :
-            num_bases(num_bases),
-            values(values)
-        {
-        }
-
+        //! \brief Construct a dna_string from a range of memory.
         template<class InIter>
         basic_dna_string(InIter b, InIter e) {
             num_bases = 0;
             append(b, e);
         }
 
-        template<class Char, class Traits, class Allocator>
+        //! \brief Construct a dna_string from a C++ string
+        template<class StrChar, class StrTraits, class StrAllocator>
         basic_dna_string(
-            const std::basic_string<Char, Traits, Allocator> &str,
+            const std::basic_string<StrChar, StrTraits, StrAllocator> &str,
             size_t pos = 0, size_t n = ~(size_t)0
         ) {
             num_bases = 0;
             append(str.data() + pos, str.data() + std::min(n, str.size()));
-            //append(str.begin() + pos, str.begin() + std::min(n, str.size()));
         }
 
+        //! \brief Construct a dna_string from a substring
         template <class charT>
         basic_dna_string(
             const charT* str,
@@ -81,6 +75,7 @@ namespace boost { namespace genetics {
             append(b, e);
         }
 
+        //! \brief Construct a dna_string from a mapper object (mapped_dna_string only).
         template <class Mapper>
         basic_dna_string(Mapper &map, typename Mapper::is_mapper *p=0) :
             num_bases((size_t)map.read64()),
@@ -88,12 +83,14 @@ namespace boost { namespace genetics {
         {
         }
 
+        //! \brief Read a single base (in ASCII) from a dna_string
         char operator[](size_t index) const {
             size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
             size_t off = index / bases_per_value;
             return index >= num_bases ? 'N' : code_to_base((values[off] >> sh) & 0x03);
         }
 
+        //! \brief Convert to a C++ string.
         operator std::string() const {
             std::string res;
             res.resize(num_bases);
@@ -103,6 +100,8 @@ namespace boost { namespace genetics {
             return res;
         }
 
+        //! \brief Get a substring from a dna_string. The rev_comp parameter allows
+        //! this to be the reverse complement of the substring.
         basic_dna_string substr(size_t offset=0, size_t length=~(size_t)0, bool rev_comp=false) const {
             basic_dna_string result;
             length = std::min(length, size() - offset);
@@ -118,7 +117,6 @@ namespace boost { namespace genetics {
               for (size_t i = 0; i < nv; ++i) {
                   size_t addr = offset + length - (i+1) * bases_per_value;
                   word_type w = window(addr);
-                  //printf("w=%016llx addr=%08llx\n", w, addr);
                   result.values[i] = rev_comp_word(w);
               }
             }
@@ -128,14 +126,18 @@ namespace boost { namespace genetics {
             return result;
         }
 
+        //! \brief Return the number of bases in this string.
         size_t size() const {
             return num_bases;
         }
 
+        //! \brief Reserve extra bases in the array for appending.
+        //! This makes appending a little faster.
         void reserve(size_t size) {
             values.reserve((size + bases_per_value - 1) / bases_per_value);
         }
 
+        //! \brief Resize the string, appending 'A' to the end if expanding.
         void resize(size_t size) {
             values.resize((size + bases_per_value - 1) / bases_per_value);
             if (size < num_bases && size % bases_per_value) {
@@ -145,12 +147,14 @@ namespace boost { namespace genetics {
             num_bases = size;
         }
 
+        //! \brief Append a C string.
         void append(const char *str) {
             const char *e = str;
             while (*e) ++e;
             append(str, e);
         }
 
+        //! \brief Append ascii characters (A, C, G, T) to the string.
         template<class InIter>
         void append(InIter b, InIter e) {
             size_t max_bases = values.size() * bases_per_value;
@@ -185,50 +189,63 @@ namespace boost { namespace genetics {
             }
         }
 
+        //! \brief Comparison operator
         bool operator==(const basic_dna_string &rhs) const {
             return values == rhs.values && size() == rhs.size();
         }
 
+        //! \brief Comparison operator
         bool operator!=(const basic_dna_string &rhs) const {
             return values != rhs.values || size() != rhs.size();
         }
 
+        //! \brief Comparison operator
         bool operator>(const basic_dna_string &rhs) const {
             return values > rhs.values || (values == rhs.values && size() > rhs.size());
         }
 
+        //! \brief Comparison operator
         bool operator<(const basic_dna_string &rhs) const {
             return values < rhs.values || (values == rhs.values && size() < rhs.size());
         }
 
+        //! \brief Comparison operator
         bool operator>=(const basic_dna_string &rhs) const {
             return values > rhs.values || (values == rhs.values && size() >= rhs.size());
         }
 
+        //! \brief Comparison operator
         bool operator<=(const basic_dna_string &rhs) const {
             return values < rhs.values || (values == rhs.values && size() <= rhs.size());
         }
 
-        size_t find(const this_type& str, size_t pos = 0, size_t n = ~(size_t)0) const {
-            return find_inexact(str, pos, n, 0);
+        //! \brief Brute force string search. For a more refined aproach, use two_stage_index.
+        //! This method performs a linear search on DNA data taking O(max_bases) time.
+        //! \tparam String DNA sequence string type, typically default dna_string.
+        //! \param search_str DNA string to search.
+        //! \param start_pos Zero-based offset to start the search.
+        //! \param max_bases maxiumum number of bases to search.
+        size_t find(const this_type& str, size_t start_pos = 0, size_t max_bases = ~(size_t)0) const {
+            return find_inexact(str, start_pos, max_bases, 0);
         }
 
 
-        /// Brute force string search. For a more refined aproach, use two_stage_index.
+        //! \brief Brute force string search. For a more refined aproach, use two_stage_index.
+        //! This method performs a linear search on DNA data taking O(max_bases) time.
         //! \tparam String DNA sequence string type, typically default dna_string.
         //! \param search_str DNA string to search.
-        //! \param pos start search???
-        //! \param n number of ???
-        //! \param max_distance distance to search ???
-        //! TODO need actual info here.
+        //! \param start_pos Zero-based offset to start the search.
+        //! \param max_bases maxiumum number of bases to search.
+        //! \param max_distance number of allowable errors in the search.
 
         template <class String>
         size_t find_inexact(
             const String& search_str,
-            size_t pos = 0,
-            size_t n = ~(size_t)0,
+            size_t start_pos = 0,
+            size_t max_bases = ~(size_t)0,
             size_t max_distance = 0
         ) const {
+            size_t pos = start_pos;
             size_t ssz = search_str.size();
             if (ssz == 0) {
                 return pos;
@@ -239,8 +256,8 @@ namespace boost { namespace genetics {
                 return basic_dna_string::npos;
             }
 
-            n = std::min((size_t)(sz - pos), n);
-            size_t last = pos + n;
+            max_bases = std::min((size_t)(sz - pos), max_bases);
+            size_t last = pos + max_bases;
             if (pos + ssz > last || values.size() == 0) {
                 return basic_dna_string::npos;
             }
@@ -315,60 +332,29 @@ namespace boost { namespace genetics {
         }
 
 
-        template <class String, bool cpu_has_popcnt>
-        size_t inexact_search(const String &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t ssz, size_t last) const {
-            const size_t bpv = bases_per_value;
-            for (size_t i = pos/bpv; i < nv; ++i) {
-                word_type v0 = values[i];
-                word_type v1 = values[i+1];
-                word_type s0x = s0;
-                int have_hits = 0;
-                #define BOOST_GENETICS_UNROLL \
-                    have_hits |= popcnt((v0 ^ s0x) & s0mask, cpu_has_popcnt) - (int)(max_distance*2+1); \
-                    v0 = (v0 << 2) | v1 >> (bpv*2-2); \
-                    v1 <<= 2;
-                for (size_t j = 0; j != bpv/4; ++j) {
-                    BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL
-                }
-                #undef BOOST_GENETICS_UNROLL
-                if (have_hits < 0) {
-                    for (size_t j = 0; j != bpv; ++j) {
-                        size_t search_pos = i * bpv + j;
-                        if (
-                            search_pos >= pos && search_pos <= last - ssz &&
-                            compare_inexact(search_pos, ssz, search_str, max_distance) == 0
-                        ) {
-                            return search_pos;
-                        }
-                    }
-                }
-            }
-
-            return basic_dna_string::npos;
+        //! \brief Compare two substrings exactly.
+        //! \param 
+        int compare(size_t start_pos, size_t max_bases, const basic_dna_string &str) const {
+            return compare_inexact(start_pos, max_bases, str);
         }
 
-        int compare(size_t pos, size_t ssz, const basic_dna_string &str) const {
-            return compare_inexact(pos, ssz, str);
-        }
-
-        template <class CiWordType, class CiArrayType>
-        int compare_inexact(size_t pos, size_t ssz, const basic_dna_string<CiWordType, CiArrayType> &str, size_t max_distance=0) const {
-            //printf("%s\n", std::string(str).c_str());
-            pos = std::min(pos, num_bases);
-            ssz = std::min(ssz, str.size());
-            ssz = std::min(ssz, num_bases - pos);
+        template <class CiTraits>
+        int compare_inexact(size_t start_pos, size_t max_bases, const basic_dna_string<CiTraits> &str, size_t max_distance=0) const {
+            size_t pos = std::min(start_pos, num_bases);
+            max_bases = std::min(max_bases, str.size());
+            max_bases = std::min(max_bases, num_bases - pos);
 
             bool cpu_has_popcnt = has_popcnt();
             const auto str_values = str.get_values();
             const size_t bpv = bases_per_value;
-            size_t nv = std::min(str_values.size(), (ssz+bpv-1)/bpv);
+            size_t nv = std::min(str_values.size(), (max_bases+bpv-1)/bpv);
             size_t error = 0;
             for (size_t i = 0; i != nv; ++i) {
                 word_type w = window(pos);
                 word_type s = str_values[i];
-                if (i == ssz/bpv) {
-                    s &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
-                    w &= ~(word_type)0 << (((0-ssz) % bases_per_value) * 2);
+                if (i == max_bases/bpv) {
+                    s &= ~(word_type)0 << (((0-max_bases) % bases_per_value) * 2);
+                    w &= ~(word_type)0 << (((0-max_bases) % bases_per_value) * 2);
                 }
                 if (s != w) {
                     if (max_distance == 0) {
@@ -421,42 +407,74 @@ namespace boost { namespace genetics {
             wr.write(values);
         }
 
-        const ArrayType &get_values() const {
+        const array_type &get_values() const {
             return values;
         }
 
     private:
+        template <class String, bool cpu_has_popcnt>
+        size_t inexact_search(const String &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t max_bases, size_t last) const {
+            const size_t bpv = bases_per_value;
+            for (size_t i = pos/bpv; i < nv; ++i) {
+                word_type v0 = values[i];
+                word_type v1 = values[i+1];
+                word_type s0x = s0;
+                int have_hits = 0;
+                #define BOOST_GENETICS_UNROLL \
+                    have_hits |= popcnt((v0 ^ s0x) & s0mask, cpu_has_popcnt) - (int)(max_distance*2+1); \
+                    v0 = (v0 << 2) | v1 >> (bpv*2-2); \
+                    v1 <<= 2;
+                for (size_t j = 0; j != bpv/4; ++j) {
+                    BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL BOOST_GENETICS_UNROLL
+                }
+                #undef BOOST_GENETICS_UNROLL
+                if (have_hits < 0) {
+                    for (size_t j = 0; j != bpv; ++j) {
+                        size_t search_pos = i * bpv + j;
+                        if (
+                            search_pos >= pos && search_pos <= last - max_bases &&
+                            compare_inexact(search_pos, max_bases, search_str, max_distance) == 0
+                        ) {
+                            return search_pos;
+                        }
+                    }
+                }
+            }
+
+            return basic_dna_string::npos;
+        }
+
         // Note: order matters!
         size_t num_bases;
-        ArrayType values;
+        array_type values;
     };
 
-    template <class charT, class traits, class WordType, class Allocator>
+    template <class charT, class traits, class DnaTraits>
     std::basic_istream<charT, traits>&
-    operator>>(std::basic_istream<charT, traits>& is, basic_dna_string<WordType, Allocator>& x) {
+    operator>>(std::basic_istream<charT, traits>& is, basic_dna_string<DnaTraits>& x) {
         std::string str;
         is >> str;
-        x = basic_dna_string<WordType, Allocator>(str);
+        x = basic_dna_string<DnaTraits>(str);
         return is;
     }
 
-    template <class charT, class traits, class WordType, class Allocator>
+    template <class charT, class traits, class DnaTraits>
     std::basic_ostream<charT, traits>&
-    operator<<(std::basic_ostream<charT, traits>& os, const basic_dna_string<WordType, Allocator>&x) {
+    operator<<(std::basic_ostream<charT, traits>& os, const basic_dna_string<DnaTraits>&x) {
         os << (std::string)x;
         return os;
     }
 
-    template <class WordType, class ArrayType>
-    basic_dna_string<WordType, ArrayType> rev_comp(const basic_dna_string<WordType, ArrayType> &x) {
+    template <class DnaTraits>
+    basic_dna_string<DnaTraits> rev_comp(const basic_dna_string<DnaTraits> &x) {
         return x.substr(0, x.size(), true);
     }
 
     // Conventional dna string
-    typedef basic_dna_string<uint64_t, std::vector<uint64_t> > dna_string;
+    typedef basic_dna_string<unmapped_traits> dna_string;
 
     // File mapped dna string
-    typedef basic_dna_string<uint64_t, mapped_vector<uint64_t> > mapped_dna_string;
+    typedef basic_dna_string<mapped_traits> mapped_dna_string;
 
     template <>
     inline int get_code<dna_string>(const dna_string &str, size_t index) {
