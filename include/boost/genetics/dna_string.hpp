@@ -333,11 +333,19 @@ namespace boost { namespace genetics {
 
 
         //! \brief Compare two substrings exactly.
-        //! \param 
+        //! \param start_pos Zero-based offset to start the search.
+        //! \param max_bases maxiumum number of bases to search.
+        //! \param str dna_string to compare with.
         int compare(size_t start_pos, size_t max_bases, const basic_dna_string &str) const {
             return compare_inexact(start_pos, max_bases, str);
         }
 
+        //! \brief Compare two substrings with errors.
+        //! \tparam CiTraits Traits of other string to compare with.
+        //! \param start_pos Zero-based offset to start the search.
+        //! \param max_bases maxiumum number of bases to search.
+        //! \param str dna_string to compare with.
+        //! \param max_distance number of allowable errors in the search.
         template <class CiTraits>
         int compare_inexact(size_t start_pos, size_t max_bases, const basic_dna_string<CiTraits> &str, size_t max_distance=0) const {
             size_t pos = std::min(start_pos, num_bases);
@@ -371,42 +379,47 @@ namespace boost { namespace genetics {
             return 0;
         }
 
+        //! \brief Get a value from 0..3 for a single base at offset "index".
         int get_code(size_t index) const {
             size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
             size_t off = index/bases_per_value;
             return index >= num_bases ? 0 : ((values[off] >> sh) & 0x03);
         }
 
-        uint64_t get_index(size_t pos, size_t num_index_chars) const {
-            return (uint64_t)(window(pos) >> (bases_per_value - num_index_chars)*2);
+        //! \brief Get a right-justified word of values limited by num_index_chars.
+        //! eg. get_index(pos, 3) gives AAA...AAAXXX
+        //! Used by two_stage_index to index values
+        word_type get_index(size_t pos, size_t num_index_chars) const {
+            return (word_type)(window(pos) >> (bases_per_value - num_index_chars)*2);
         }
 
+        //! \brief Get an unaligned word from the centre of the string (typically 32 values).
         word_type window(size_t base) const {
             size_t offset = base / bases_per_value;
             size_t sh = (base % bases_per_value) * 2;
             word_type v0 = offset < values.size() ? values[offset] : 0;
-            //printf("windows %08llx/%08llx\n", (long long)base, (long long)values.size());
             if (sh == 0) {
                 return v0;
             } else {
                 size_t offset1 = (base + bases_per_value) / bases_per_value;
-                //printf("%08llx %08llx\n", (long long)offset, (long long)offset1);
                 word_type v1 = offset1 < values.size() ? values[offset1] : 0;
-                //printf("%016llx %016llx\n", (long long)v0, (long long)v1);
                 return v0 << sh | v1 >> (64-sh);
             }
         }
 
+        //! \brief Swap two dna_strings.
         void swap(basic_dna_string &rhs) {
             std::swap(num_bases, rhs.num_bases);
             values.swap(rhs.values);
         }
 
+        //! \brief Write the structure in binary for later mapping.
         void write_binary(writer &wr) const {
             wr.write64(num_bases);
             wr.write(values);
         }
 
+        //! \brief Back-door access to the values.
         const array_type &get_values() const {
             return values;
         }
@@ -449,6 +462,7 @@ namespace boost { namespace genetics {
         array_type values;
     };
 
+    //! \brief Write the dna_string as a stream of ASCII characters.
     template <class charT, class traits, class DnaTraits>
     std::basic_istream<charT, traits>&
     operator>>(std::basic_istream<charT, traits>& is, basic_dna_string<DnaTraits>& x) {
@@ -458,6 +472,7 @@ namespace boost { namespace genetics {
         return is;
     }
 
+    //! \brief Read the dna_string from a stream of ASCII characters.
     template <class charT, class traits, class DnaTraits>
     std::basic_ostream<charT, traits>&
     operator<<(std::basic_ostream<charT, traits>& os, const basic_dna_string<DnaTraits>&x) {
@@ -465,15 +480,16 @@ namespace boost { namespace genetics {
         return os;
     }
 
+    //! \brief Reverse complement the string. Converts T<->A C<->G and reverses the string.
     template <class DnaTraits>
     basic_dna_string<DnaTraits> rev_comp(const basic_dna_string<DnaTraits> &x) {
         return x.substr(0, x.size(), true);
     }
 
-    // Conventional dna string
+    //! \brief Conventionally allocated dna string used for construction.
     typedef basic_dna_string<unmapped_traits> dna_string;
 
-    // File mapped dna string
+    //! \brief File mapped dna string used for searches.
     typedef basic_dna_string<mapped_traits> mapped_dna_string;
 
     template <>
