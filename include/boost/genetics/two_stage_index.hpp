@@ -13,11 +13,15 @@
 
 namespace boost { namespace genetics {
     /// Two stage index, first index ordered by value, second by address.
-    template <class StringType, class IndexArrayType, class AddrArrayType, bool Writable>
+    //template <class StringType, class IndexArrayType, class AddrArrayType, bool Writable>
+    template<class Traits>
     class basic_two_stage_index {
     public:
-        typedef typename IndexArrayType::value_type index_type;
-        typedef typename AddrArrayType::value_type addr_type;
+        typedef basic_augmented_string<Traits> string_type;
+        typedef typename Traits::TsiIndexArrayType index_array_type;
+        typedef typename Traits::TsiAddrArrayType addr_array_type;
+        typedef typename Traits::TsiIndexArrayType::value_type index_type;
+        typedef typename Traits::TsiAddrArrayType::value_type addr_type;
 
         basic_two_stage_index(
         ) : string(nullptr), num_indexed_chars(0) {
@@ -39,7 +43,7 @@ namespace boost { namespace genetics {
 
         template <class Mapper>
         basic_two_stage_index(
-            StringType &string,
+            string_type &string,
             Mapper &map,
             typename Mapper::is_mapper *p=0
         ) :
@@ -51,7 +55,7 @@ namespace boost { namespace genetics {
         }
         
         basic_two_stage_index(
-            StringType &str,
+            string_type &str,
             size_t num_indexed_chars
         ) : string(&str), num_indexed_chars(num_indexed_chars) {
             // Todo: use threads to speed this up.
@@ -318,18 +322,18 @@ namespace boost { namespace genetics {
 
     private:
         // Note: order matters
-        StringType *string;
+        string_type *string;
         size_t num_indexed_chars;
-        IndexArrayType index;
-        AddrArrayType addr;
+        index_array_type index;
+        addr_array_type addr;
     };
 
-    typedef basic_two_stage_index<augmented_string, std::vector<uint32_t>, std::vector<uint32_t>, true > two_stage_index;
-    typedef basic_two_stage_index<mapped_augmented_string, mapped_vector<uint32_t>, mapped_vector<uint32_t>, false > mapped_two_stage_index;
+    typedef basic_two_stage_index<unmapped_traits> two_stage_index;
+    typedef basic_two_stage_index<mapped_traits> mapped_two_stage_index;
 
-    template <class charT, class traits, class StringType, class IndexArrayType, class AddrArrayType, bool Writable>
+    template <class charT, class traits, class Traits>
     std::basic_ostream<charT, traits>&
-    operator<<(std::basic_ostream<charT, traits>& os, const basic_two_stage_index<StringType, IndexArrayType, AddrArrayType, Writable>& x) {
+    operator<<(std::basic_ostream<charT, traits>& os, const basic_two_stage_index<Traits>& x) {
         x.write_ascii(os);
         return os;
     }

@@ -55,12 +55,13 @@ namespace boost { namespace genetics {
         virtual ~fasta_file_interface() {}
     };
     
-    template <class ChromosomeType, class StringType, class IndexType, bool Writable>
+    //template <class ChromosomeType, class StringType, class IndexType, bool Writable>
+    template <class Traits>
     class basic_fasta_file : public fasta_file_interface { 
     public:
-        typedef ChromosomeType chromosome_type;
-        typedef StringType string_type;
-        typedef IndexType index_type;
+        typedef Traits::ChromosomeType chromosome_type;
+        typedef basic_augmented_string<Traits> string_type;
+        typedef two_stage_index<Traits> index_type;
 
         /// Create an empty FASTA reference file. Use append() to add files.
         basic_fasta_file() {
@@ -248,20 +249,10 @@ namespace boost { namespace genetics {
     };
 
     /// This container is a writable type for conversion from ASCII files.
-    typedef basic_fasta_file<
-        std::vector<chromosome>,
-        augmented_string,
-        two_stage_index,
-        true
-    > fasta_file;
+    typedef basic_fasta_file<unmapped_traits> fasta_file;
 
     /// This container is read only for mapped files.
-    typedef basic_fasta_file<
-        mapped_vector<chromosome>,
-        mapped_augmented_string,
-        mapped_two_stage_index,
-        false
-    > mapped_fasta_file;
+    typedef basic_fasta_file<mapped_traits> mapped_fasta_file;
 
 } }
 

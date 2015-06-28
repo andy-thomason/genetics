@@ -338,13 +338,23 @@ namespace boost { namespace genetics {
     struct common_traits {
         typedef uint64_t DnaWordType;
     };
-    
+
+    //! \brief traits for unmapped classes (std::vector)
     struct unmapped_traits : common_traits {
         typedef std::vector<DnaWordType> DnaArrayType; 
+        typedef std::vector<uint32_t> IndexArrayType;
+        typedef std::vector<uint32_t> RleArrayType;
+        typedef std::vector<uint32_t> TsiIndexArrayType;
+        typedef std::vector<uint32_t> TsiAddrArrayType;
     };
 
+    //! \brief traits for file mapped classes (mapped_vector)
     struct mapped_traits : common_traits {
         typedef mapped_vector<DnaWordType> DnaArrayType; 
+        typedef mapped_vector<uint32_t> IndexArrayType;
+        typedef mapped_vector<uint32_t> RleArrayType;
+        typedef mapped_vector<uint32_t> TsiIndexArrayType;
+        typedef mapped_vector<uint32_t> TsiAddrArrayType;
     };
 } }
 

@@ -10,18 +10,15 @@
 
 namespace boost { namespace genetics {
     /// Containter for bases ACGT and occasional runs of 'N' and other letters.
-    template<
-        class WordType, class ParentType,
-        class IndexArrayType, class RleArrayType
-    >
-    class basic_augmented_string : public ParentType {
+    template<class Traits>
+    class basic_augmented_string : public basic_dna_string<Traits> {
         static const size_t lg_bases_per_index = 16;
         static const size_t bases_per_index =
             (size_t)1 << lg_bases_per_index;
     public:
-        typedef typename IndexArrayType::value_type index_type;
-        typedef typename RleArrayType::value_type rle_type;
-        typedef ParentType parent;
+        typedef typename Traits::IndexArrayType::value_type index_type;
+        typedef typename Traits::RleArrayType::value_type rle_type;
+        typedef basic_dna_string<Traits> parent;
 
         basic_augmented_string() {
         }
@@ -153,23 +150,13 @@ namespace boost { namespace genetics {
         }
 
         // Note: order matters
-        IndexArrayType index;
-        RleArrayType rle;
+        typename Traits::IndexArrayType index;
+        typename Traits::RleArrayType rle;
     };
 
-    typedef basic_augmented_string<
-        uint64_t,
-        dna_string,
-        std::vector<uint32_t>,
-        std::vector<uint32_t>
-    > augmented_string;
+    typedef basic_augmented_string<unmapped_traits> augmented_string;
 
-    typedef basic_augmented_string<
-        uint64_t,
-        mapped_dna_string,
-        mapped_vector<uint32_t>,
-        mapped_vector<uint32_t>
-    > mapped_augmented_string;
+    typedef basic_augmented_string<mapped_traits> mapped_augmented_string;
 
     template <>
     inline int get_code<augmented_string>(const augmented_string &str, size_t index) {
