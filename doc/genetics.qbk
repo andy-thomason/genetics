@@ -83,44 +83,40 @@
 [template header_file[file] [@../../../../[file] [file]]]
 
 [section:overview Overview]
-This library provides containers and algorithms for working with genetic sequences
+[*Boost.Genetics], a proposed library for the boost collection,
+provides containers and algorithms for working with genetic sequences
 which are mostly composed of the letters (or bases):
 
 __A  __G __C __T
 
-When working with RNA the __T is replaced with __U and some files use __N
-to represent unknown values.
-
+[*Boost.Genetics] provides methods for searching genomes.
+The human genome, for example, has around 3.2 billion such bases and can be read
+in either direction making it necessary to search around 6.4 billion bases.
 Searches are usually inexact. For example we may wish to search for
 
 __G __A __T __A __C __A
 
 But allow one error so that
 
-__G __A __A __A __C __A or __T __A __T __A __C __A
+__G __A __A __A __C __A or
 
-Are allowed. This is very common because genomes vary by only a few
+__T __A __T __A __C __A
+
+Are both allowed. This is very common because genomes vary by only a few
 bases or there may be errors in the data we read from sequencing machines.
+
+There are some special characters that may occur in sequences especially
+__N which represents an unknown base. It is used in reads (the data from
+a sequencing machine) to denote low quality values and in the genome to
+represent unknown or variable regions.
+
+The initial release of [*Boost.Genetics] will focus on Aligning.
+Aligning is the process of matching reads from a sequencing machine against
+a reference genome such as [@http://www.ensembl.org/info/data/ftp/index.html ENSEMBL].
+Alignment must be done on both strands of the DNA and may involve discovering gaps
+called "introns" between the coding regions "exons" and coping with errors to
+get the closest match.
 [endsect] [/section:overview Overview]
-
-[section:file_formats  File Formats]
-
-[table:formats Common DNA data File Formats
-[[Name] [data type][link]]
-[[FASTA][Chromosome data (DNA)] [ [__FASTA]]]
-[[FASTQ][Read data from sequencing machines] [ [__FASTQ]]]
-[[SAM/BAM][Output from aligners][[__SAM]]]
-[[GTF][Gene annotation][[@http://en.wikipedia.org/wiki/GENCODE GENCODE]]]
-[[EMBL][Individual genes and DNA][[@http://www.bioperl.org/wiki/EMBL_sequence_format]]]
-[[VEP][Variant end predictor][[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html VEP formats]]]
-[[VCF][Variant call format][[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf VEP formats]]]
-] [/table:formats]
-
-These are mostly (with the exception of BAM) ASCII files.
-
-We aim to support all these file formats.
-
-[endsect] [/section:file_formats  File Formats]
 
 [section:containers Containers and Datatypes]
 
@@ -129,31 +125,52 @@ the fastest access. Memory access will always be the dominant performance
 factor for search algorithms and compact storage will make the most
 difference.
 
-In the dna_string class, which behaves much like std::string, we store the
+[classref boost::genetics::dna_string] behaves much like std::string, we store the
 bases as two bits per character. This is optimal for very large databases
 such as the human genome which contains around 3.2 billion bases.
 
-In the augmented_string class, we store the bases as two bits but allow
-long runs of 'N' and other characters. This should not be used for normal
+[classref boost::genetics::augmented_string] stores the bases as two bits but allows
+long runs of 'N' and other characters. This is intended to store genomes as a single,
+very long string. This should not be used for normal
 text data, however, std:string is the best choice for this.
 
-We can index a DNA string using the two_stage_index class. This class
-has an first index based on content and a second index based on position.
+[classref boost::genetics::two_stage_index] has a first index based on
+content and a second index based on position.
 After an initial content look-up we can then search on position without
 having to touch the reference data - important as random memory access
 is very slow.
 
-The 'fasta' class uses an augmented_string, a two_stage_index and a
+[classref boost::genetics::fasta] uses an augmented_string, a two_stage_index and a
 vector of chromosome data to represent an entire genome.
 
 [endsect] [/section:containers Containers and Datatypes]
+
+[section:file_formats  File Formats]
+
+[table:formats Common DNA data File Formats
+[[Name] [data type][link]]
+[[FASTA]  [Chromosome data (DNA)]              [[@https://en.wikipedia.org/wiki/FASTA_format FASTA format]]]
+[[FASTQ]  [Read data from sequencing machines] [[@https://en.wikipedia.org/wiki/FASTQ_format FASTQ format]]]
+[[SAM/BAM][Output from aligners]               [[@http://samtools.github.io/hts-specs/SAMv1.pdf Sequence Alignment/Map Format Specification]]]
+[[GTF]    [Gene annotation]                    [[@http://en.wikipedia.org/wiki/GENCODE GENCODE]]]
+[[EMBL]   [Individual genes and DNA]           [[@http://www.bioperl.org/wiki/EMBL_sequence_format]]]
+[[VEP]    [Variant end predictor]              [[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html VEP formats]]]
+[[VCF]    [Variant call format]                [[@http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf VEP formats]]]
+] [/table:formats]
+
+These are mostly (with the exception of BAM) ASCII files.
+
+We aim to support all these file formats. At present only FASTA is supported through the class
+[classref boost::genetics::fasta].
+
+[endsect] [/section:file_formats  File Formats]
 
 [section:file_mapping File Mapping]
 Because many of the data files used by this library are very large,
 especially the FASTA indexes which are normally around 13GB, we use file
 mapping to avoid having to load them.
 
-The library Boost.Interprocess has a number of methods for dealing with
+The library [*Boost.Interprocess] has a number of methods for dealing with
 file mapping which also allow two processes to share access to the same file
 without having to have two copies of the data.
 
@@ -179,6 +196,19 @@ or store the data in a managed object in Python, for example.
 
 [section:rationale Rationale]
 [h4 Gene Searches]
+
+The algorithm used in [classref boost::genetics::two_stage_index] is an experimental
+one that is designed to minimise random memory access. This is critical because random
+memory access outside the Level 2 cache range is penalised heavilly with TLB misses
+and lengthy and power-hungry access to physical DRAM or FLASH.
+
+This can be mediated to a degree using cache hints and non-temporal access instructions
+but as of 2015 the X86 architecture has limited support for non-temporal memory access.
+
+The result is that sequential reads can be 3000 or more times faster than random reads.
+
+We hope to offer other algorithms in the future such as the more traditional __BWT. 
+
 [endsect] [/section Rationale]
 
 [section:history History]
@@ -197,15 +227,19 @@ Expression of interest in a genetic algorthms library.  Date?
 [section:faq Frequently Asked Questions FAQ]
 [/use of br (new paragraph) causes warnings but ignore them.]
 
-You might want a FAQ?
+# [Why not just use std::string?]
+[classref boost::genetics::dna_string] groups 32 bases into a 64 bit word
+allowing many operations to be performed in parallel. This is not possible
+with std::string.
 
-# ['I'm a R user and I don't see why I should bother with Boost?]
-# I have another problem...
+# [Why not use __BOWTIE or __BWA?]
+These are unix command line tools and cannot be used in real-time interactive
+systems. They also perform heuristic searches and may miss some alignments.
 
 [endsect] [/section:faq Frequently Asked Questions FAQ]
 
 [section:credits Credits and Acknowledgements]
-The documentation was produce in Quickbook format by Paul A. Bristow.
+The documentation was produced in Quickbook format by Paul A. Bristow.
 [endsect] [/section:credits Credits and Acknowledgements]
 
 [section:navigation Navigation]

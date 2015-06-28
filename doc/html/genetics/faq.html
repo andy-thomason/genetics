@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Frequently Asked Questions FAQ</title>
 <link rel="stylesheet" href="../genetics.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="../index.html" title="Boost.Genetics 0.1">
 <link rel="up" href="../index.html" title="Boost.Genetics 0.1">
 <link rel="prev" href="history.html" title="History">
@@ -26,16 +26,16 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="genetics.faq"></a><a class="link" href="faq.html" title="Frequently Asked Questions FAQ">Frequently Asked Questions FAQ</a>
 </h2></div></div></div>
-<p>
-      You might want a FAQ?
-    </p>
 <div class="orderedlist"><ol class="orderedlist" type="1">
 <li class="listitem">
-          <span class="emphasis"><em>I'm a R user and I don't see why I should bother with Boost?</em></span>
-          <br>
+          [Why not just use std::string?] <code class="computeroutput"><a class="link" href="../header/boost/genetics/dna_string_hpp.html#boost.genetics.dna_string">boost::genetics::dna_string</a></code>
+          groups 32 bases into a 64 bit word allowing many operations to be performed
+          in parallel. This is not possible with std::string.
         </li>
 <li class="listitem">
-          I have another problem... <br>
+          [Why not use __BOWTIE or __BWA?] These are unix command line tools and
+          cannot be used in real-time interactive systems. They also perform heuristic
+          searches and may miss some alignments.
         </li>
 </ol></div>
 </div>

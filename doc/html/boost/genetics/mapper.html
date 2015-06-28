@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Class mapper</title>
 <link rel="stylesheet" href="../../genetics.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="../../index.html" title="Boost.Genetics 0.1">
 <link rel="up" href="../../header/boost/genetics/utils_hpp.html" title="Header &lt;boost/genetics/utils.hpp&gt;">
 <link rel="prev" href="mapped_vector.html" title="Class template mapped_vector">
@@ -38,13 +38,13 @@
   <span class="keyword">typedef</span> <span class="keyword">void</span> <a name="boost.genetics.mapper.is_mapper"></a><span class="identifier">is_mapper</span><span class="special">;</span>
 
   <span class="comment">// <a class="link" href="mapper.html#boost.genetics.mapperconstruct-copy-destruct">construct/copy/destruct</a></span>
-  <a class="link" href="mapper.html#id257296-bb"><span class="identifier">mapper</span></a><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">,</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="mapper.html#idp27088256-bb"><span class="identifier">mapper</span></a><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">,</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span><span class="special">)</span><span class="special">;</span>
 
-  <span class="comment">// <a class="link" href="mapper.html#id257222-bb">public member functions</a></span>
-  <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <a class="link" href="mapper.html#id257248-bb"><span class="identifier">get_ptr</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
-  <span class="keyword">bool</span> <a class="link" href="mapper.html#id257249-bb"><span class="identifier">is_end</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
-  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="identifier">Type</span> <span class="special">*</span> <a class="link" href="mapper.html#id257234-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
-  <span class="identifier">uint64_t</span> <a class="link" href="mapper.html#id257285-bb"><span class="identifier">read64</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <span class="comment">// <a class="link" href="mapper.html#idp27082144-bb">public member functions</a></span>
+  <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <a class="link" href="mapper.html#idp27082640-bb"><span class="identifier">get_ptr</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">bool</span> <a class="link" href="mapper.html#idp27083632-bb"><span class="identifier">is_end</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="identifier">Type</span> <span class="special">*</span> <a class="link" href="mapper.html#idp27084624-bb"><span class="identifier">map</span></a><span class="special">(</span><span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">)</span><span class="special">;</span>
+  <span class="identifier">uint64_t</span> <a class="link" href="mapper.html#idp27087376-bb"><span class="identifier">read64</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
 
   <span class="comment">// public data members</span>
   <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <span class="identifier">begin</span><span class="special">;</span>
@@ -52,22 +52,22 @@
   <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <span class="identifier">ptr</span><span class="special">;</span>
 <span class="special">}</span><span class="special">;</span></pre></div>
 <div class="refsect1">
-<a name="id933364"></a><h2>Description</h2>
+<a name="idp92935632"></a><h2>Description</h2>
 <div class="refsect2">
-<a name="id933354"></a><h3>
+<a name="idp92936048"></a><h3>
 <a name="boost.genetics.mapperconstruct-copy-destruct"></a><code class="computeroutput">mapper</code> 
         public
        construct/copy/destruct</h3>
-<div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><pre class="literallayout"><a name="id257296-bb"></a><span class="identifier">mapper</span><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> begin<span class="special">,</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> end<span class="special">)</span><span class="special">;</span></pre></li></ol></div>
+<div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><pre class="literallayout"><a name="idp27088256-bb"></a><span class="identifier">mapper</span><span class="special">(</span><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> begin<span class="special">,</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> end<span class="special">)</span><span class="special">;</span></pre></li></ol></div>
 </div>
 <div class="refsect2">
-<a name="id933434"></a><h3>
-<a name="id257222-bb"></a><code class="computeroutput">mapper</code> public member functions</h3>
+<a name="idp92946768"></a><h3>
+<a name="idp27082144-bb"></a><code class="computeroutput">mapper</code> public member functions</h3>
 <div class="orderedlist"><ol class="orderedlist" type="1">
-<li class="listitem"><pre class="literallayout"><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <a name="id257248-bb"></a><span class="identifier">get_ptr</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><span class="keyword">bool</span> <a name="id257249-bb"></a><span class="identifier">is_end</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="identifier">Type</span> <span class="special">*</span> <a name="id257234-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="identifier">size_t</span> size<span class="special">,</span> <span class="identifier">size_t</span> align<span class="special">)</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><span class="identifier">uint64_t</span> <a name="id257285-bb"></a><span class="identifier">read64</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">const</span> <span class="keyword">char</span> <span class="special">*</span> <a name="idp27082640-bb"></a><span class="identifier">get_ptr</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">bool</span> <a name="idp27083632-bb"></a><span class="identifier">is_end</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> Type<span class="special">&gt;</span> <span class="identifier">Type</span> <span class="special">*</span> <a name="idp27084624-bb"></a><span class="identifier">map</span><span class="special">(</span><span class="identifier">size_t</span> size<span class="special">,</span> <span class="identifier">size_t</span> align<span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><span class="identifier">uint64_t</span> <a name="idp27087376-bb"></a><span class="identifier">read64</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
 </ol></div>
 </div>
 </div>

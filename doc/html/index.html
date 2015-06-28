@@ -3,9 +3,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Boost.Genetics 0.1</title>
 <link rel="stylesheet" href="genetics.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Boost.Genetics 0.1">
-<link rel="next" href="genetics/file_formats.html" title="File Formats">
+<link rel="next" href="genetics/containers.html" title="Containers and Datatypes">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -17,7 +17,7 @@
 <td align="center"><a href="../../../../more/index.htm">More</a></td>
 </tr></table>
 <hr>
-<div class="spirit-nav"><a accesskey="n" href="genetics/file_formats.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="spirit-nav"><a accesskey="n" href="genetics/containers.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
 <div class="article">
 <div class="titlepage">
 <div>
@@ -38,12 +38,11 @@
 </div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
-<dl>
-<dt><span class="section"><a href="index.html#genetics.readme">Readme</a></span></dt>
-<dt><span class="section"><a href="genetics/file_formats.html">File Formats</a></span></dt>
+<dl class="toc">
+<dt><span class="section"><a href="index.html#genetics.overview">Overview</a></span></dt>
 <dt><span class="section"><a href="genetics/containers.html">Containers and Datatypes</a></span></dt>
-<dt><span class="section"><a href="genetics/algorithms.html">Algorithms</a></span></dt>
-<dt><span class="section"><a href="genetics/introduction.html">Introduction</a></span></dt>
+<dt><span class="section"><a href="genetics/file_formats.html">File Formats</a></span></dt>
+<dt><span class="section"><a href="genetics/file_mapping.html">File Mapping</a></span></dt>
 <dt><span class="section"><a href="genetics/examples.html">Examples</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="genetics/examples.html#genetics.examples.dna_string">DNA string</a></span></dt>
@@ -67,118 +66,76 @@
 <dt><span class="section"><a href="header/boost/genetics/two_stage_index_hpp.html">Header &lt;boost/genetics/two_stage_index.hpp&gt;</a></span></dt>
 <dt><span class="section"><a href="header/boost/genetics/utils_hpp.html">Header &lt;boost/genetics/utils.hpp&gt;</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="index/s16.html">Index</a></span></dt>
 </dl>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="genetics.readme"></a><a class="link" href="index.html#genetics.readme" title="Readme">Readme</a>
+<a name="genetics.overview"></a><a class="link" href="index.html#genetics.overview" title="Overview">Overview</a>
 </h2></div></div></div>
-<div class="note"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../doc/src/images/note.png"></td>
-<th align="left">Note</th>
-</tr>
-<tr><td align="left" valign="top"><p>
-        This duplicates stuff in and needs drastic revision
-      </p></td></tr>
-</table></div>
 <p>
-      You could use color for the letter thus:
+      <span class="bold"><strong>Boost.Genetics</strong></span>, a proposed library for the
+      boost collection, provides containers and algorithms for working with genetic
+      sequences which are mostly composed of the letters (or bases):
     </p>
 <p>
       <span class="red">A</span> <span class="green">G</span> <span class="blue">C</span>
       <span class="gold">T</span>
     </p>
 <p>
-      (or you could make a Quickbook template).
+      <span class="bold"><strong>Boost.Genetics</strong></span> provides methods for searching
+      genomes. The human genome, for example, has around 3.2 billion such bases and
+      can be read in either direction making it necessary to search around 6.4 billion
+      bases. Searches are usually inexact. For example we may wish to search for
     </p>
 <p>
-      Reference data is usually in FASTA format which is a series of chromomosome
-      names and bases.
+      <span class="green">G</span> <span class="red">A</span> <span class="gold">T</span>
+      <span class="red">A</span> <span class="blue">C</span> <span class="red">A</span>
     </p>
 <p>
-      Read data from the <a href="http://www.illumina.com/applications/sequencing.html" target="_top">Illumina
-      machines</a> is in <a href="https://en.wikipedia.org/wiki/FASTQ_format" target="_top">FASTQ
-      format</a> format with large numbers of shorter sequences of around 30-200
-      bases. Currently this is around 100, but the trend is for longer sequences.
+      But allow one error so that
     </p>
 <p>
-      Aligned data the result of an aligner such as Tophat or Star is usually in
-      the <a href="http://samtools.github.io/hts-specs/SAMv1.pdf" target="_top">Sequence Alignment/Map
-      Format Specification</a> (or <a href="http://samtools.github.io/hts-specs/SAMv1.pdf" target="_top">Section
-      4 The BAM Format Specification</a> (compressed SAM)) format and is similar
-      to the <a href="https://en.wikipedia.org/wiki/FASTA_format" target="_top">FASTA format</a>
-      but has additional metadata.
+      <span class="green">G</span> <span class="red">A</span> <span class="red">A</span>
+      <span class="red">A</span> <span class="blue">C</span> <span class="red">A</span>
+      or
     </p>
 <p>
-      We provide both packed (2 bits/base) and unpacked data (eg. <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span></code>)
-      algorithms.
+      <span class="gold">T</span> <span class="red">A</span> <span class="gold">T</span>
+      <span class="red">A</span> <span class="blue">C</span> <span class="red">A</span>
     </p>
 <p>
-      Most genetic searches revolve around the creation of Suffix Arrays which are
-      a sort of all the substrings of a sequence to the end.
+      Are both allowed. This is very common because genomes vary by only a few bases
+      or there may be errors in the data we read from sequencing machines.
     </p>
 <p>
-      For example:
-    </p>
-<pre class="programlisting">SA "hello" consists of the substrings "hello", "ello", "llo", "lo", "p" and ""
-</pre>
-<p>
-      The suffix array is:
-    </p>
-<pre class="programlisting">5 "" 1 "ello" 0 "hello" 3 "lo" 2 "llo" 4 "o"
-</pre>
-<p>
-      See <a href="https://en.wikipedia.org/wiki/DNA_sequencing" target="_top">DNA sequencing</a>
-      for a more comprehensive discussion.
+      There are some special characters that may occur in sequences especially <span class="cyan">N</span> which represents an unknown base. It is used in reads
+      (the data from a sequencing machine) to denote low quality values and in the
+      genome to represent unknown or variable regions.
     </p>
 <p>
-      We can use the suffix array to look up the position of any sequence by, for
-      example, doing a binary chop on the substrings. In practice this is not a sensible
-      thing to do as each of the memory accesses to the substrings may cost thousands
-      of cycles.
-    </p>
-<p>
-      We can also calculate the <a href="https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform" target="_top">Burrows-Wheeler
-      transform</a> (BWT) which simplifies the task of finding the sequence prior
-      to the current one, allowing you to extend the search by one letter in each
-      operation. This also is a very inefficient use of modern memory architectures
-      which are deeply heirarchical.
-    </p>
-<p>
-      Calculating a full suffix array for the 3.2 billion letters of the human genome
-      is an expensive process, but fortunately we don't need to compute a full suffix
-      array as sequences of 16 or more letters are likely to be unique.
-    </p>
-<p>
-      Far better is to calculate a hybrid-indexed suffix array which gives you all
-      the substrings starting with a fixed number of letters. For this we add an
-      index of 2^(2N) entries for N letters the suffixes sorted by address in the
-      array instead of value.
-    </p>
-<p>
-      This means that we can use two very expensive memory accesses to find a set
-      of addresses for a sequence and then a small number of very inexpensive accesses
-      and a merge operation to find exact matches of any length (N x M).
-    </p>
-<p>
-      For inexact matches, we can filter the M matches we have to a much smaller
-      set where we can then do expensive tests on the reference itself.
-    </p>
-<p>
-      For a very large number of potential errors, such as 6 errors in a 20 character
-      string, it is fastest to brute-force search the genome. Here we can make use
-      of leading zero and population count operations to rapidly screen large number
-      of bases.
+      The initial release of <span class="bold"><strong>Boost.Genetics</strong></span> will
+      focus on Aligning. Aligning is the process of matching reads from a sequencing
+      machine against a reference genome such as <a href="http://www.ensembl.org/info/data/ftp/index.html" target="_top">ENSEMBL</a>.
+      Alignment must be done on both strands of the DNA and may involve discovering
+      gaps called "introns" between the coding regions "exons"
+      and coping with errors to get the closest match.
     </p>
 </div>
+<p>
+    </p>
+<div class="index">
+<div class="titlepage"><div><div><h2 class="title">
+<a name="idp93129088"></a>Index</h2></div></div></div>
+<div class="index"></div>
+</div>
+<p>
+  </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: June 22, 2015 at 16:01:29 GMT</small></p></td>
+<td align="left"><p><small>Last revised: June 28, 2015 at 12:19:41 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>
-<div class="spirit-nav"><a accesskey="n" href="genetics/file_formats.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="spirit-nav"><a accesskey="n" href="genetics/containers.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
 </body>
 </html>

@@ -1,8 +1,7 @@
 index.html
-genetics/file_formats.html
 genetics/containers.html
-genetics/algorithms.html
-genetics/introduction.html
+genetics/file_formats.html
+genetics/file_mapping.html
 genetics/examples.html
 genetics/examples/reverse_complement.html
 genetics/examples/inexact_find.html
@@ -34,4 +33,3 @@ boost/genetics/mapper.html
 boost/genetics/writer.html
 boost/genetics/writer/exists.html
 BOOST_GENETICS_IS_WIN64.html
-index/s16.html

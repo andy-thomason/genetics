@@ -19,7 +19,7 @@
 <method name="operator[]" cv="const"><type>char</type><parameter name="base"><paramtype>size_t</paramtype></parameter></method>
 <method name="resize"><type>void</type><parameter name="new_size"><paramtype>size_t</paramtype></parameter><parameter name="chr"><paramtype>char</paramtype><default>'A'</default></parameter></method>
 <method name="substr" cv="const"><type>std::string</type><parameter name="offset"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="length"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter><parameter name="rev_comp"><paramtype>bool</paramtype><default>false</default></parameter></method>
-<method name="swap"><type>void</type><parameter name="rhs"><paramtype><classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
+<method name="swap"><type>void</type><parameter name="rhs"><paramtype><classname>basic_augmented_string</classname> &amp;</paramtype></parameter></method>
 <method name="write_binary" cv="const"><type>void</type><parameter name="wr"><paramtype><classname>writer</classname> &amp;</paramtype></parameter></method>
 </method-group>
 <constructor/>
@@ -81,9 +81,9 @@
         </template><parameter name="b"><paramtype>InIter</paramtype></parameter><parameter name="e"><paramtype>InIter</paramtype></parameter></method>
 <method name="compare" cv="const"><type>int</type><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="ssz"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname> &amp;</paramtype></parameter></method>
 <method name="compare_inexact" cv="const"><type>int</type><template>
-          <template-type-parameter name="WordType"/>
-          <template-type-parameter name="ArrayType"/>
-        </template><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="ssz"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname>&lt; WordType, ArrayType &gt; &amp;</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype><default>0</default></parameter></method>
+          <template-type-parameter name="CiWordType"/>
+          <template-type-parameter name="CiArrayType"/>
+        </template><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="ssz"><paramtype>size_t</paramtype></parameter><parameter name="str"><paramtype>const <classname>basic_dna_string</classname>&lt; CiWordType, CiArrayType &gt; &amp;</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype><default>0</default></parameter></method>
 <method name="find" cv="const"><type>size_t</type><parameter name="str"><paramtype>const <classname>this_type</classname> &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype><default>0</default></parameter><parameter name="n"><paramtype>size_t</paramtype><default>~(size_t) 0</default></parameter></method>
 <method name="find_inexact" cv="const"><type>size_t</type><template>
           <template-type-parameter name="String"><purpose><para>DNA sequence string type, typically default dna_string. </para></purpose></template-type-parameter>
@@ -179,6 +179,7 @@
       <template-type-parameter name="ChromosomeType"/>
       <template-type-parameter name="StringType"/>
       <template-type-parameter name="IndexType"/>
+      <template-nontype-parameter name="Writable"><type>bool</type></template-nontype-parameter>
     </template><inherit access="public">boost::genetics::fasta_file_interface</inherit><typedef name="chromosome_type"><type>ChromosomeType</type></typedef>
 <typedef name="index_type"><type>IndexType</type></typedef>
 <typedef name="string_type"><type>StringType</type></typedef>
@@ -197,9 +198,7 @@
 </method-group>
 <constructor><purpose>Create an empty FASTA reference file. Use append() to add files. </purpose></constructor>
 <constructor><parameter name="filename"><paramtype>const std::string &amp;</paramtype></parameter><purpose>Create a FASTA reference from a single text file. </purpose></constructor>
-<constructor><template>
-          <template-type-parameter name="Mapper"/>
-        </template><parameter name="map"><paramtype>Mapper &amp;</paramtype></parameter><parameter name="p"><paramtype>typename Mapper::is_mapper *</paramtype><default>0</default></parameter><purpose>Use a mapper to instantly load from a mapped file. </purpose></constructor>
+<constructor><parameter name="map"><paramtype><classname>mapper</classname> &amp;</paramtype></parameter><purpose>Use a mapper to instantly load from a mapped file. </purpose></constructor>
 <copy-assignment><type><classname>basic_fasta_file</classname> &amp;</type><parameter name="rhs"><paramtype><classname>basic_fasta_file</classname> &amp;&amp;</paramtype></parameter><purpose>Move from another reference of the same type. </purpose></copy-assignment>
 <destructor/>
 </class><struct name="chromosome"><data-member name="end"><type>size_t</type></data-member>
@@ -223,8 +222,8 @@
 <destructor/>
 </struct><struct name="fasta_result"><data-member name="distance"><type>size_t</type></data-member>
 <data-member name="location"><type>size_t</type></data-member>
-</struct><typedef name="fasta_file"><purpose>This container is a writable type for conversion from ASCII files. </purpose><type><classname>basic_fasta_file</classname>&lt; std::vector&lt; <classname>chromosome</classname> &gt;, <classname>augmented_string</classname>, <classname>two_stage_index</classname> &gt;</type></typedef>
-<typedef name="mapped_fasta_file"><purpose>This container is read only for mapped files. </purpose><type><classname>basic_fasta_file</classname>&lt; <classname>mapped_vector</classname>&lt; <classname>chromosome</classname> &gt;, <classname>mapped_augmented_string</classname>, <classname>mapped_two_stage_index</classname> &gt;</type></typedef>
+</struct><typedef name="fasta_file"><purpose>This container is a writable type for conversion from ASCII files. </purpose><type><classname>basic_fasta_file</classname>&lt; std::vector&lt; <classname>chromosome</classname> &gt;, <classname>augmented_string</classname>, <classname>two_stage_index</classname>, true &gt;</type></typedef>
+<typedef name="mapped_fasta_file"><purpose>This container is read only for mapped files. </purpose><type><classname>basic_fasta_file</classname>&lt; <classname>mapped_vector</classname>&lt; <classname>chromosome</classname> &gt;, <classname>mapped_augmented_string</classname>, <classname>mapped_two_stage_index</classname>, false &gt;</type></typedef>
 
 
 
@@ -282,7 +281,6 @@
 <method-group name="public member functions">
 <method name="end" cv="const"><type>size_t</type></method>
 <method name="find_inexact" cv="const"><type><classname>iterator</classname></type><parameter name="search_str"><paramtype>const <classname>dna_string</classname> &amp;</paramtype></parameter><parameter name="pos"><paramtype>size_t</paramtype></parameter><parameter name="max_distance"><paramtype>size_t</paramtype></parameter><parameter name="max_gap"><paramtype>size_t</paramtype></parameter><parameter name="is_brute_force"><paramtype>bool</paramtype></parameter><purpose>find the next dna string which is close to the search string allowing max_distance errors and max_gap gaps between exons. </purpose></method>
-<method name="reindex"><type>void</type></method>
 <method name="swap"><type>void</type><parameter name="rhs"><paramtype><classname>basic_two_stage_index</classname> &amp;</paramtype></parameter></method>
 <method name="write_ascii" cv="const"><type>void</type><template>
           <template-type-parameter name="charT"/>
@@ -294,15 +292,8 @@
 <constructor><template>
           <template-type-parameter name="Mapper"/>
         </template><parameter name="string"><paramtype>StringType &amp;</paramtype></parameter><parameter name="map"><paramtype>Mapper &amp;</paramtype></parameter><parameter name="p"><paramtype>typename Mapper::is_mapper *</paramtype><default>0</default></parameter></constructor>
-<constructor><parameter name="string"><paramtype>StringType &amp;</paramtype></parameter><parameter name="num_indexed_chars"><paramtype>size_t</paramtype></parameter></constructor>
+<constructor><parameter name="str"><paramtype>StringType &amp;</paramtype></parameter><parameter name="num_indexed_chars"><paramtype>size_t</paramtype></parameter></constructor>
 <copy-assignment><type><classname>basic_two_stage_index</classname> &amp;</type><parameter name="rhs"><paramtype><classname>basic_two_stage_index</classname> &amp;&amp;</paramtype></parameter></copy-assignment>
-<method-group name="private member functions">
-<method name="reindex_impl"><type>void</type><template>
-          <template-nontype-parameter name="B"><type>bool</type></template-nontype-parameter>
-        </template></method>
-<method name="reindex_impl"><type>void</type><template>
-        </template></method>
-</method-group>
 </class><typedef name="mapped_two_stage_index"><type><classname>basic_two_stage_index</classname>&lt; <classname>mapped_augmented_string</classname>, <classname>mapped_vector</classname>&lt; uint32_t &gt;, <classname>mapped_vector</classname>&lt; uint32_t &gt;, false &gt;</type></typedef>
 <typedef name="two_stage_index"><type><classname>basic_two_stage_index</classname>&lt; <classname>augmented_string</classname>, std::vector&lt; uint32_t &gt;, std::vector&lt; uint32_t &gt;, true &gt;</type></typedef>
 
@@ -348,7 +339,7 @@
 <method name="data" cv="const"><type>const value_type *</type></method>
 <method name="empty" cv="const"><type>bool</type></method>
 <method name="operator[]"><type>value_type &amp;</type><parameter name="idx"><paramtype>size_t</paramtype></parameter></method>
-<method name="operator[]" cv="const"><type>value_type</type><parameter name="idx"><paramtype>size_t</paramtype></parameter></method>
+<method name="operator[]" cv="const"><type>const value_type &amp;</type><parameter name="idx"><paramtype>size_t</paramtype></parameter></method>
 <method name="push_back"><type>void</type><parameter name="val"><paramtype>const value_type &amp;</paramtype></parameter></method>
 <method name="resize"><type>void</type><parameter name="new_size"><paramtype>size_t</paramtype></parameter></method>
 <method name="size" cv="const"><type>size_t</type></method>
@@ -380,7 +371,7 @@
         </template><parameter name="src"><paramtype>const Type *</paramtype></parameter><parameter name="size"><paramtype>size_t</paramtype></parameter><parameter name="align"><paramtype>size_t</paramtype></parameter></method>
 <method name="write"><type>void</type><template>
           <template-type-parameter name="VecType"/>
-        </template><parameter name="vec"><paramtype>const VecType &amp;</paramtype></parameter><parameter name="align"><paramtype>size_t</paramtype><default>sizeof(VecType::value_type)</default></parameter></method>
+        </template><parameter name="vec"><paramtype>const VecType &amp;</paramtype></parameter><parameter name="align"><paramtype>size_t</paramtype><default>sizeof(typename VecType::value_type)</default></parameter></method>
 <method name="write"><type>void</type><parameter name="str"><paramtype>const std::string &amp;</paramtype></parameter></method>
 <method name="write64"><type>void</type><parameter name="value"><paramtype>uint64_t</paramtype></parameter></method>
 </method-group>

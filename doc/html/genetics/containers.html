@@ -3,11 +3,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Containers and Datatypes</title>
 <link rel="stylesheet" href="../genetics.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="../index.html" title="Boost.Genetics 0.1">
 <link rel="up" href="../index.html" title="Boost.Genetics 0.1">
-<link rel="prev" href="file_formats.html" title="File Formats">
-<link rel="next" href="algorithms.html" title="Algorithms">
+<link rel="prev" href="../index.html" title="Boost.Genetics 0.1">
+<link rel="next" href="file_formats.html" title="File Formats">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -20,16 +20,40 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="file_formats.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="algorithms.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="../index.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="file_formats.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="genetics.containers"></a><a class="link" href="containers.html" title="Containers and Datatypes">Containers and Datatypes</a>
 </h2></div></div></div>
 <p>
-      In order to work with the restricted alphabet, we need a 2-bit data type similar
-      to the 1-bit bool datatype. As there is not such datatype in the language,
-      we can add a boxed datatype with a restricted constructor.
+      We want to store the genetic data in a memory efficent way that allows the
+      fastest access. Memory access will always be the dominant performance factor
+      for search algorithms and compact storage will make the most difference.
+    </p>
+<p>
+      <code class="computeroutput"><a class="link" href="../header/boost/genetics/dna_string_hpp.html#boost.genetics.dna_string">boost::genetics::dna_string</a></code>
+      behaves much like std::string, we store the bases as two bits per character.
+      This is optimal for very large databases such as the human genome which contains
+      around 3.2 billion bases.
+    </p>
+<p>
+      <code class="computeroutput"><a class="link" href="../boost_genetics_c___reference.html#boost.genetics.augmented_string">boost::genetics::augmented_string</a></code>
+      stores the bases as two bits but allows long runs of 'N' and other characters.
+      This is intended to store genomes as a single, very long string. This should
+      not be used for normal text data, however, std:string is the best choice for
+      this.
+    </p>
+<p>
+      <code class="computeroutput"><a class="link" href="../header/boost/genetics/two_stage_index_hpp.html#boost.genetics.two_stage_index">boost::genetics::two_stage_index</a></code>
+      has a first index based on content and a second index based on position. After
+      an initial content look-up we can then search on position without having to
+      touch the reference data - important as random memory access is very slow.
+    </p>
+<p>
+      <code class="computeroutput">boost::genetics::fasta</code>
+      uses an augmented_string, a two_stage_index and a vector of chromosome data
+      to represent an entire genome.
     </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
@@ -42,7 +66,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="file_formats.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="algorithms.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="../index.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="file_formats.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

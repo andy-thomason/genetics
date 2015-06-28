@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Rationale</title>
 <link rel="stylesheet" href="../genetics.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="../index.html" title="Boost.Genetics 0.1">
 <link rel="up" href="../index.html" title="Boost.Genetics 0.1">
 <link rel="prev" href="examples/inexact_find.html" title="Inexact searches (or distance searches)">
@@ -32,7 +32,25 @@
       Searches</a>
     </h5>
 <p>
-      TODO
+      The algorithm used in <code class="computeroutput"><a class="link" href="../header/boost/genetics/two_stage_index_hpp.html#boost.genetics.two_stage_index">boost::genetics::two_stage_index</a></code>
+      is an experimental one that is designed to minimise random memory access. This
+      is critical because random memory access outside the Level 2 cache range is
+      penalised heavilly with TLB misses and lengthy and power-hungry access to physical
+      DRAM or FLASH.
+    </p>
+<p>
+      This can be mediated to a degree using cache hints and non-temporal access
+      instructions but as of 2015 the X86 architecture has limited support for non-temporal
+      memory access.
+    </p>
+<p>
+      The result is that sequential reads can be 3000 or more times faster than random
+      reads.
+    </p>
+<p>
+      We hope to offer other algorithms in the future such as the more traditional
+      <a href="https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform" target="_top">Burrows-Wheeler
+      transform</a>.
     </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>

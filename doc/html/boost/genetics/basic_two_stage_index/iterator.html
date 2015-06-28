@@ -3,9 +3,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Class iterator</title>
 <link rel="stylesheet" href="../../../genetics.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="../../../index.html" title="Boost.Genetics 0.1">
-<link rel="up" href="../basic_two_stage_index.html#id926349" title="Description">
+<link rel="up" href="../basic_two_stage_index.html#idp92374128" title="Description">
 <link rel="prev" href="../basic_two_stage_index.html" title="Class template basic_two_stage_index">
 <link rel="next" href="iterator/active_state.html" title="Struct active_state">
 </head>
@@ -20,7 +20,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="../basic_two_stage_index.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../basic_two_stage_index.html#id926349"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="iterator/active_state.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="../basic_two_stage_index.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../basic_two_stage_index.html#idp92374128"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="iterator/active_state.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="refentry">
 <a name="boost.genetics.basic_two_stage_index.iterator"></a><div class="titlepage"></div>
@@ -39,8 +39,8 @@
 
   <span class="keyword">struct</span> <a class="link" href="iterator/active_state.html" title="Struct active_state">active_state</a> <span class="special">{</span>
 
-    <span class="comment">// <a class="link" href="iterator/active_state.html#id256707-bb">public member functions</a></span>
-    <span class="keyword">bool</span> <a class="link" href="iterator/active_state.html#id256719-bb"><span class="keyword">operator</span><span class="special">&lt;</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">active_state</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
+    <span class="comment">// <a class="link" href="iterator/active_state.html#idp27019520-bb">public member functions</a></span>
+    <span class="keyword">bool</span> <a class="link" href="iterator/active_state.html#idp27020016-bb"><span class="keyword">operator</span><span class="special">&lt;</span></a><span class="special">(</span><span class="keyword">const</span> <span class="identifier">active_state</span> <span class="special">&amp;</span><span class="special">)</span><span class="special">;</span>
 
     <span class="comment">// public data members</span>
     <span class="identifier">addr_type</span> <span class="identifier">elem</span><span class="special">;</span>
@@ -51,45 +51,45 @@
     <span class="identifier">addr_type</span> <span class="identifier">start</span><span class="special">;</span>
   <span class="special">}</span><span class="special">;</span>
   <span class="comment">// <a class="link" href="iterator.html#boost.genetics.basic_two_stage_index.iteratorconstruct-copy-destruct">construct/copy/destruct</a></span>
-  <a class="link" href="iterator.html#id256744-bb"><span class="identifier">iterator</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
-  <a class="link" href="iterator.html#id256788-bb"><span class="identifier">iterator</span></a><span class="special">(</span><span class="keyword">const</span> <a class="link" href="../basic_two_stage_index.html" title="Class template basic_two_stage_index">basic_two_stage_index</a> <span class="special">*</span><span class="special">,</span> <span class="keyword">const</span> <a class="link" href="../../../header/boost/genetics/dna_string_hpp.html#boost.genetics.dna_string">dna_string</a> <span class="special">&amp;</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> 
+  <a class="link" href="iterator.html#idp27025776-bb"><span class="identifier">iterator</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="iterator.html#idp27026032-bb"><span class="identifier">iterator</span></a><span class="special">(</span><span class="keyword">const</span> <a class="link" href="../basic_two_stage_index.html" title="Class template basic_two_stage_index">basic_two_stage_index</a> <span class="special">*</span><span class="special">,</span> <span class="keyword">const</span> <a class="link" href="../../../header/boost/genetics/dna_string_hpp.html#boost.genetics.dna_string">dna_string</a> <span class="special">&amp;</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">size_t</span><span class="special">,</span> 
            <span class="identifier">size_t</span><span class="special">,</span> <span class="keyword">bool</span><span class="special">)</span><span class="special">;</span>
 
-  <span class="comment">// <a class="link" href="iterator.html#id256724-bb">public member functions</a></span>
-  <a class="link" href="iterator.html#id256757-bb"><span class="keyword">operator</span> <span class="identifier">size_t</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
-  <a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a class="link" href="iterator.html#id256733-bb"><span class="keyword">operator</span><span class="special">++</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
-  <a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a class="link" href="iterator.html#id256725-bb"><span class="keyword">operator</span><span class="special">++</span></a><span class="special">(</span><span class="keyword">int</span><span class="special">)</span><span class="special">;</span>
+  <span class="comment">// <a class="link" href="iterator.html#idp27021520-bb">public member functions</a></span>
+  <a class="link" href="iterator.html#idp27022016-bb"><span class="keyword">operator</span> <span class="identifier">size_t</span></a><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span>
+  <a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a class="link" href="iterator.html#idp27023008-bb"><span class="keyword">operator</span><span class="special">++</span></a><span class="special">(</span><span class="special">)</span><span class="special">;</span>
+  <a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a class="link" href="iterator.html#idp27024016-bb"><span class="keyword">operator</span><span class="special">++</span></a><span class="special">(</span><span class="keyword">int</span><span class="special">)</span><span class="special">;</span>
 
-  <span class="comment">// <a class="link" href="iterator.html#id256833-bb">private member functions</a></span>
-  <span class="keyword">void</span> <a class="link" href="iterator.html#id256815-bb"><span class="identifier">find_next</span></a><span class="special">(</span><span class="keyword">bool</span><span class="special">)</span><span class="special">;</span>
+  <span class="comment">// <a class="link" href="iterator.html#idp27030800-bb">private member functions</a></span>
+  <span class="keyword">void</span> <a class="link" href="iterator.html#idp27031296-bb"><span class="identifier">find_next</span></a><span class="special">(</span><span class="keyword">bool</span><span class="special">)</span><span class="special">;</span>
 <span class="special">}</span><span class="special">;</span></pre></div>
 <div class="refsect1">
-<a name="id925280"></a><h2>Description</h2>
+<a name="idp92528112"></a><h2>Description</h2>
 <div class="refsect2">
-<a name="id925281"></a><h3>
+<a name="idp92528528"></a><h3>
 <a name="boost.genetics.basic_two_stage_index.iteratorconstruct-copy-destruct"></a><code class="computeroutput">iterator</code> 
         public
        construct/copy/destruct</h3>
 <div class="orderedlist"><ol class="orderedlist" type="1">
-<li class="listitem"><pre class="literallayout"><a name="id256744-bb"></a><span class="identifier">iterator</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><a name="id256788-bb"></a><span class="identifier">iterator</span><span class="special">(</span><span class="keyword">const</span> <a class="link" href="../basic_two_stage_index.html" title="Class template basic_two_stage_index">basic_two_stage_index</a> <span class="special">*</span> tsi<span class="special">,</span> <span class="keyword">const</span> <a class="link" href="../../../header/boost/genetics/dna_string_hpp.html#boost.genetics.dna_string">dna_string</a> <span class="special">&amp;</span> search_str<span class="special">,</span> 
+<li class="listitem"><pre class="literallayout"><a name="idp27025776-bb"></a><span class="identifier">iterator</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><a name="idp27026032-bb"></a><span class="identifier">iterator</span><span class="special">(</span><span class="keyword">const</span> <a class="link" href="../basic_two_stage_index.html" title="Class template basic_two_stage_index">basic_two_stage_index</a> <span class="special">*</span> tsi<span class="special">,</span> <span class="keyword">const</span> <a class="link" href="../../../header/boost/genetics/dna_string_hpp.html#boost.genetics.dna_string">dna_string</a> <span class="special">&amp;</span> search_str<span class="special">,</span> 
          <span class="identifier">size_t</span> min_pos<span class="special">,</span> <span class="identifier">size_t</span> max_distance<span class="special">,</span> <span class="identifier">size_t</span> max_gap<span class="special">,</span> 
          <span class="keyword">bool</span> is_brute_force<span class="special">)</span><span class="special">;</span></pre></li>
 </ol></div>
 </div>
 <div class="refsect2">
-<a name="id928747"></a><h3>
-<a name="id256724-bb"></a><code class="computeroutput">iterator</code> public member functions</h3>
+<a name="idp92548496"></a><h3>
+<a name="idp27021520-bb"></a><code class="computeroutput">iterator</code> public member functions</h3>
 <div class="orderedlist"><ol class="orderedlist" type="1">
-<li class="listitem"><pre class="literallayout"><a name="id256757-bb"></a><span class="keyword">operator</span> <span class="identifier">size_t</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a name="id256733-bb"></a><span class="keyword">operator</span><span class="special">++</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
-<li class="listitem"><pre class="literallayout"><a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a name="id256725-bb"></a><span class="keyword">operator</span><span class="special">++</span><span class="special">(</span><span class="keyword">int</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><a name="idp27022016-bb"></a><span class="keyword">operator</span> <span class="identifier">size_t</span><span class="special">(</span><span class="special">)</span> <span class="keyword">const</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a name="idp27023008-bb"></a><span class="keyword">operator</span><span class="special">++</span><span class="special">(</span><span class="special">)</span><span class="special">;</span></pre></li>
+<li class="listitem"><pre class="literallayout"><a class="link" href="iterator.html" title="Class iterator">iterator</a> <span class="special">&amp;</span> <a name="idp27024016-bb"></a><span class="keyword">operator</span><span class="special">++</span><span class="special">(</span><span class="keyword">int</span><span class="special">)</span><span class="special">;</span></pre></li>
 </ol></div>
 </div>
 <div class="refsect2">
-<a name="id928853"></a><h3>
-<a name="id256833-bb"></a><code class="computeroutput">iterator</code> private member functions</h3>
-<div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="id256815-bb"></a><span class="identifier">find_next</span><span class="special">(</span><span class="keyword">bool</span> is_start<span class="special">)</span><span class="special">;</span></pre></li></ol></div>
+<a name="idp92567552"></a><h3>
+<a name="idp27030800-bb"></a><code class="computeroutput">iterator</code> private member functions</h3>
+<div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><pre class="literallayout"><span class="keyword">void</span> <a name="idp27031296-bb"></a><span class="identifier">find_next</span><span class="special">(</span><span class="keyword">bool</span> is_start<span class="special">)</span><span class="special">;</span></pre></li></ol></div>
 </div>
 </div>
 </div>
@@ -103,7 +103,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="../basic_two_stage_index.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../basic_two_stage_index.html#id926349"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="iterator/active_state.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="../basic_two_stage_index.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../basic_two_stage_index.html#idp92374128"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="iterator/active_state.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>
