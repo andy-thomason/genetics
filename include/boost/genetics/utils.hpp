@@ -196,7 +196,10 @@ namespace boost { namespace genetics {
 
     class writer {
     public:
-        writer(char *begin, char *end) :
+        write(const std::string &filename, size_t size) {
+        }
+
+        writer(char *begin=nullptr, char *end=nullptr) :
             begin(begin), ptr(begin), end(end)
         {
         }
@@ -235,6 +238,10 @@ namespace boost { namespace genetics {
         
         char *get_ptr() const {
             return ptr;
+        }
+
+        size_t get_size() const {
+            return (size_t)(ptr - begin);
         }
     private:
         char *begin;
