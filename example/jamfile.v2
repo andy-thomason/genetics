@@ -53,9 +53,5 @@ project
 
 run misc_dna_examples.cpp ;
 
-run aligner.cpp ;
-
-
-
-# exe dna_string : main.cpp ;
+exe aligner : aligner.cpp ;
 

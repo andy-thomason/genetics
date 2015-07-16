@@ -123,22 +123,29 @@ namespace boost { namespace genetics {
             iterator() {
             }
 
-            iterator(const basic_two_stage_index *tsi, const dna_string& search_str, size_t min_pos, size_t max_distance, size_t max_gap, bool is_brute_force) :
-                tsi(tsi), search_str(search_str), max_distance(max_distance), max_gap(max_gap), is_brute_force(is_brute_force)
+            iterator(const basic_two_stage_index *tsi, const std::string& search_str, size_t min_pos, search_params &params) :
+                tsi(tsi), search_str(search_str), params(params)
             {
+                dna_search_str = search_str;
                 num_indexed_chars = tsi->num_indexed_chars;
-                num_seeds = search_str.size() / num_indexed_chars;
-                this->is_brute_force = is_brute_force || num_seeds <= max_distance;
-                merges_done = 0;
-                compares_done = 0;
+                size_t max_seeds = search_str.size() / num_indexed_chars;
+                if (max_seeds <= params.max_distance) {
+                    is_brute_force = true;
+                    if (params.never_brute_force) {
+                        pos = dna_string::npos;
+                        return;
+                    }
+                } else {
+                    is_brute_force = params.always_brute_force;
+                }
 
                 if (this->is_brute_force) {
                     pos = min_pos;
                     find_next(true);
                     return;
                 } else {
-                    active.resize(num_seeds);
-                    if (num_seeds == 0) {
+                    active.resize(0);
+                    if (max_seeds == 0) {
                         pos = dna_string::npos;
                         return;
                     }
@@ -146,15 +153,26 @@ namespace boost { namespace genetics {
                     //long long t0 = __rdtsc();
                     // Get seed values from string.
                     // Touch the index in num_seeds places (with NTA hint).
-                    for (size_t i = 0; i != num_seeds; ++i) {
-                        active_state &s = active[i];
-                        s.idx = (index_type)get_index(search_str, i * num_indexed_chars, num_indexed_chars);
-                        touch_nta(tsi->addr.data() + tsi->index[i]);
+                    // If there are any 'N's in a seed, 
+                    const char *str = search_str.data();
+                    size_t total_N = 0;
+                    for (size_t i = 0; i != max_seeds; ++i) {
+                        const char *b = str + i * num_indexed_chars;
+                        const char *e = b + num_indexed_chars;
+                        size_t num_N = std::count(b, e, 'N');
+                        total_N += num_N;
+                        if (num_N == 0) {
+                            active_state s;
+                            s.elem = (addr_type)i;
+                            s.idx = (index_type)get_index(dna_search_str, i * num_indexed_chars, num_indexed_chars);
+                            touch_nta(tsi->addr.data() + tsi->index[i]);
+                            active.push_back(s);
+                        }
                     }
 
                     // Get seed values from string.
                     // Touch the address vector in num_seeds places (with stream hint).
-                    for (size_t i = 0; i != num_seeds; ++i) {
+                    for (size_t i = 0; i != active.size(); ++i) {
                         active_state &s = active[i];
                         const addr_type *ptr = tsi->addr.data() + tsi->index[s.idx];
                         const addr_type *end = tsi->addr.data() + tsi->index[s.idx+1];
@@ -163,12 +181,45 @@ namespace boost { namespace genetics {
                         if (ptr != end) touch_stream(ptr);
                     }
 
-                    for (size_t i = 0; i != num_seeds; ++i) {
+                    std::sort(
+                        active.begin(), active.end(),
+                        [](active_state &a, active_state &b) {
+                            return a.end - a.ptr < b.end - b.ptr; 
+                        }
+                    );
+
+                    for (size_t i = 0; i != active.size(); ++i) {
+                        active_state &s = active[i];
+                        if (s.end - s.ptr > 10000) {
+                            active.resize(i);
+                            break;
+                        }
+                    }
+
+                    /*if (active.size() > params.max_distance + 1) {
+                        active.resize(params.max_distance + 1);
+                    }*/
+
+                    /*char tmp[1024], *p = tmp;
+                    for (size_t i = 0; i != active.size(); ++i) {
+                        active_state &s = active[i];
+                        p += sprintf(p, "%d,", (int)(s.end - s.ptr));
+                    }
+                    puts(tmp);*/
+
+                    /*for (size_t i = 0; i != active.size(); ++i) {
+                        active_state &s = active[i];
+                        if (s.end - s.ptr > 100) {
+                            pos = dna_string::npos;
+                            return;
+                        }
+                    }*/
+
+                    for (size_t i = 0; i != active.size(); ++i) {
                         active_state &s = active[i];
                         const addr_type *ptr = s.ptr;
                         const addr_type *end = s.end;
-                        s.elem = (addr_type)i;
-                        addr_type skip = (addr_type)(i * num_indexed_chars + min_pos);
+                        addr_type skip = (addr_type)(s.elem * num_indexed_chars + min_pos);
                         while (ptr != end && *ptr < skip) {
                             ++ptr;
                         }
@@ -176,6 +227,14 @@ namespace boost { namespace genetics {
                         s.prev = (addr_type)-1;
                         s.ptr = ptr;
                     }
+
+                    if (active.size() <= params.max_distance) {
+                        pos = dna_string::npos;
+                        return;
+                    }
+
+                    required_seed_matches = active.size() - params.max_distance;
+                    max_error = search_str.size() - params.max_distance - total_N;
 
                     std::make_heap(active.begin(), active.end());
                     pos = min_pos;
@@ -196,6 +255,10 @@ namespace boost { namespace genetics {
                 find_next(false);
                 return *this;
             }
+
+            size_t distance() const {
+                return distance_;
+            }
         private:
             void find_next(bool is_start) {
                 if (pos == dna_string::npos) {
@@ -206,7 +269,7 @@ namespace boost { namespace genetics {
                     if (start + search_str.size() > tsi->string->size()) {
                         pos = dna_string::npos;
                     } else {
-                        pos = tsi->string->find_inexact(search_str, start, ~(size_t)0, max_distance);
+                        pos = tsi->string->find_inexact(search_str, start, ~(size_t)0, params.max_distance);
                     }
                     return;
                 } else {
@@ -216,15 +279,17 @@ namespace boost { namespace genetics {
                     pos = dna_string::npos;
 
                     for (;;) {
-                        merges_done++;
+                        params.stats.merges_done++;
                         active_state s = active.front();
 
                         if (s.start != prev_start) {
-                            if (repeat_count >= num_seeds - max_distance) {
-                                compares_done++;
-                                if (tsi->string->compare_inexact(prev_start, search_str.size(), search_str, max_distance) == 0) {
-                                  pos = prev_start;
-                                  return;
+                            if (repeat_count >= required_seed_matches) {
+                                params.stats.compares_done++;
+                                distance_ = tsi->string->distance(prev_start, dna_search_str.size(), dna_search_str);
+                                if (distance_ <= max_error) {
+                                    // todo: check search_str also and don't count 'N's as error.
+                                    pos = prev_start;
+                                    return;
                                 }
                             }
                             repeat_count = 0;
@@ -269,34 +334,34 @@ namespace boost { namespace genetics {
             std::vector<active_state> active;
 
             // dna string
-            const dna_string &search_str;
+            const std::string &search_str;
+            dna_string dna_search_str;
 
-            // max allowable errors
-            size_t max_distance;
+            // how to do this search.
+            search_params &params;
 
-            // maximum gaps allowed (introns)
-            size_t max_gap;
+            // using brute force search.
+            bool is_brute_force;
+
+            // distance (ie. error) between search string and current position.
+            size_t distance_;
 
             // current search position.
             size_t pos;
 
-            // do a linear scan of the indexed string (for testing)
-            bool is_brute_force;
+            // Total maximum error, including 'N's.
+            size_t max_error;
 
-            // number of seeds in search string.
-            size_t num_seeds;
+            // Required number of seed matches.
+            size_t required_seed_matches;
 
             // number of chars per index location
             size_t num_indexed_chars;
-
-            // measure work done by the algorithm.
-            size_t merges_done;
-            size_t compares_done;
         };
 
         /// find the next dna string which is close to the search string allowing max_distance errors and max_gap gaps between exons.
-        iterator find_inexact(const dna_string& search_str, size_t pos, size_t max_distance, size_t max_gap, bool is_brute_force) const {
-            return iterator(this, search_str, pos, max_distance, max_gap, is_brute_force);
+        iterator find_inexact(const std::string& search_str, size_t pos, search_params &params) const {
+            return iterator(this, search_str, pos, params);
         }
 
         template <class charT, class traits>

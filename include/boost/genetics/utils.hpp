@@ -196,9 +196,6 @@ namespace boost { namespace genetics {
 
     class writer {
     public:
-        write(const std::string &filename, size_t size) {
-        }
-
         writer(char *begin=nullptr, char *end=nullptr) :
             begin(begin), ptr(begin), end(end)
         {
@@ -356,6 +353,35 @@ namespace boost { namespace genetics {
             memset(this, 0, sizeof(*this));
         }
     };
+
+    struct search_stats {
+        size_t merges_done;
+        size_t compares_done;
+    };
+
+    //! Parameters for inexact searches.
+    struct search_params {
+        //! max allowable errors
+        size_t max_distance;
+
+        //! maximum gaps allowed (introns)
+        size_t max_gap;
+
+        //! always do a linear scan of the indexed string
+        bool always_brute_force;
+
+        //! never do a linear scan of the indexed string
+        bool never_brute_force;
+
+        //! Limit of size of results returned.
+        size_t max_results;
+
+        //! Search reverse complement strand also.
+        bool search_rev_comp;
+
+        search_stats stats;
+    };
+
     
     struct common_traits {
         typedef uint64_t DnaWordType;
@@ -369,6 +395,7 @@ namespace boost { namespace genetics {
         typedef std::vector<uint32_t> TsiIndexArrayType;
         typedef std::vector<uint32_t> TsiAddrArrayType;
         typedef std::vector<chromosome> FastaChromosomeType;
+        typedef bool unmapped;
     };
 
     //! \brief traits for file mapped classes (mapped_vector)
@@ -379,6 +406,7 @@ namespace boost { namespace genetics {
         typedef mapped_vector<uint32_t> TsiIndexArrayType;
         typedef mapped_vector<uint32_t> TsiAddrArrayType;
         typedef mapped_vector<chromosome> FastaChromosomeType;
+        typedef bool mapped;
     };
 } }
 

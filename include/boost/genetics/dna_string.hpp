@@ -237,14 +237,13 @@ namespace boost { namespace genetics {
         //! \param start_pos Zero-based offset to start the search.
         //! \param max_bases maxiumum number of bases to search.
         //! \param max_distance number of allowable errors in the search.
-
-        template <class String>
         size_t find_inexact(
-            const String& search_str,
+            const std::string &search_str,
             size_t start_pos = 0,
             size_t max_bases = ~(size_t)0,
             size_t max_distance = 0
         ) const {
+            dna_string dna_str = search_str;
             size_t pos = start_pos;
             size_t ssz = search_str.size();
             if (ssz == 0) {
@@ -269,7 +268,7 @@ namespace boost { namespace genetics {
             // Come gentle pedantry, shine upon this code.
             const size_t bpv = bases_per_value;
             size_t nv = std::min(values.size() - 1, last/bpv);
-            const word_type *search_values = search_str.get_values().data();
+            const word_type *search_values = dna_str.get_values().data();
             word_type s0 = search_values[0];
             word_type s0mask = ssz >= bpv ? ~(word_type)0 : ~(word_type)0 << (bpv*2-ssz*2);
             if (ssz >= 4 && max_distance == 0 && pos < nv * bpv) {
@@ -299,7 +298,7 @@ namespace boost { namespace genetics {
                         if (
                             ((v ^ s0) & s0mask) == 0 &&
                             search_pos >= pos && search_pos <= last - ssz &&
-                            compare_inexact(search_pos, ssz, search_str, max_distance) == 0
+                            compare_inexact(search_pos, ssz, dna_str, max_distance) == 0
                         ) {
                             return search_pos;
                         }
@@ -309,9 +308,9 @@ namespace boost { namespace genetics {
                 pos = nv * bpv;
             } else {
                 if (cpu_has_popcnt) {
-                    pos = inexact_search<String, true>(search_str, pos, nv, s0, s0mask, max_distance, ssz, last);
+                    pos = inexact_search<unmapped_traits, true>(dna_str, pos, nv, s0, s0mask, max_distance, ssz, last);
                 } else {
-                    pos = inexact_search<String, false>(search_str, pos, nv, s0, s0mask, max_distance, ssz, last);
+                    pos = inexact_search<unmapped_traits, false>(dna_str, pos, nv, s0, s0mask, max_distance, ssz, last);
                 }
                 if (pos != basic_dna_string::npos) {
                     return pos;
@@ -322,7 +321,7 @@ namespace boost { namespace genetics {
             while (pos <= last - ssz) {
                 word_type w0 = window(pos);
                 if (count_word((w0 ^ s0) & s0mask, cpu_has_popcnt) <= max_distance) {
-                    if (compare_inexact(pos, ssz, search_str, max_distance) == 0) {
+                    if (compare_inexact(pos, ssz, dna_str, max_distance) == 0) {
                         return pos;
                     }
                 }
@@ -333,21 +332,54 @@ namespace boost { namespace genetics {
 
 
         //! \brief Compare two substrings exactly.
+        //! \tparam StringTraits Traits of other string to compare with.
         //! \param start_pos Zero-based offset to start the search.
         //! \param max_bases maxiumum number of bases to search.
         //! \param str dna_string to compare with.
-        int compare(size_t start_pos, size_t max_bases, const basic_dna_string &str) const {
+        template <class StringTraits>
+        int compare(size_t start_pos, size_t max_bases, const basic_dna_string<StringTraits> &str) const {
             return compare_inexact(start_pos, max_bases, str);
         }
 
+        //! \brief return the distance (number of errors) between a string and a substring.
+        //! \tparam StringTraits Traits of other string to compare with.
+        //! \param start_pos Zero-based offset to start the search.
+        //! \param max_bases maxiumum number of bases to search.
+        //! \param str dna_string to compare with.
+        template <class StringTraits>
+        size_t distance(size_t start_pos, size_t max_bases, const basic_dna_string<StringTraits> &str) const {
+            size_t pos = std::min(start_pos, num_bases);
+            max_bases = std::min(max_bases, str.size());
+            max_bases = std::min(max_bases, num_bases - pos);
+
+            bool cpu_has_popcnt = has_popcnt();
+            const auto str_values = str.get_values();
+            const size_t bpv = bases_per_value;
+            size_t nv = std::min(str_values.size(), (max_bases+bpv-1)/bpv);
+            size_t error = 0;
+            for (size_t i = 0; i != nv; ++i) {
+                word_type w = window(pos);
+                word_type s = str_values[i];
+                if (i == max_bases/bpv) {
+                    s &= ~(word_type)0 << (((0-max_bases) % bases_per_value) * 2);
+                    w &= ~(word_type)0 << (((0-max_bases) % bases_per_value) * 2);
+                }
+                if (s != w) {
+                    error += count_word(s^w, cpu_has_popcnt);
+                }
+                pos += bpv;
+            }
+            return error;
+        }
+
         //! \brief Compare two substrings with errors.
-        //! \tparam CiTraits Traits of other string to compare with.
+        //! \tparam StringTraits Traits of other string to compare with.
         //! \param start_pos Zero-based offset to start the search.
         //! \param max_bases maxiumum number of bases to search.
         //! \param str dna_string to compare with.
         //! \param max_distance number of allowable errors in the search.
-        template <class CiTraits>
-        int compare_inexact(size_t start_pos, size_t max_bases, const basic_dna_string<CiTraits> &str, size_t max_distance=0) const {
+        template <class StringTraits>
+        int compare_inexact(size_t start_pos, size_t max_bases, const basic_dna_string<StringTraits> &str, size_t max_distance=0) const {
             size_t pos = std::min(start_pos, num_bases);
             max_bases = std::min(max_bases, str.size());
             max_bases = std::min(max_bases, num_bases - pos);
@@ -425,8 +457,8 @@ namespace boost { namespace genetics {
         }
 
     private:
-        template <class String, bool cpu_has_popcnt>
-        size_t inexact_search(const String &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t max_bases, size_t last) const {
+        template <class StringTraits, bool cpu_has_popcnt>
+        size_t inexact_search(basic_dna_string<StringTraits> &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t max_bases, size_t last) const {
             const size_t bpv = bases_per_value;
             for (size_t i = pos/bpv; i < nv; ++i) {
                 word_type v0 = values[i];

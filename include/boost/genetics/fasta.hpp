@@ -7,6 +7,7 @@
 #define BOOST_GENETICS_FASTA_HPP
 
 #include <type_traits>
+#include <cstdint>
 
 #include <boost/genetics/dna_string.hpp>
 #include <boost/genetics/augmented_string.hpp>
@@ -20,22 +21,17 @@ namespace boost { namespace genetics {
     struct fasta_result {
         size_t location;
         size_t distance;
+        bool reverse_complement;
     };
    
-    //! Interface to the various incarantions of the FASTA file 
+    //! Interface to the various incarantions of the reference
     struct fasta_file_interface {
         //! find a list of results that match the string dstr with up to
         //! max_distance errors and up to max_gap bases of introns.
         //! If the flag is_brute_force is set, do the search on every base
         //! in the file using popcnt if possible.
-        virtual void find_inexact(
-            std::vector<fasta_result> &result,
-            const std::string &dstr,
-            size_t max_distance,
-            size_t max_results,
-            size_t max_gap,
-            bool is_brute_force
-        ) = 0;
+        virtual void find_inexact(std::vector<fasta_result> &result, const std::string &dstr, search_params &params) = 0;
+
         //! Get chromosome data for one chromosome.
         virtual const chromosome &get_chromosome(size_t index) const = 0;
 
@@ -73,12 +69,13 @@ namespace boost { namespace genetics {
         }
 
         //! Create a FASTA reference from a single text file.
+        template <class T = Traits::unmapped>
         basic_fasta_file(const std::string &filename) {
             append(filename);
         }
 
         //! Use a mapper to instantly load from a mapped file.
-        //! template <class T, typename std::enable_if<(sizeof(T),!Writable), int>::type X = 0>
+        template <class T = Traits::mapped>
         basic_fasta_file(mapper &map) :
             chromosomes(map),
             str(map),
@@ -107,12 +104,38 @@ namespace boost { namespace genetics {
             append(p, end);
         }
 
+        //! Append a randomly generated chromosome "chr" of "size" bases.
+        void append_random(const std::string &chr, size_t size, std::uint32_t seed) {
+            std::string random;
+            random.resize(size + chr.size() + 2);
+            auto p = random.begin(), e = random.end();
+            *p++ = '@';
+            for (auto c : chr) if (p != e) *p++ = c;
+            if (p != e) *p++ = '\n';
+
+            auto b = p;
+            std::int32_t r = seed;
+            while (p != b + size/16) {
+                *p++ = 'N';
+            }
+            while (p != b + size*15/16) {
+                r = ( ( r >> 31 ) & 0xa67b9c35 ) ^ ( r << 1 );
+                r = ( ( r >> 31 ) & 0xcb731943 ) ^ ( r << 1 );
+                if (p != e) *p++ = (r & 0xfff0000) == 0 ? 'N' : "ACGT"[r & 3];
+            }
+            while (p != e) {
+                *p++ = 'N';
+            }
+            append(random.data(), random.data() + size);
+        }
+
         //! Append the image of a FASTA file to this file.
         void append(const char *p, const char *end) {
             chromosome g;
-            g.start = 0;
             while (p != end) {
-                //if (*p != '>') throw(std::exception("bad fasta"));
+                g.start = str.size();
+
+                //if (*p != '>') throw(std::runtime_error("bad fasta"));
                 const char *b = p;
                 while (p != end && *p != '\n' && *p != '\r') ++p;
                 size_t size = std::min(sizeof(g.info)-1, (size_t)(p-(b+1)));
@@ -129,8 +152,8 @@ namespace boost { namespace genetics {
                 while (p != end && *p != '>') ++p;
                 str.append(b, p);
                 g.end = str.size();
+
                 chromosomes.push_back(g);
-                g.start = g.end;
             }
         }
         
@@ -176,33 +199,26 @@ namespace boost { namespace genetics {
         }
         
         //! Search the FASTA file for strings with some allowable errors.
-        void find_inexact(
-            std::vector<fasta_result> &result,
-            const std::string &dstr,
-            size_t max_distance,
-            size_t max_results,
-            size_t max_gap,
-            bool is_brute_force
-        ) /* overload */ {
+        void find_inexact(std::vector<fasta_result> &result, const std::string &dstr, search_params &params) {
             result.resize(0);
-            dna_string search_str = dstr;
-            for (
-                typename index_type::iterator i = idx.find_inexact(search_str, 0, max_distance, max_gap, is_brute_force);
-                i != idx.end();
-                ++i
-            ) {
-                fasta_result r;
-                r.location = (size_t)i;
-                /*std::string substr = str.substr(r.location, dstr.size());
-                r.distance = 0;
-                for (size_t i = 0; i != dstr.size(); ++i) {
-                    r.distance += (dstr[i] != substr[i]);
-                }*/
-                //if (r.distance <= max_distance) {
-                {
-                    result.push_back(r);
-                    if (result.size() == max_results) {
-                        return;
+            int max_pass = params.search_rev_comp ? 2 : 1;
+            for (int pass = 0; pass != max_pass; ++pass) {
+                bool reverse_complement = pass == 1;
+                std::string search_str = reverse_complement ? rev_comp(dstr) : dstr;
+                for (
+                    auto i = idx.find_inexact(search_str, 0, params);
+                    i != idx.end();
+                    ++i
+                ) {
+                    fasta_result r;
+                    r.location = (size_t)i;
+                    r.reverse_complement = reverse_complement;
+                    r.distance = i.distance();
+                    if (r.distance <= params.max_distance) {
+                        result.push_back(r);
+                        if (result.size() == params.max_results) {
+                            return;
+                        }
                     }
                 }
             }
@@ -226,7 +242,7 @@ namespace boost { namespace genetics {
             idx = index_type(str, num_indexed_chars);
         }
 
-        //! Number of base pairs in this file.
+        //! Number of base pairs in this reference.
         size_t size() const {
             return str.size();
         }
