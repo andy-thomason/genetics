@@ -148,9 +148,28 @@ namespace boost { namespace genetics {
                 }
                 g.name[i] = 0;
 
+                size_t num_leading_N = 0;
+                while (p != end && *p != '>' && !is_base(*p)) {
+                    num_leading_N += *p == 'N';
+                    ++p;
+                }
+                g.num_leading_N = num_leading_N;
+
                 b = p;
-                while (p != end && *p != '>') ++p;
-                str.append(b, p);
+                const char *e = b;
+                size_t num_trailing_N = 0;
+                while (p != end && *p != '>') {
+                    if (is_base(*p)) {
+                        e = p+1;
+                        num_trailing_N = 0;
+                    }
+                    num_trailing_N += *p == 'N';
+                    ++p;
+                }
+
+                g.num_trailing_N = num_trailing_N;
+
+                str.append(b, e);
                 g.end = str.size();
 
                 chromosomes.push_back(g);

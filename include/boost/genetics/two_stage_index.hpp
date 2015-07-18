@@ -76,7 +76,7 @@ namespace boost { namespace genetics {
             index.resize(index_size+1);
             addr.resize(str_size);
 
-            // Lead-in: fill acc0 with first DNA codes.
+            // Lead-in: fill acc0 with first DNA codes (0-3).
             size_t acc0 = 0;
             for (size_t i = 0; i != num_indexed_chars-1; ++i) {
                 acc0 = acc0 * 4 + get_code(*string, i);
@@ -84,26 +84,39 @@ namespace boost { namespace genetics {
 
             // Count phase: count bucket sizes
             size_t acc = acc0;
+            size_t poly_A = 0, poly_T = ~0 & (index_size-1);
             for (size_t i = num_indexed_chars; i != str_size; ++i) {
                 acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
-                index[acc]++;
+                if (acc != poly_A && acc != poly_T) {
+                    index[acc]++;
+                }
                 if (i % 0x100000 == 0) printf("c %5.2f\n", (double)i * (100.0/str_size));
             }
             
             // Compute running sum of buckets to convert counts to offsets.
+            size_t hist[6] = { 0 };
             addr_type cur = 0;
             for (size_t i = 0; i != index_size; ++i) {
                 addr_type val = index[i];
+                hist[val == 0 ? 0 : val == 1 ? 1 : val < 16 ? 2 : val < 256 ? 3 : val < 4096 ? 4 : 5]++;
                 index[i] = cur;
                 cur += val;
             }
             index[index_size] = cur;
+            std::cerr << "0 " << hist[0] << "\n";
+            std::cerr << "1 " << hist[1] << "\n";
+            std::cerr << "<16 " << hist[2] << "\n";
+            std::cerr << "<256 " << hist[3] << "\n";
+            std::cerr << "<4096 " << hist[4] << "\n";
+            std::cerr << ">=4096 " << hist[5] << "\n";
 
             // Store phase: fill "addr" with addresses of values.
             acc = acc0;
             for (size_t i = num_indexed_chars; i != str_size; ++i) {
                 acc = (acc * 4 + get_code(*string, i)) & (index_size-1);
-                addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
+                if (acc != poly_A && acc != poly_T) {
+                    addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
+                }
                 if (i % 0x100000 == 0) printf("s %5.2f\n", (double)i * (100.0/str_size));
             }
 
@@ -112,6 +125,16 @@ namespace boost { namespace genetics {
             for (size_t i = 0; i != index_size; ++i) {
                 std::swap(prev, index[i]);
             }
+
+            size_t largest_bucket = 0;
+            size_t largest_bucket_idx = 0;
+            for (size_t i = 0; i != index_size; ++i) {
+                if (largest_bucket < (size_t)(index[i+1] - index[i])) {
+                    largest_bucket_idx = i;
+                    largest_bucket = (size_t)(index[i+1] - index[i]);
+                }
+            }
+            std::cerr << "largest_bucket=" << largest_bucket_idx << "/" << largest_bucket << "\n";
         }
 
         size_t end() const {
@@ -156,6 +179,8 @@ namespace boost { namespace genetics {
                     // If there are any 'N's in a seed, 
                     const char *str = search_str.data();
                     size_t total_N = 0;
+                    size_t index_size = (size_t)1 << (num_indexed_chars*2);
+                    size_t poly_A = 0, poly_T = ~0 & (index_size-1);
                     for (size_t i = 0; i != max_seeds; ++i) {
                         const char *b = str + i * num_indexed_chars;
                         const char *e = b + num_indexed_chars;
@@ -165,8 +190,10 @@ namespace boost { namespace genetics {
                             active_state s;
                             s.elem = (addr_type)i;
                             s.idx = (index_type)get_index(dna_search_str, i * num_indexed_chars, num_indexed_chars);
-                            touch_nta(tsi->addr.data() + tsi->index[i]);
-                            active.push_back(s);
+                            if (s.idx != poly_A || s.idx != poly_T) {
+                                //touch_nta(tsi->addr.data() + tsi->index[i]);
+                                active.push_back(s);
+                            }
                         }
                     }
 
@@ -178,7 +205,7 @@ namespace boost { namespace genetics {
                         const addr_type *end = tsi->addr.data() + tsi->index[s.idx+1];
                         s.ptr = ptr;
                         s.end = end;
-                        if (ptr != end) touch_stream(ptr);
+                        //if (ptr != end) touch_stream(ptr);
                     }
 
                     std::sort(
@@ -190,7 +217,7 @@ namespace boost { namespace genetics {
 
                     for (size_t i = 0; i != active.size(); ++i) {
                         active_state &s = active[i];
-                        if (s.end - s.ptr > 10000) {
+                        if (s.end - s.ptr > 100) {
                             active.resize(i);
                             break;
                         }

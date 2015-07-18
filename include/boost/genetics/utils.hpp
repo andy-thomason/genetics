@@ -344,6 +344,8 @@ namespace boost { namespace genetics {
         char info[80];
         size_t start;
         size_t end;
+        size_t num_leading_N;
+        size_t num_trailing_N;
 
         bool operator <(size_t pos) const {
             return end < pos;

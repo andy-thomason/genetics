@@ -198,6 +198,9 @@ public:
         // there may be a better way of creating a pre-sized writable file!
         {
           std::ofstream os(filename, std::ios_base::binary);
+          if (os.bad()) {
+              throw std::runtime_error("unable to write index file");
+          }
           os.seekp(size-1);
           os.write("", 1);
         }
@@ -351,7 +354,7 @@ public:
                                         << name_str << '\t'
                                         << flags << '\t'
                                         << c.name << '\t'
-                                        << r.location - c.start + 1 << '\t'
+                                        << r.location - c.start + c.num_leading_N + 1 << '\t'
                                         << '\n'
                                     ;
                                 }*/
