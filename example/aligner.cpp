@@ -255,7 +255,7 @@ public:
         std::cerr << (double)num_compares / num_reads << " compares/read\n";
     }
 
-    void generate_reference((int argc, char **argv) {
+    void generate_reference(int argc, char **argv) {
         using namespace boost::genetics;
 
         fasta_file builder;
@@ -283,8 +283,9 @@ public:
         out_file.write(buffer.data(), sizer.get_size());
     }
 
-    void generate_fastq((int argc, char **argv) {
+    void generate_fastq(int argc, char **argv) {
         using namespace boost::genetics;
+        /*size_t key_size = 101;
 
         std::default_random_engine generator;
         std::uniform_int_distribution<size_t> loc_distribution(0, ref.size()-key_size);
@@ -327,6 +328,7 @@ public:
                 ++i;
             }
         }
+        */
     }
 private:
     static const size_t buffer_size = 0x100000;
