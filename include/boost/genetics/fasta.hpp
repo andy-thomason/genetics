@@ -57,12 +57,12 @@ namespace boost { namespace genetics {
         virtual ~fasta_file_interface() {}
     };
     
-    template <class Traits>
+    template <class Traits, class IndexType=basic_two_stage_index<Traits>>
     class basic_fasta_file : public fasta_file_interface { 
     public:
         typedef typename Traits::FastaChromosomeType chromosome_type;
         typedef basic_augmented_string<Traits> string_type;
-        typedef basic_two_stage_index<Traits> index_type;
+        typedef IndexType index_type;
 
         //! Create an empty FASTA reference file. Use append() to add files.
         basic_fasta_file() {
