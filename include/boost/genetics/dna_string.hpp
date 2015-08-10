@@ -243,7 +243,7 @@ namespace boost { namespace genetics {
             size_t max_bases = ~(size_t)0,
             size_t max_distance = 0
         ) const {
-            dna_string dna_str = search_str;
+            basic_dna_string<unmapped_traits> dna_str = search_str;
             size_t pos = start_pos;
             size_t ssz = search_str.size();
             if (ssz == 0) {

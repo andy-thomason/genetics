@@ -209,8 +209,8 @@ namespace boost { namespace genetics {
                     }
 
                     std::sort(
-                        active.begin(), active.end(),
-                        [](active_state &a, active_state &b) {
+                        active.data(), active.data() + active.size(),
+                        [](const active_state &a, const active_state &b) {
                             return a.end - a.ptr < b.end - b.ptr; 
                         }
                     );

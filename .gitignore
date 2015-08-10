@@ -15,3 +15,6 @@ build
 *.lib
 example/python/x64
 example/python/ensembl_chr21.fa
+Makefile
+example/python/libboost_python.so.1.59.0
+
