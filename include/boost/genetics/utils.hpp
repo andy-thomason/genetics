@@ -357,29 +357,29 @@ namespace boost { namespace genetics {
     };
 
     struct search_stats {
-        size_t merges_done;
-        size_t compares_done;
+        size_t merges_done = 0;
+        size_t compares_done = 0;
     };
 
     //! Parameters for inexact searches.
     struct search_params {
         //! max allowable errors
-        size_t max_distance;
+        size_t max_distance = 0;
 
         //! maximum gaps allowed (introns)
-        size_t max_gap;
+        size_t max_gap = 0;
 
         //! always do a linear scan of the indexed string
-        bool always_brute_force;
+        bool always_brute_force = false;
 
         //! never do a linear scan of the indexed string
-        bool never_brute_force;
+        bool never_brute_force = false;
 
         //! Limit of size of results returned.
-        size_t max_results;
+        size_t max_results = 1000;
 
         //! Search reverse complement strand also.
-        bool search_rev_comp;
+        bool search_rev_comp = true;
 
         search_stats stats;
     };

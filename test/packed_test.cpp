@@ -300,30 +300,35 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     two_stage_index tsi(as, 4);
     //BOOST_TEST_MESSAGE(tsi);
 
+    search_params params;
+
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
+
     {
-      two_stage_index::iterator i = tsi.find_inexact(key1, 0, 0, 0, false);
-      BOOST_CHECK(i == 120);
-      ++i;
-      BOOST_CHECK(i == 1200);
-      ++i;
-      BOOST_CHECK(i == augmented_string::npos);
+        two_stage_index::iterator i = tsi.find_inexact(key1, 0, params);
+        BOOST_CHECK(i == 120);
+        ++i;
+        BOOST_CHECK(i == 1200);
+        ++i;
+        BOOST_CHECK(i == augmented_string::npos);
     }
     {
-      two_stage_index::iterator i = tsi.find_inexact(key1, 121, 1, 0, false);
-      BOOST_CHECK(i == 1200);
-      ++i;
-      BOOST_CHECK(i == 1260);
-      ++i;
-      BOOST_CHECK(i == augmented_string::npos);
+        params.max_distance = 1;
+        two_stage_index::iterator i = tsi.find_inexact(key1, 121, params);
+        BOOST_CHECK(i == 1200);
+        ++i;
+        BOOST_CHECK(i == 1260);
+        ++i;
+        BOOST_CHECK(i == augmented_string::npos);
     }
     {
-      two_stage_index::iterator i = tsi.find_inexact(key1, 1201, 2, 0, false);
-      BOOST_CHECK(i == 1260);
-      ++i;
-      BOOST_CHECK(i == 1320);
-      ++i;
-      BOOST_CHECK(i == augmented_string::npos);
+        params.max_distance = 2;
+        two_stage_index::iterator i = tsi.find_inexact(key1, 1201, params);
+        BOOST_CHECK(i == 1260);
+        ++i;
+        BOOST_CHECK(i == 1320);
+        ++i;
+        BOOST_CHECK(i == augmented_string::npos);
     }
 }
 
@@ -377,13 +382,14 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
     }
 
     {
+        search_params params;
         mapper map((const char*)buf, ptr);
         mapped_augmented_string dna(map);
         mapped_two_stage_index tsi(dna, map);
         BOOST_CHECK(map.is_end());
         BOOST_CHECK(std::string(dna) == "TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
         augmented_string key("GG");
-        mapped_two_stage_index::iterator i = tsi.find_inexact(key, 0, 0, 0, false);
+        mapped_two_stage_index::iterator i = tsi.find_inexact(key, 0, params);
         BOOST_CHECK(i == 10);
         i++;
         BOOST_CHECK(i == 11);

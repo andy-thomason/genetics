@@ -13,6 +13,7 @@ build
 *.so
 *.exp
 *.lib
+*.sh
 example/python/x64
 example/python/ensembl_chr21.fa
 Makefile
