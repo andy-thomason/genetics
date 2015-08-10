@@ -67,7 +67,7 @@ public:
         for (size_t i = 0; i != result.size(); ++i) {
             fasta_result &r = result[i];
             const chromosome &c = fasta->find_chromosome(r.location);
-            py_result.append(boost::python::make_tuple(r.location, r.location - c.start, c.name));
+            py_result.append(boost::python::make_tuple(r.location, r.location - c.start + c.num_leading_N, c.name));
         }
 
         return py_result;

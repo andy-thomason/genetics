@@ -118,7 +118,7 @@ public:
             return;
         }
 
-        sam_file = std::ofstream(vm["output-file"].as<std::string>(), std::ios_base::binary);
+        std::ofstream sam_file(vm["output-file"].as<std::string>(), std::ios_base::binary);
 
         file_mapping fm(vm["index"].as<std::string>().c_str(), read_only);
         mapped_region region(fm, read_only);
@@ -133,11 +133,11 @@ public:
             throw std::runtime_error("expected one or two FASTQ files");
         }
 
-        std::vector<std::ifstream> read_files;
+        std::vector<std::ifstream> read_files(fq_filenames.size());
         for (size_t i = 0; i != fq_filenames.size(); ++i) {
             auto &f = fq_filenames[i];
             std::cerr << f << "\n";
-            read_files.emplace_back(f, std::ios_base::binary);
+            read_files[i].open(f, std::ios_base::binary);
         }
 
         int num_threads = 8;
@@ -338,7 +338,7 @@ private:
     size_t num_multiple = 0;
     size_t num_unmatched = 0;
     size_t num_reads = 0;
-    std::ofstream sam_file;
+    //std::ofstream sam_file;
 
     void read_components(std::vector<std::ifstream> &read_files) {
         for (size_t i = 0; i != read_files.size(); ++i)  {
@@ -367,7 +367,7 @@ private:
                 p += p != end;
             }
             if (is_last_block) names.push_back(end);
-            size_t num_reads = names.size() - 1;
+            //size_t num_reads = names.size() - 1;
         }
     }
 };
@@ -403,10 +403,10 @@ int main(int argc, char **argv) {
             std::cerr << "  aligner <index|align>                                        (Get help for each function)\n";
             return 1;
         }
-    } catch (boost::program_options::unknown_option u) {
+    } catch (boost::program_options::unknown_option &u) {
         std::cerr << "error: " << u.what() << "\n";
         return 1;
-    } catch(std::runtime_error e) {
+    } catch(std::runtime_error &e) {
         std::cerr << "error: " << e.what() << "\n";
         return 1;
     }

@@ -53,5 +53,5 @@ project
 
 run misc_dna_examples.cpp ;
 
-exe aligner : aligner.cpp ;
+exe aligner : aligner.cpp /boost//program_options ;
 
