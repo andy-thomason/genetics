@@ -160,6 +160,88 @@ namespace boost { namespace genetics {
         return popcnt(x, has_popcnt);
     }
 
+    template<class OutIter>
+    OutIter make_int(OutIter &dest, uint64_t val) {
+        static const uint64_t p10[] = {
+            10000000000000000000ull, 1000000000000000000ull, 100000000000000000ull, 10000000000000000ull, 1000000000000000ull,
+            100000000000000ull, 10000000000000ull, 1000000000000ull, 100000000000ull, 10000000000ull,
+            1000000000ull, 100000000ull, 10000000ull, 1000000ull, 100000ull,
+            10000ull, 1000ull, 100ull, 10ull, 1ull,
+        };
+        int start = val < p10[4] ? 4 : 0;
+        start += val < p10[start + 8] ? 8 : 0;
+        start += val < p10[start + 4] ? 4 : 0;
+        start += val < p10[start + 2] ? 2 : 0;
+        int lz = 19;
+        for (int i = start; i != 20; ++i) {
+            uint64_t one = p10[i];
+            if (i >= lz || val >= one) {
+                char c = '0';
+                while (val >= one) {
+                    val -= one;
+                    c++;
+                }
+                *dest++ = c;
+                lz = i;
+            }
+        }
+        return dest;
+    }
+
+    // format SAM MD field.
+    template<class OutIter, class String>
+    OutIter make_MD_field(OutIter dest, String &s1, String &s2) {
+        size_t len = s1.size();
+        if (s2.size() != len || len == 0) { throw std::runtime_error("make_MD_field size mismatch"); }
+
+        std::uint32_t matches = 0;
+        for (size_t i = 0; i != len; ++i) {
+            if (s1[i] == s2[i]) {
+                ++matches;
+            } else {
+                dest = make_int(dest, matches);
+                *dest++ = s1[i];
+                matches = 0;
+            }
+        }
+
+        if (matches) {
+            dest = make_int(dest, matches);
+        }
+
+        return dest;
+    }
+
+    template<class OutIter, class String>
+    OutIter make_rev_comp(OutIter dest, String &string) {
+        auto i = string.end(), b = string.begin();
+        for (; i != b; --i) {
+            int chr = i[-1];
+            if (is_base(chr)) {
+                *dest++ = code_to_base(3-base_to_code(chr));
+            } else {
+                *dest++ = chr;
+            }
+        }
+        return dest;
+    }
+
+    template<class OutIter>
+    OutIter make_str(OutIter dest, const char *str) {
+        while (*str) *dest++ = *str++;
+        return dest;
+    }
+
+    template<class OutIter>
+    OutIter make_rev_str(OutIter dest, const char *str) {
+        const char *b = str;
+        while (*str) str++;
+        while (str != b) {
+            *dest++ = *--str;
+        }
+        return dest;
+    }
+
     // Consistent reverse complement interface:
     // A <-> T  C <-> G and reverse string
     // This is because DNA has two strands in opposite directions.
@@ -364,24 +446,24 @@ namespace boost { namespace genetics {
     //! Parameters for inexact searches.
     struct search_params {
         //! max allowable errors
-        size_t max_distance;
+        size_t max_distance = 0;
 
         //! maximum gaps allowed (introns)
-        size_t max_gap;
+        size_t max_gap = 0;
 
         //! always do a linear scan of the indexed string
-        bool always_brute_force;
+        bool always_brute_force = false;
 
         //! never do a linear scan of the indexed string
-        bool never_brute_force;
+        bool never_brute_force = true;
 
         //! Limit of size of results returned.
-        size_t max_results;
+        size_t max_results = 100;
 
         //! Search reverse complement strand also.
-        bool search_rev_comp;
+        bool search_rev_comp = true;
 
-        search_stats stats;
+        //search_stats stats;
     };
 
     

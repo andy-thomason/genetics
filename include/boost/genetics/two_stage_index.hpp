@@ -146,8 +146,8 @@ namespace boost { namespace genetics {
             iterator() {
             }
 
-            iterator(const basic_two_stage_index *tsi, const std::string& search_str, size_t min_pos, search_params &params) :
-                tsi(tsi), search_str(search_str), params(params)
+            iterator(const basic_two_stage_index *tsi, const std::string& search_str, size_t min_pos, search_params &params, search_stats &stats) :
+                tsi(tsi), search_str(search_str), params(params), stats(stats)
             {
                 dna_search_str = search_str;
                 num_indexed_chars = tsi->num_indexed_chars;
@@ -306,12 +306,12 @@ namespace boost { namespace genetics {
                     pos = dna_string::npos;
 
                     for (;;) {
-                        params.stats.merges_done++;
+                        stats.merges_done++;
                         active_state s = active.front();
 
                         if (s.start != prev_start) {
                             if (repeat_count >= required_seed_matches) {
-                                params.stats.compares_done++;
+                                stats.compares_done++;
                                 distance_ = tsi->string->distance(prev_start, dna_search_str.size(), dna_search_str);
                                 if (distance_ <= max_error) {
                                     // todo: check search_str also and don't count 'N's as error.
@@ -367,6 +367,9 @@ namespace boost { namespace genetics {
             // how to do this search.
             search_params &params;
 
+            // performance info.
+            search_stats &stats;
+
             // using brute force search.
             bool is_brute_force;
 
@@ -387,8 +390,8 @@ namespace boost { namespace genetics {
         };
 
         /// find the next dna string which is close to the search string allowing max_distance errors and max_gap gaps between exons.
-        iterator find_inexact(const std::string& search_str, size_t pos, search_params &params) const {
-            return iterator(this, search_str, pos, params);
+        iterator find_inexact(const std::string& search_str, size_t pos, search_params &params, search_stats &stats) const {
+            return iterator(this, search_str, pos, params, stats);
         }
 
         template <class charT, class traits>

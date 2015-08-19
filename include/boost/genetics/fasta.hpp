@@ -30,7 +30,7 @@ namespace boost { namespace genetics {
         //! max_distance errors and up to max_gap bases of introns.
         //! If the flag is_brute_force is set, do the search on every base
         //! in the file using popcnt if possible.
-        virtual void find_inexact(std::vector<fasta_result> &result, const std::string &dstr, search_params &params) = 0;
+        virtual void find_inexact(std::vector<fasta_result> &result, const std::string &dstr, search_params &params, search_stats &stats) = 0;
 
         //! Get chromosome data for one chromosome.
         virtual const chromosome &get_chromosome(size_t index) const = 0;
@@ -218,14 +218,14 @@ namespace boost { namespace genetics {
         }
         
         //! Search the FASTA file for strings with some allowable errors.
-        void find_inexact(std::vector<fasta_result> &result, const std::string &dstr, search_params &params) {
+        void find_inexact(std::vector<fasta_result> &result, const std::string &dstr, search_params &params, search_stats &stats) {
             result.resize(0);
             int max_pass = params.search_rev_comp ? 2 : 1;
             for (int pass = 0; pass != max_pass; ++pass) {
                 bool reverse_complement = pass == 1;
                 std::string search_str = reverse_complement ? rev_comp(dstr) : dstr;
                 for (
-                    auto i = idx.find_inexact(search_str, 0, params);
+                    auto i = idx.find_inexact(search_str, 0, params, stats);
                     i != idx.end();
                     ++i
                 ) {
