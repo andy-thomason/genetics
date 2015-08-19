@@ -1,4 +1,4 @@
 
 
-python-extension genetics : bindings.cpp : <toolset>gcc:<cxxflags>-std=c++11 ;
+python-extension genetics : bindings.cpp /boost//python/ : <toolset>gcc:<cxxflags>-std=c++11 ;
 

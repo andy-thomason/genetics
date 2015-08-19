@@ -112,6 +112,8 @@ namespace boost { namespace genetics {
     static inline int lzcnt(uint64_t value, bool has_lzcnt) {
         #if defined(_MSC_VER) && defined(_M_X64)
             return (int)__lzcnt64(value) ^ (has_lzcnt ? 0x00 : 0x1f);
+        #elif defined(__GNUC__)
+            return (int)__builtin_clzll(value);
         #else
             int result = value ? 0 : 1;
             result = (value >> 32) ? result : result + 32;
@@ -136,6 +138,8 @@ namespace boost { namespace genetics {
             if (has_popcnt) {
                 return (int)__popcnt64(value);
             }
+        #elif defined(__GNUC__)
+            return __builtin_popcountll(value);
         #endif
         value = (value & 0x5555555555555555ull) + ((value >> 1) & 0x5555555555555555ull);
         value = (value & 0x3333333333333333ull) + ((value >> 2) & 0x3333333333333333ull);
@@ -438,9 +442,10 @@ namespace boost { namespace genetics {
         }
     };
 
+    //! Feedback from the algorithms.
     struct search_stats {
-        size_t merges_done;
-        size_t compares_done;
+        size_t merges_done = 0;
+        size_t compares_done = 0;
     };
 
     //! Parameters for inexact searches.
@@ -462,8 +467,6 @@ namespace boost { namespace genetics {
 
         //! Search reverse complement strand also.
         bool search_rev_comp = true;
-
-        //search_stats stats;
     };
 
     

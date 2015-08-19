@@ -69,13 +69,17 @@ namespace boost { namespace genetics {
         }
 
         //! Create a FASTA reference from a single text file.
-        template <class T = Traits::unmapped>
+        #ifdef GCC_VER
+            template <class T = typename Traits::unmapped>
+        #endif
         basic_fasta_file(const std::string &filename) {
             append(filename);
         }
 
         //! Use a mapper to instantly load from a mapped file.
-        template <class T = Traits::mapped>
+        #ifdef GCC_VER
+            template <class T = typename Traits::mapped>
+        #endif
         basic_fasta_file(mapper &map) :
             chromosomes(map),
             str(map),

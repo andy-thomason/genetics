@@ -56,12 +56,18 @@ public:
     /// return a list of matches to 
     list find_inexact(const std::string &str, int max_distance, int max_gap, bool is_brute_force, int max_results) const {
         std::vector<fasta_result> result;
-        fasta->find_inexact(result, str, (size_t)max_distance, (size_t)max_results, (size_t)max_gap, is_brute_force);
+        search_params params;
+        params.max_distance = max_distance;
+        params.max_results = max_results;
+        params.max_gap = max_gap;
+        params.always_brute_force = is_brute_force;
+        params.never_brute_force = false;
+        fasta->find_inexact(result, str, params);
         list py_result;
         for (size_t i = 0; i != result.size(); ++i) {
             fasta_result &r = result[i];
             const chromosome &c = fasta->find_chromosome(r.location);
-            py_result.append(boost::python::make_tuple(r.location, r.location - c.start, c.name));
+            py_result.append(boost::python::make_tuple(r.location, r.location - c.start + c.num_leading_N, c.name));
         }
 
         return py_result;

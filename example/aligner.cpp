@@ -221,13 +221,14 @@ public:
                             }
                         }
 
+                        at.stats.merges_done = 0;
+                        at.stats.compares_done = 0;
+                        size_t matches = 0;
                         for (size_t read_idx = 0; read_idx != max_reads; ++read_idx) {
                             // read and align a pair of reads or a single read
                             for (size_t i = 0; i != read_files.size(); ++i)  {
                                 at.align_read(i, read_idx, params, ref);
-                                num_merges += at.stats.merges_done;
-                                num_compares += at.stats.compares_done;
-                                num_matches += at.resultss[i].size() != 0;
+                                matches += at.resultss[i].size() != 0;
                             }
 
                             // Todo: add pair matching.
@@ -237,6 +238,9 @@ public:
                                 at.write_sam(i, sam_file, ref);
                             }
                         }
+                        num_merges += at.stats.merges_done;
+                        num_compares += at.stats.compares_done;
+                        num_matches += matches;
                         num_reads += max_reads;
                     } // for(;;)
                 },
@@ -433,8 +437,6 @@ private:
             while (*p != '\n') ++p;
             phred_str.assign(q, p);
 
-            stats.merges_done = 0;
-            stats.compares_done = 0;
             ref.find_inexact(results, key_str, params, stats);
         }
 
