@@ -134,7 +134,7 @@ public:
         }
 
         // Create a conventional file output stream for the results.
-        sam_file = std::ofstream(vm["output-file"].as<std::string>(), std::ios_base::binary);
+        sam_file.open(vm["output-file"].as<std::string>(), std::ios_base::binary);
 
         // Map in the index (usually index.bin)
         file_mapping fm(vm["index"].as<std::string>().c_str(), read_only);
@@ -153,11 +153,11 @@ public:
         }
 
         // Build a vector of input files.
-        std::vector<std::ifstream> read_files;
+        std::vector<std::ifstream> read_files(fq_filenames.size());
         for (size_t i = 0; i != fq_filenames.size(); ++i) {
             auto &f = fq_filenames[i];
             std::cerr << f << "\n";
-            read_files.emplace_back(f, std::ios_base::binary);
+            read_files[i].open(f, std::ios_base::binary);
         }
 
         // Run on multiple threads.
@@ -401,7 +401,6 @@ private:
                     p += p != end;
                 }
                 if (is_last_block) names.push_back(end);
-                size_t num_reads = names.size() - 1;
             }
         }
 
@@ -444,8 +443,6 @@ private:
             using namespace boost::genetics;
 
             auto &results = resultss[file_idx];
-            auto &keys = keyss[file_idx];
-            auto &names = namess[file_idx];
             std::string &name_str = name_strs[file_idx];
             std::string &key_str = key_strs[file_idx];
             std::string &phred_str = phred_strs[file_idx];
@@ -465,7 +462,6 @@ private:
                 for (size_t res_idx = 0; res_idx != results.size(); ++res_idx) {
                     fasta_result &r = results[res_idx];
                     const chromosome &c = ref.find_chromosome(r.location);
-                    size_t key_len = key_str.size();
 
                     // SAM flags
                     // https://ppotato.files.wordpress.com/2010/08/sam_output.pdf
