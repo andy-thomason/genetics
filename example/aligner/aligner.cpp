@@ -107,7 +107,7 @@ public:
         using namespace boost::interprocess;
 
         // These are the options.
-        options_description desc("aligner align <index.bin> <file1.fq> <file2.fq> <-o out.sam>");
+        options_description desc("aligner align {-i <index.bin>} <file1.fq> <file2.fq> <-o out.sam>");
         desc.add_options()
             ("help", "produce help message")
             ("index,i", value<std::string>()->default_value("index.bin"), "index file")
@@ -534,7 +534,7 @@ int main(int argc, char **argv) {
         } else {
             std::cerr << "Usage:\n";
             std::cerr << "  aligner index <file1.fa> <file2.fa> ... <-o index.bin>       (Generate Index)\n";
-            std::cerr << "  aligner align <index.bin> <file1.fq> <file2.fq> <-o out.sam> (Align against index) \n";
+            std::cerr << "  aligner align -i <index.bin> <file1.fq> <file2.fq> <-o out.sam> (Align against index) \n";
             //std::cerr << "  aligner genreads ...\n";
             //std::cerr << "  aligner genref ...\n";
             std::cerr << "  aligner <index|align>                                        (Get help for each function)\n";
