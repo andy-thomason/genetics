@@ -301,11 +301,12 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     //BOOST_TEST_MESSAGE(tsi);
 
     search_params params;
+    search_stats stats;
 
     augmented_string key1("TCGAGACCATCCTGGCTAACACGGGGAAACCCCGTCTCCACTAAAAATACAAAAAGTTAG");
 
     {
-        two_stage_index::iterator i = tsi.find_inexact(key1, 0, params);
+        two_stage_index::iterator i = tsi.find_inexact(key1, 0, params, stats);
         BOOST_CHECK(i == 120);
         ++i;
         BOOST_CHECK(i == 1200);
@@ -314,7 +315,7 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     }
     {
         params.max_distance = 1;
-        two_stage_index::iterator i = tsi.find_inexact(key1, 121, params);
+        two_stage_index::iterator i = tsi.find_inexact(key1, 121, params, stats);
         BOOST_CHECK(i == 1200);
         ++i;
         BOOST_CHECK(i == 1260);
@@ -323,7 +324,7 @@ BOOST_AUTO_TEST_CASE( two_stage_index_test )
     }
     {
         params.max_distance = 2;
-        two_stage_index::iterator i = tsi.find_inexact(key1, 1201, params);
+        two_stage_index::iterator i = tsi.find_inexact(key1, 1201, params, stats);
         BOOST_CHECK(i == 1260);
         ++i;
         BOOST_CHECK(i == 1320);
@@ -383,13 +384,14 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
 
     {
         search_params params;
+        search_stats stats;
         mapper map((const char*)buf, ptr);
         mapped_augmented_string dna(map);
         mapped_two_stage_index tsi(dna, map);
         BOOST_CHECK(map.is_end());
         BOOST_CHECK(std::string(dna) == "TTTTTTNNNNGGGGGGCCCCCCCCAAAA");
         augmented_string key("GG");
-        mapped_two_stage_index::iterator i = tsi.find_inexact(key, 0, params);
+        mapped_two_stage_index::iterator i = tsi.find_inexact(key, 0, params, stats);
         BOOST_CHECK(i == 10);
         i++;
         BOOST_CHECK(i == 11);
