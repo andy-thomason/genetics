@@ -23,10 +23,10 @@ before_install:
  - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
  - if [ $GCCVER != "" ]; then sudo apt-get install -qq g++$GCCVER; fi
  - if [ $VALGRIND != "0" ]; then sudo apt-get install -qq valgrind; fi
- - git submodule update --init --recursive
- - wget https://github.com/ned14/boost-trunk/archive/release/Boost_1_54_0.tar.gz
- - tar zxf Boost_1_54_0.tar.gz
- - mv boost-trunk-release-Boost_1_54_0 $HOME/boost-trunk
+# - git submodule update --init --recursive
+# - wget https://github.com/ned14/boost-trunk/archive/release/Boost_1_54_0.tar.gz
+# - tar zxf Boost_1_54_0.tar.gz
+# - mv boost-trunk-release-Boost_1_54_0 $HOME/boost-trunk
  - BOOST="$HOME/boost-trunk"
  - BOOST_ROOT="$HOME/boost-trunk"
  - PROJECT_ROOT=`pwd`
@@ -42,19 +42,24 @@ before_install:
  - ls -l $BOOST/boost/
 
 # install boost build
- - cd $BOOST/tools/build/v2
- - ./bootstrap.sh
- - sudo ./b2 install
+# - cd $BOOST/tools/build/v2
+# - ./bootstrap.sh
+# - sudo ./b2 install
 
 script:
 
 #build boost.test
  - cd $BOOST
- - ./bootstrap.sh
- - ./b2 stage --with-test toolset=$CC$GCCVER link=static release --threading=single
+ #- ./bootstrap.sh
+ - $BOOST/b2 stage --with-test toolset=$CC$GCCVER link=static release --threading=single
 
 #build testcases
  - cd $BOOST/libs/genetics/test
+ - cd ..
+ - pwd
+ - cd $BOOST/libs/genetics/test
+ - pwd
  - ls -a
- - ../../../b2
+ - ls -a ..
+ - $BOOST/b2
 
