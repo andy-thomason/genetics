@@ -42,8 +42,8 @@ before_install:
  - ls -l $BOOST/boost/
 
 # install boost build
-# - cd $BOOST/tools/build/v2
-# - ./bootstrap.sh
+ - cd $BOOST/tools/build/v2
+ - ./bootstrap.sh
 # - sudo ./b2 install
 
 script:
