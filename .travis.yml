@@ -1,5 +1,5 @@
 
-# travis build file c/o ithlony
+# travis build file inspired by ithlony
 
 language: cpp
 compiler:
@@ -16,17 +16,16 @@ notifications:
 before_install:
  - echo $HOME
  - pwd
- - ls -a
  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
  - if [ $CXX = "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
  - sudo apt-get update -qq
  - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
  - if [ $GCCVER != "" ]; then sudo apt-get install -qq g++$GCCVER; fi
  - if [ $VALGRIND != "0" ]; then sudo apt-get install -qq valgrind; fi
-# - git submodule update --init --recursive
  - wget https://github.com/ned14/boost-trunk/archive/release/Boost_1_54_0.tar.gz
  - tar zxf Boost_1_54_0.tar.gz
  - mv boost-trunk-release-Boost_1_54_0 $HOME/boost-trunk
+ - mv $HOME/andy-thomason/genetics $HOME/boost-trunk/libs/genetics
  - BOOST="$HOME/boost-trunk"
  - BOOST_ROOT="$HOME/boost-trunk"
  - PROJECT_ROOT=`pwd`
@@ -34,35 +33,9 @@ before_install:
  - export BOOST
  - export PROJECT_ROOT
 
-#create symbolic links for project
- - ln -s $PROJECT_ROOT/include/boost/genetics $BOOST/boost/genetics
- - ln -s $PROJECT_ROOT $BOOST/libs/genetics
-
-# install boost build
-# - cd $BOOST/tools/build/v2
-# - cd $BOOST
-# - ./bootstrap.sh
-# - sudo ./b2 install
-# - ls -l
 
 script:
-
-#build boost.test
- - ls -l $BOOST/libs/
- - ls -l $BOOST/boost/
- - echo $BOOST
- - cd $BOOST
- - ls -l
+ - cd $HOME/boost-trunk
  - ./bootstrap.sh
- - $BOOST/b2 stage --with-test toolset=$CC$GCCVER link=static release --threading=single
-
-#build testcases
- - cd $BOOST/libs/genetics/test
- - cd ..
- - pwd
- - cd $BOOST/libs/genetics/test
- - pwd
- - ls -a
- - ls -a ..
- - $BOOST/b2
-
+ - cd $HOME/boost-trunk/libs/genetics/test
+ - ../../../b2
