@@ -1,0 +1,68 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+notifications:
+  email:
+#    recipients:
+#      - one@example.com
+#      - other@example.com
+    on_success: change # [always|never|change] # default: change
+    on_failure: change # [always|never|change] # default: always
+
+before_install:
+ - echo $HOME
+ - pwd
+ - ls -a
+ - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+ - if [ $CXX = "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+ - sudo apt-get update -qq
+ - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
+ - if [ $GCCVER != "" ]; then sudo apt-get install -qq g++$GCCVER; fi
+ - if [ $VALGRIND != "0" ]; then sudo apt-get install -qq valgrind; fi
+ - git submodule update --init --recursive
+ - wget https://github.com/ned14/boost-trunk/archive/release/Boost_1_54_0.tar.gz
+ - tar zxf Boost_1_54_0.tar.gz
+ - mv boost-trunk-release-Boost_1_54_0 $HOME/boost-trunk
+ - BOOST="$HOME/boost-trunk/"
+ - BOOST_ROOT="$HOME/boost-trunk/"
+ - export BOOST_ROOT
+ - export BOOST
+ - PROJECTPATH="$HOME/build/andyt/genetics"
+
+#create symbolic links for trie
+# - ln -s $PROJECTPATH/boost/genetics/ $BOOST/boost/genetics
+# - ln -s $PROJECTPATH/libs/genetics/ $BOOST/libs/genetics
+
+#HOME should be defined per the travis-ci docs as /home/travis
+#- mv user-config.jam $HOME
+
+#auto generate the files to be included for test_all.cpp
+# - cd libs/trie/test
+# - chmod u+x test_file_glob.sh
+# - ./test_file_glob.sh
+
+# install boost build
+ - cd $BOOST/tools/build/v2
+ - ./bootstrap.sh
+ - sudo ./b2 install
+
+script:
+
+#build boost.test
+ - cd $BOOST
+ - ./bootstrap.sh
+ - b2 stage --with-test toolset=$CC$GCCVER link=static release --threading=single
+
+#build testcases
+ - cd $PROJECTPATH
+ - cd libs/genetics/test
+ - ls -a
+ - echo $BOOST_ROOT
+ - b2
+
+#if we want to use the built in bjam test runner we can get test output this way
+# - cat bin.v2/libs/trie/test/main.test/*/*/main.output #may need to specify path better on valgrind tests
+
+
+
