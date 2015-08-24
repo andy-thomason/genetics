@@ -51,6 +51,5 @@ project
     <toolset>msvc:<cxxflags>/wd4100 #  unreferenced formal parameter.
   ;
 
-run misc_dna_examples.cpp ;
-
+exe aligner : aligner.cpp /boost//program_options ;
 

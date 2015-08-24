@@ -107,7 +107,7 @@ public:
         using namespace boost::interprocess;
 
         // These are the options.
-        options_description desc("aligner align <index.bin> <file1.fq> <file2.fq> <-o out.sam>");
+        options_description desc("aligner align {-i <index.bin>} <file1.fq> <file2.fq> <-o out.sam>");
         desc.add_options()
             ("help", "produce help message")
             ("index,i", value<std::string>()->default_value("index.bin"), "index file")
@@ -134,7 +134,7 @@ public:
         }
 
         // Create a conventional file output stream for the results.
-        sam_file = std::ofstream(vm["output-file"].as<std::string>(), std::ios_base::binary);
+        sam_file.open(vm["output-file"].as<std::string>(), std::ios_base::binary);
 
         // Map in the index (usually index.bin)
         file_mapping fm(vm["index"].as<std::string>().c_str(), read_only);
@@ -153,11 +153,11 @@ public:
         }
 
         // Build a vector of input files.
-        std::vector<std::ifstream> read_files;
+        std::vector<std::ifstream> read_files(fq_filenames.size());
         for (size_t i = 0; i != fq_filenames.size(); ++i) {
             auto &f = fq_filenames[i];
             std::cerr << f << "\n";
-            read_files.emplace_back(f, std::ios_base::binary);
+            read_files[i].open(f, std::ios_base::binary);
         }
 
         // Run on multiple threads.
@@ -325,7 +325,6 @@ private:
                     p += p != end;
                 }
                 if (is_last_block) names.push_back(end);
-                size_t num_reads = names.size() - 1;
             }
         }
 
@@ -389,7 +388,6 @@ private:
                 for (size_t res_idx = 0; res_idx != results.size(); ++res_idx) {
                     fasta_result &r = results[res_idx];
                     const chromosome &c = ref.find_chromosome(r.location);
-                    size_t key_len = key_str.size();
 
                     // SAM flags
                     // https://ppotato.files.wordpress.com/2010/08/sam_output.pdf
