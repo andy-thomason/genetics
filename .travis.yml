@@ -1,3 +1,6 @@
+
+# travis build file c/o ithlony
+
 language: cpp
 compiler:
   - gcc
@@ -37,15 +40,6 @@ before_install:
 
  - ls -l $BOOST/libs/
  - ls -l $BOOST/boost/
- - exit
-
-#HOME should be defined per the travis-ci docs as /home/travis
-#- mv user-config.jam $HOME
-
-#auto generate the files to be included for test_all.cpp
-# - cd libs/trie/test
-# - chmod u+x test_file_glob.sh
-# - ./test_file_glob.sh
 
 # install boost build
  - cd $BOOST/tools/build/v2
@@ -65,8 +59,6 @@ script:
  - echo $PROJECT_ROOT
  - b2
 
-#if we want to use the built in bjam test runner we can get test output this way
-# - cat bin.v2/libs/trie/test/main.test/*/*/main.output #may need to specify path better on valgrind tests
 
 
 
