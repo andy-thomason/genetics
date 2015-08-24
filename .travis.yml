@@ -28,11 +28,11 @@ before_install:
  - BOOST_ROOT="$HOME/boost-trunk/"
  - export BOOST_ROOT
  - export BOOST
- - PROJECTPATH="$HOME/build/andyt/genetics"
+ - PROJECTPATH="$HOME/build/andy-thomason/genetics"
 
-#create symbolic links for trie
-# - ln -s $PROJECTPATH/boost/genetics/ $BOOST/boost/genetics
-# - ln -s $PROJECTPATH/libs/genetics/ $BOOST/libs/genetics
+#create symbolic links for project
+ - ln -s $PROJECTPATH/boost/genetics/ $BOOST/boost/genetics
+ - ln -s $PROJECTPATH/libs/genetics/ $BOOST/libs/genetics
 
 #HOME should be defined per the travis-ci docs as /home/travis
 #- mv user-config.jam $HOME
