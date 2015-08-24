@@ -38,19 +38,22 @@ before_install:
  - ln -s $PROJECT_ROOT/include/boost/genetics $BOOST/boost/genetics
  - ln -s $PROJECT_ROOT $BOOST/libs/genetics
 
- - ls -l $BOOST/libs/
- - ls -l $BOOST/boost/
-
 # install boost build
- - cd $BOOST/tools/build/v2
- - ./bootstrap.sh
+# - cd $BOOST/tools/build/v2
+# - cd $BOOST
+# - ./bootstrap.sh
 # - sudo ./b2 install
+# - ls -l
 
 script:
 
 #build boost.test
+ - ls -l $BOOST/libs/
+ - ls -l $BOOST/boost/
+ - echo $BOOST
  - cd $BOOST
- #- ./bootstrap.sh
+ - ls -l
+ - ./bootstrap.sh
  - $BOOST/b2 stage --with-test toolset=$CC$GCCVER link=static release --threading=single
 
 #build testcases
