@@ -18,11 +18,11 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
-
-
+//! A very simple BWA-style aligner using the genetics library.
+//! Note that implementing every detail of BWA is very challenging.
 class aligner {
 public:
-    // implement the "aligner index" mode
+    //! Implement the "aligner index" mode.
     void index(int argc, char **argv) {
         using namespace boost::program_options;
         using namespace boost::genetics;
@@ -263,81 +263,6 @@ public:
         }
     }
 
-    void generate_reference(int argc, char **argv) {
-        using namespace boost::genetics;
-
-        fasta_file builder;
-        builder.append_random("chr1", 1000000, 0x9bac7615+0);
-        builder.append_random("chr2",  900000, 0x9bac7615+1);
-        builder.append_random("chr3",  800000, 0x9bac7615+2);
-        builder.append_random("chr4",  700000, 0x9bac7615+3);
-        builder.append_random("chr5",  600000, 0x9bac7615+4);
-        builder.append_random("chr6",  500000, 0x9bac7615+5);
-        builder.append_random("chr7",  400000, 0x9bac7615+6);
-        builder.append_random("chr8",  300000, 0x9bac7615+7);
-        builder.append_random("chr9",  200000, 0x9bac7615+0);
-        builder.make_index(10);
-
-        const char *binary_filename = "index.bin";
-
-        writer sizer(nullptr, nullptr);
-        builder.write_binary(sizer);
-
-        std::vector<char> buffer(sizer.get_size());
-        writer wr(buffer.data(), buffer.data() + sizer.get_size());
-        builder.write_binary(wr);
-
-        std::ofstream out_file(binary_filename, std::ios_base::binary);
-        out_file.write(buffer.data(), sizer.get_size());
-    }
-
-    void generate_fastq(int argc, char **argv) {
-        using namespace boost::genetics;
-        /*size_t key_size = 101;
-
-        std::default_random_engine generator;
-        std::uniform_int_distribution<size_t> loc_distribution(0, ref.size()-key_size);
-        std::uniform_int_distribution<size_t> error_loc_distribution(0, key_size-1);
-        std::uniform_int_distribution<size_t> error_prob_distribution(0, 99);
-        std::uniform_int_distribution<int> error_value_distribution(0, 4);
-        std::uniform_int_distribution<int> rev_comp_value_distribution(0, 1);
-        std::uniform_int_distribution<int> phred_distribution('#', 'J');
-        std::vector<fasta_result> result;
-
-        const char *fastq_filename = "fastq.fq";
-        std::ofstream fastq_file(fastq_filename);
-        if (!fastq_file.good()) {
-            std::cerr << "unable to create " << fastq_filename << "\n";
-            return;
-        }
-
-        std::string phred(key_size, ' ');
-        for (int i = 0; i != 1000000; ) {
-            size_t locus = loc_distribution(generator);
-            size_t error_prob = error_prob_distribution(generator);
-            int rev_comp = rev_comp_value_distribution(generator);
-            std::string key = ref.get_string().substr(locus, key_size, rev_comp != 0);
-            if (std::count(key.begin(), key.end(), 'N') < 3) {
-                // Inject up to two random errors or an 'N'
-                if (error_prob < 10) {
-                    size_t error_loc = error_loc_distribution(generator);
-                    int error_value = error_value_distribution(generator);
-                    key[error_loc] = "ACGTN"[error_value];
-                    if (error_prob < 1) {
-                        size_t error_loc = error_loc_distribution(generator);
-                        int error_value = error_value_distribution(generator);
-                        key[error_loc] = "ACGTN"[error_value];
-                    }
-                }
-                for (int j = 0; j != key_size; ++j) {
-                    phred[j] = phred_distribution(generator);
-                }
-                fastq_file << "@r" << i << "." << locus << "." << rev_comp << "\n" << key << "\n+\n" << phred << "\n";
-                ++i;
-            }
-        }
-        */
-    }
 private:
     static const size_t buffer_size = 0x100000;
     size_t num_multiple = 0;
@@ -378,7 +303,6 @@ private:
                 stream.read(buffer.data(), buffer_size);
                 size_t bytes = (size_t)stream.gcount();
                 bool is_last_block = stream.eof();
-                //std::cerr << bytes << " " << is_last_block << " " << stream.tellg() << "\n";
                 const char *p = buffer.data();
                 const char *end = buffer.data() + bytes;
                 keys.resize(0);
@@ -539,8 +463,6 @@ int main(int argc, char **argv) {
             std::cerr << "Usage:\n";
             std::cerr << "  aligner index <file1.fa> <file2.fa> ... <-o index.bin>       (Generate Index)\n";
             std::cerr << "  aligner align <index.bin> <file1.fq> <file2.fq> <-o out.sam> (Align against index) \n";
-            //std::cerr << "  aligner genreads ...\n";
-            //std::cerr << "  aligner genref ...\n";
             std::cerr << "  aligner <index|align>                                        (Get help for each function)\n";
             return 1;
         }
