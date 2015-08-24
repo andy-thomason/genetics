@@ -17,12 +17,12 @@ notifications:
 before_install:
  - cd $HOME
  - pwd
- - add-apt-repository -y ppa:ubuntu-toolchain-r/test
- - if [ $CXX = "clang++" ]; then add-apt-repository -y ppa:h-rayflood/llvm; fi
- - apt-get update -qq
- - if [ $CXX = "clang++" ]; then apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
- - if [ $GCCVER != "" ]; then apt-get install -qq g++$GCCVER; fi
- - if [ $VALGRIND != "0" ]; then apt-get install -qq valgrind; fi
+# - add-apt-repository -y ppa:ubuntu-toolchain-r/test
+# - if [ $CXX = "clang++" ]; then add-apt-repository -y ppa:h-rayflood/llvm; fi
+# - apt-get update -qq
+# - if [ $CXX = "clang++" ]; then apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
+# - if [ $GCCVER != "" ]; then apt-get install -qq g++$GCCVER; fi
+# - if [ $VALGRIND != "0" ]; then apt-get install -qq valgrind; fi
  - wget https://github.com/ned14/boost-trunk/archive/release/Boost_1_54_0.tar.gz
  - tar zxf Boost_1_54_0.tar.gz
  - mv boost-trunk-release-Boost_1_54_0 boost-trunk
