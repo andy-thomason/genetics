@@ -54,9 +54,8 @@ script:
  - b2 stage --with-test toolset=$CC$GCCVER link=static release --threading=single
 
 #build testcases
- - cd $PROJECT_ROOT/test
+ - cd $BOOST/libs/genetics
  - ls -a
- - echo $PROJECT_ROOT
  - b2
 
 
