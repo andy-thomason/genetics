@@ -273,21 +273,46 @@ namespace boost { namespace genetics {
             word_type s0mask = ssz >= bpv ? ~(word_type)0 : ~(word_type)0 << (bpv*2-ssz*2);
             if (ssz >= 4 && max_distance == 0 && pos < nv * bpv) {
                 // Search for four characters, bpv at a time.
-                // This should be about 32 times faster than strstr.
+                // This should be about 8-32 times faster than strstr.
+                // Note: these strings can be several GB and have billions of
+                // operations which makes this an essential optimisation.
+
+                // The variables rep0-3 contain inverse duplicates of the first four characters.
                 word_type r1c = 0x5555555555555555ull;
                 word_type rep0 = ~((s0 >> (bpv*2-2)) * r1c);
                 word_type rep1 = ~(((s0 >> (bpv*2-4)) & 3) * r1c);
                 word_type rep2 = ~(((s0 >> (bpv*2-6)) & 3) * r1c);
                 word_type rep3 = ~(((s0 >> (bpv*2-8)) & 3) * r1c);
                 for (size_t i = pos/bpv; i < nv; ++i) {
+                    // do this every bpv characters (usually 32)
                     word_type v0 = values[i];
                     word_type v1 = values[i+1];
+
+                    // Each of the reps is xored with the next 32 characters.
+                    // example:
+                    //  ~AAAAAAAAAAAAAAAAAAAA
+                    //   ACGAAGGGTATCGAGGTTAC
+                    //   ====================
+                    //   *  **    *   *    *  (*=11)
+                    // ie. we get two '1' bits where characters match.
+                    //
+                    // So if we were searching for 'ATCG' the string above would give us:
+                    //   ACGAAGGGT*TCGAGGTTAC
+                    //   CGAAGGGTA*CGAGGTTAC
+                    //   GAAGGGTAT*GAGGTTAC
+                    //   AAGGGTATC*AGGTTAC
+                    //
+                    // ie. All four bits are '11'
+                    // After grouping the 1's mask is left with a '1' only in bit positions
+                    // where all four values match.
                     word_type mask = v0 ^ rep0;
                     mask &= ((v0 << 2 ) | (v1 >> (bpv*2-2))) ^ rep1;
                     mask &= ((v0 << 4 ) | (v1 >> (bpv*2-4))) ^ rep2;
                     mask &= ((v0 << 6 ) | (v1 >> (bpv*2-6))) ^ rep3;
                     mask &= mask << 1;
                     mask &= 0xaaaaaaaaaaaaaaaaull;
+
+                    // usually this while loop is not executed.
                     size_t bit_pos = 0;
                     while (mask << bit_pos) {
                         int lz = (int)lzcnt(mask << bit_pos, cpu_has_lzcnt);
@@ -457,6 +482,7 @@ namespace boost { namespace genetics {
         }
 
     private:
+        //! Inexact search using popcnt (if we have one!)
         template <class StringTraits, bool cpu_has_popcnt>
         size_t inexact_search(basic_dna_string<StringTraits> &search_str, size_t pos, size_t nv, word_type s0, word_type s0mask, size_t max_distance, size_t max_bases, size_t last) const {
             const size_t bpv = bases_per_value;
@@ -489,7 +515,7 @@ namespace boost { namespace genetics {
             return basic_dna_string::npos;
         }
 
-        // Note: order matters!
+        // Note: order matters as constructor builds first value first.
         size_t num_bases;
         array_type values;
     };
