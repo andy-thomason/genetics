@@ -26,15 +26,17 @@ before_install:
  - mv boost-trunk-release-Boost_1_54_0 $HOME/boost-trunk
  - BOOST="$HOME/boost-trunk/"
  - BOOST_ROOT="$HOME/boost-trunk/"
+ - PROJECT_ROOT=`pwd`
  - export BOOST_ROOT
  - export BOOST
+ - export PROJECT_ROOT
 
 #create symbolic links for project
- - ln -s $HOME/include/boost/genetics $BOOST/boost/genetics
- - ln -s $HOME $BOOST/libs/genetics
+ - ln -s $PROJECT_ROOT/include/boost/genetics $BOOST/boost/genetics
+ - ln -s $PROJECT_ROOT $BOOST/libs/genetics
 
  - ls -l $BOOST/libs/
- - ls -l $HOME/include/boost
+ - ls -l $BOOST/include/boost
  - exit
 
 #HOME should be defined per the travis-ci docs as /home/travis
