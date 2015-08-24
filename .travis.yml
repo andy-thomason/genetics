@@ -15,7 +15,7 @@ notifications:
     on_failure: change # [always|never|change] # default: always
 
 before_install:
- - cd $HOME
+ - cd $HOME/build
  - pwd
 # - add-apt-repository -y ppa:ubuntu-toolchain-r/test
 # - if [ $CXX = "clang++" ]; then add-apt-repository -y ppa:h-rayflood/llvm; fi
@@ -28,14 +28,15 @@ before_install:
  - mv boost-trunk-release-Boost_1_54_0 boost-trunk
  - ls -l
  - mv andy-thomason/genetics boost-trunk/libs/genetics
- - BOOST="$HOME/boost-trunk"
+ - BOOST="$HOME/build/boost-trunk"
  - BOOST_ROOT="$HOME/boost-trunk"
  - export BOOST_ROOT
  - export BOOST
 
 
 script:
- - cd $HOME/boost-trunk
+ - pwd
+ - cd $HOME/build/boost-trunk
  - ./bootstrap.sh
- - cd $HOME/boost-trunk/libs/genetics/test
+ - cd $HOME/build/boost-trunk/libs/genetics/test
  - ../../../b2
