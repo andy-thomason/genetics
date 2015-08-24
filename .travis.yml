@@ -14,7 +14,7 @@ notifications:
     on_failure: change # [always|never|change] # default: always
 
 before_install:
- - echo $HOME
+ - cd $HOME
  - pwd
  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
  - if [ $CXX = "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
