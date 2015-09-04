@@ -62,7 +62,8 @@ public:
         params.max_gap = max_gap;
         params.always_brute_force = is_brute_force;
         params.never_brute_force = false;
-        fasta->find_inexact(result, str, params);
+        search_stats stats;
+        fasta->find_inexact(result, str, params, stats);
         list py_result;
         for (size_t i = 0; i != result.size(); ++i) {
             fasta_result &r = result[i];
