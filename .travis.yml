@@ -42,3 +42,7 @@ script:
  - ./bootstrap.sh
  - cd $HOME/build/boost-trunk/libs/genetics/test
  - ../../../b2 toolset=$CC
+ - cd $HOME/build/boost-trunk/libs/genetics/example
+ - ../../../b2 toolset=$CC
+ - cd $HOME/build/boost-trunk/libs/genetics/example/python
+ - ../../../../b2 toolset=$CC
