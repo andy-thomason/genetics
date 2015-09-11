@@ -3,6 +3,8 @@ A boost library for genetic searches
 
 The Boost genetics library provides data structures and algorithms for searching very large databases of genetic sequences.
 
+The library is primarily designed to provide a reliable, maintainable service to find 100% of available matches. Readability is a primary focus and unit testing a priority through the Travis system.
+
 Genetic data usually consists of the letters 'A', 'C', 'G' and 'T' with other optional characters denoting
 special cases.
 
@@ -32,22 +34,11 @@ The suffix array is:
 
 See Wikipedia for a more comprehensive discussion.
 
-We can use the suffix array to look up the position of any sequence by, for example,
-doing a binary chop on the substrings. In practice this is not a sensible thing to do
-as each of the memory accesses to the substrings may cost thousands of cycles.
-
-We can also calculate the Burrows-Wheeler Transform (BWT) which simplifies the task of
-finding the sequence prior to the current one, allowing you to extend the search by
-one letter in each operation. This also is a very inefficient use of modern memory
-architectures which are deeply heirarchical.
-
-Calculating a full suffix array for the 3.2 billion letters of the human genome is an
-expensive process, but fortunately we don't need to compute a full suffix array as sequences
-of 16 or more letters are likely to be unique.
-
-Far better is to calculate a hybrid indexed suffix array which gives you all the substrings
+For simplicity, we calculate a hybrid indexed suffix array which gives you all the substrings
 starting with a fixed number of letters. For this we add an index of 2^(2N) entries for N
-letters the suffixes sorted by address in the array instead of value.
+letters the suffixes sorted by address in the array instead of value. We hope to extend this
+to optionally use a variable length and hash methods in the future as well as to support reduced
+size indices for low memory machines.
 
 This means that we can use two very expensive memory accesses to find a set of addresses
 for a sequence and then a small number of very inexpensive accesses and a merge operation
@@ -60,3 +51,4 @@ For a very large number of potential errors, such as 6 errors in a 20 character 
 fastest to brute-force search the genome. Here we can make use of leading zero and population
 count operations to rapidly screen large number of bases.
 
+Many thanks to Paul Bristow, Riley Doyle, Andre and others for their contributions.
