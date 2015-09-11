@@ -28,8 +28,8 @@ The suffix array is:
 5 ""
 1 "ello"
 0 "hello"
-3 "lo"
 2 "llo"
+3 "lo"
 4 "o"
 
 See Wikipedia for a more comprehensive discussion.
