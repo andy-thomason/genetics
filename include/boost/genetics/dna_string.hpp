@@ -47,32 +47,32 @@ namespace boost { namespace genetics {
 
         //! \brief Construct a dna_string from a range of memory.
         template<class InIter>
-        basic_dna_string(InIter b, InIter e) {
+        basic_dna_string(InIter b, InIter e, bool randomise=false) {
             num_bases = 0;
-            append(b, e);
+            append(b, e, randomise);
         }
 
         //! \brief Construct a dna_string from a C++ string
         template<class StrChar, class StrTraits, class StrAllocator>
         basic_dna_string(
             const std::basic_string<StrChar, StrTraits, StrAllocator> &str,
-            size_t pos = 0, size_t n = ~(size_t)0
+            size_t pos = 0, size_t n = ~(size_t)0, bool randomise = false
         ) {
             num_bases = 0;
-            append(str.data() + pos, str.data() + std::min(n, str.size()));
+            append(str.data() + pos, str.data() + std::min(n, str.size()), randomise);
         }
 
         //! \brief Construct a dna_string from a substring
         template <class charT>
         basic_dna_string(
             const charT* str,
-            size_t pos = 0, size_t n = ~(size_t)0
+            size_t pos = 0, size_t n = ~(size_t)0, bool randomise=false
         ) {
             num_bases = 0;
             const charT *b = str + pos;
             const charT *e = str + pos;
             while ((size_t)(e - b) != n && *e) ++e;
-            append(b, e);
+            append(b, e, randomise);
         }
 
         //! \brief Construct a dna_string from a mapper object (mapped_dna_string only).
@@ -148,21 +148,30 @@ namespace boost { namespace genetics {
         }
 
         //! \brief Append a C string.
-        void append(const char *str) {
+        void append(const char *str, bool randomise=false) {
             const char *e = str;
             while (*e) ++e;
-            append(str, e);
+            append(str, e, randomise);
         }
 
         //! \brief Append ascii characters (A, C, G, T) to the string.
+        //! Whitespace will be ignored and other characters (eg. N) may be mapped to a random value.
         template<class InIter>
-        void append(InIter b, InIter e) {
+        void append(InIter b, InIter e, bool randomise) {
             size_t max_bases = values.size() * bases_per_value;
             word_type acc = num_bases < max_bases ? values.back() >> (max_bases - num_bases) * 2 : 0;
+            // todo: check the repeat of these numbers (and spectral purity if pedantry demands!)
+            std::int32_t random_acc = 0xd3ac6435;
+            const std::int32_t random_xor = 0xa9831bc5;
             while (b != e) {
                 int chr = (int)*b++;
                 if (!is_whitespace(chr)) {
                     acc = acc * 4 + base_to_code(chr);
+                    if (randomise && !is_base(chr)) {
+                        // acme branch-free rotate and xor random number generator
+                        random_acc = ((random_acc >> 31) & random_xor ) ^ (random_acc << 1);
+                        acc |= random_acc & 3;
+                    }
                     num_bases++;
                     if (num_bases % bases_per_value == 0) {
                         size_t index = (num_bases-1) / bases_per_value;
@@ -243,7 +252,7 @@ namespace boost { namespace genetics {
             size_t max_bases = ~(size_t)0,
             size_t max_distance = 0
         ) const {
-            basic_dna_string<unmapped_traits> dna_str = search_str;
+            basic_dna_string<unmapped_traits> dna_str(search_str);
             size_t pos = start_pos;
             size_t ssz = search_str.size();
             if (ssz == 0) {
