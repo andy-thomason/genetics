@@ -112,9 +112,9 @@ namespace boost { namespace genetics {
         }
 
         template<class InIter>
-        void append(InIter b, InIter e) {
+        void append(InIter b, InIter e, bool randomise=true) {
             size_t num_bases = parent::size();
-            parent::append(b, e);
+            parent::append(b, e, randomise);
             internal_append(num_bases, b, e);
         }
 
