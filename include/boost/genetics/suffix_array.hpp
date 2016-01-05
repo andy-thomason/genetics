@@ -21,6 +21,18 @@ namespace boost { namespace genetics {
     //! \tparam Traits Typically one of unmapped_traits or mapped_traits.
     //! These may be customised for larger address lengths, for example.
 
+    //! The suffix array is a sort of all the substrings of a string.
+    //! Example "hello" -> "", "ello", "hello", llo", "lo", "o"
+    //! with the first character in alphabetical order
+    //! giving the positions 5, 1, 0, 2, 3, 4
+    
+    //! In this implementation, We do not store the first element, 5
+    //! as this will always be the length of the string.
+    
+    //! We can use the suffix array to generate a Burrows Wheeler transform
+    //! of the string, which is the character preceding each substring.
+    //! In this case this is 'o', 'h', '\0', 'e', 'l', 'l'
+
     template<class Traits>
     class basic_suffix_array {
     public:
