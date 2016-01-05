@@ -414,20 +414,22 @@ BOOST_AUTO_TEST_CASE( suffix_array_test )
         suffix_array sa(dna);
         BOOST_CHECK(sa.verify());
     }
+
     {
         dna_string dna("ACGT");
         suffix_array sa(dna);
         BOOST_CHECK(sa.verify());
     }
+
     {
         dna_string dna(chr1);
         suffix_array sa(dna);
         BOOST_CHECK(sa.verify());
     }
+
     {
         dna_string dna;
         suffix_array sa(dna);
         BOOST_CHECK(sa.verify());
     }
-
 }

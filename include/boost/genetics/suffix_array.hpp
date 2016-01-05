@@ -142,6 +142,7 @@ namespace boost { namespace genetics {
             }
         }
 
+        //! Swap two suffix arrays
         void swap(basic_suffix_array &rhs) {
             std::swap(string_, rhs.string_);
             addr_.swap(rhs.addr_);
@@ -203,8 +204,9 @@ namespace boost { namespace genetics {
             return addr_.size();
         }
     private:
-        // change this to "true" to diagnose errors.
+        // change this to "true" to diagnose errors. (note it will fail the tests!)
         static const bool debug = false;
+
         void debug_dump(const std::vector<sorter_t> &sorter, const char *msg, size_t h) {
             printf("\n%s h=%d\n", msg, (int)h);
             for (size_t i = 0; i != sorter.size(); ++i) {
