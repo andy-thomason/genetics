@@ -14,6 +14,7 @@
 #include <boost/genetics/dna_string.hpp>
 #include <boost/genetics/augmented_string.hpp>
 #include <boost/genetics/two_stage_index.hpp>
+#include <boost/genetics/suffix_array.hpp>
 
 static const char chr1[] =
   "TGTGATTAATGCCTGAGACTGTGTGAAGTAAGAGATGGATCAGAGGCCGGGCGCGGGGGC"
@@ -201,7 +202,7 @@ BOOST_AUTO_TEST_CASE( bandl_tests )
     using namespace boost::genetics;
 
     {
-        static const char test_string[] = "ACGTACGTXXXXACGT";
+        static const char test_string[] = "ACGTACGTXXXXXACGT";
         augmented_string b(test_string);
         BOOST_CHECK(std::string(b) == test_string);
     }
@@ -398,3 +399,35 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
     }
 }
 
+BOOST_AUTO_TEST_CASE( suffix_array_test )
+{
+    using namespace boost::genetics;
+    {
+        dna_string dna("TCGCGCCTGTCATCCCTTCGCGCCTGTCATCCC");
+        suffix_array sa(dna);
+        BOOST_CHECK(sa.verify());
+        //std::cout << sa;
+    }
+
+    {
+        dna_string dna("AAAAAAAAAAAAAAAAAAAA");
+        suffix_array sa(dna);
+        BOOST_CHECK(sa.verify());
+    }
+    {
+        dna_string dna("ACGT");
+        suffix_array sa(dna);
+        BOOST_CHECK(sa.verify());
+    }
+    {
+        dna_string dna(chr1);
+        suffix_array sa(dna);
+        BOOST_CHECK(sa.verify());
+    }
+    {
+        dna_string dna;
+        suffix_array sa(dna);
+        BOOST_CHECK(sa.verify());
+    }
+
+}

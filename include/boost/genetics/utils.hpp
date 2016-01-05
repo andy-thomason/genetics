@@ -482,6 +482,7 @@ namespace boost { namespace genetics {
         typedef std::vector<uint32_t> RleArrayType;
         typedef std::vector<uint32_t> TsiIndexArrayType;
         typedef std::vector<uint32_t> TsiAddrArrayType;
+        typedef std::vector<uint32_t> SuffixArrayType;
         typedef std::vector<chromosome> FastaChromosomeType;
         typedef bool unmapped;
     };
@@ -493,6 +494,7 @@ namespace boost { namespace genetics {
         typedef mapped_vector<uint32_t> RleArrayType;
         typedef mapped_vector<uint32_t> TsiIndexArrayType;
         typedef mapped_vector<uint32_t> TsiAddrArrayType;
+        typedef mapped_vector<uint32_t> SuffixArrayType;
         typedef mapped_vector<chromosome> FastaChromosomeType;
         typedef bool mapped;
     };

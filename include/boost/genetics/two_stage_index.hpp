@@ -103,12 +103,12 @@ namespace boost { namespace genetics {
                 cur += val;
             }
             index[index_size] = cur;
-            std::cerr << "0 " << hist[0] << "\n";
+            /*std::cerr << "0 " << hist[0] << "\n";
             std::cerr << "1 " << hist[1] << "\n";
             std::cerr << "<16 " << hist[2] << "\n";
             std::cerr << "<256 " << hist[3] << "\n";
             std::cerr << "<4096 " << hist[4] << "\n";
-            std::cerr << ">=4096 " << hist[5] << "\n";
+            std::cerr << ">=4096 " << hist[5] << "\n";*/
 
             // Store phase: fill "addr" with addresses of values.
             acc = acc0;
@@ -117,7 +117,7 @@ namespace boost { namespace genetics {
                 if (acc != poly_A && acc != poly_T) {
                     addr[index[acc]++] = (addr_type)(i - num_indexed_chars + 1);
                 }
-                if (i % 0x100000 == 0) printf("s %5.2f\n", (double)i * (100.0/str_size));
+                //if (i % 0x100000 == 0) printf("s %5.2f\n", (double)i * (100.0/str_size));
             }
 
             // Shift the index up one so ends become starts.
@@ -134,7 +134,7 @@ namespace boost { namespace genetics {
                     largest_bucket = (size_t)(index[i+1] - index[i]);
                 }
             }
-            std::cerr << "largest_bucket=" << largest_bucket_idx << "/" << largest_bucket << "\n";
+            //std::cerr << "largest_bucket=" << largest_bucket_idx << "/" << largest_bucket << "\n";
         }
 
         size_t end() const {
@@ -396,7 +396,7 @@ namespace boost { namespace genetics {
 
         template <class charT, class traits>
         void write_ascii(std::basic_ostream<charT, traits>& os) const {
-            typename std::basic_ostream<charT, traits>::fmtflags save = os.flags();
+            auto save = os.flags();
             size_t index_size = (size_t)1 << (num_indexed_chars*2);
             for (size_t i = 0; i != index_size; ++i) {
                 for (index_type j = index[i]; j != index[i+1]; ++j) {
@@ -405,7 +405,7 @@ namespace boost { namespace genetics {
                 }
                 os << "\n";
             }
-            os.setstate( save );
+            os.flags( save );
         }
         
         void swap(basic_two_stage_index &rhs) {
