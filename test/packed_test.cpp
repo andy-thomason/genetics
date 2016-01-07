@@ -14,7 +14,7 @@
 #include <boost/genetics/dna_string.hpp>
 #include <boost/genetics/augmented_string.hpp>
 #include <boost/genetics/two_stage_index.hpp>
-#include <boost/genetics/suffix_array.hpp>
+#include <boost/genetics/fm_index.hpp>
 
 static const char chr1[] =
   "TGTGATTAATGCCTGAGACTGTGTGAAGTAAGAGATGGATCAGAGGCCGGGCGCGGGGGC"
@@ -399,37 +399,43 @@ BOOST_AUTO_TEST_CASE( mapped_container_test )
     }
 }
 
-BOOST_AUTO_TEST_CASE( suffix_array_test )
+BOOST_AUTO_TEST_CASE( fm_index_test )
 {
     using namespace boost::genetics;
     {
+        dna_string dna("ACGT");
+        fm_index fm(dna);
+        BOOST_CHECK(fm.verify());
+    }
+
+    {
+        dna_string dna("TGCA");
+        fm_index fm(dna);
+        BOOST_CHECK(fm.verify());
+    }
+
+    {
         dna_string dna("TCGCGCCTGTCATCCCTTCGCGCCTGTCATCCC");
-        suffix_array sa(dna);
-        BOOST_CHECK(sa.verify());
-        //std::cout << sa;
+        fm_index fm(dna);
+        BOOST_CHECK(fm.verify());
+        //std::cout << fm;
     }
 
     {
         dna_string dna("AAAAAAAAAAAAAAAAAAAA");
-        suffix_array sa(dna);
-        BOOST_CHECK(sa.verify());
-    }
-
-    {
-        dna_string dna("ACGT");
-        suffix_array sa(dna);
-        BOOST_CHECK(sa.verify());
+        fm_index fm(dna);
+        BOOST_CHECK(fm.verify());
     }
 
     {
         dna_string dna(chr1);
-        suffix_array sa(dna);
-        BOOST_CHECK(sa.verify());
+        fm_index fm(dna);
+        BOOST_CHECK(fm.verify());
     }
 
     {
         dna_string dna;
-        suffix_array sa(dna);
-        BOOST_CHECK(sa.verify());
+        fm_index fm(dna);
+        BOOST_CHECK(fm.verify());
     }
 }

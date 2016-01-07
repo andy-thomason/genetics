@@ -33,6 +33,17 @@ namespace boost { namespace genetics {
         static const size_t npos = (size_t)-1;
         typedef basic_dna_string<Traits> this_type;
 
+        typedef typename Traits::SuffixArrayType addr_array_type;
+        typedef typename Traits::SuffixArrayType::value_type addr_type;
+
+        struct bwt_sort_type { addr_type group, next_group, addr; };
+        struct ibwt_sort_type { addr_type addr, chr; };
+
+        static_assert(
+            sizeof(word_type) >= sizeof(addr_type),
+            "suffix array address type must be smaller than the string word type"
+        );
+
     public:
         //! \brief Default constructor.
         basic_dna_string() {
@@ -452,6 +463,16 @@ namespace boost { namespace genetics {
             return index >= num_bases ? 0 : ((values[off] >> sh) & 0x03);
         }
 
+        //! \brief Set a value from 0..3 for a single base at offset "index".
+        void set_code(size_t index, int code) {
+            size_t sh = ((bases_per_value - 1 - index) % bases_per_value) * 2;
+            size_t off = index/bases_per_value;
+            word_type mask = (word_type)0x03 << sh;
+            if (index < num_bases) {
+                values[off] = (values[off] & ~mask) | (code << sh);
+            }
+        }
+
         //! \brief Get a right-justified word of values limited by num_index_chars.
         //! eg. get_index(pos, 3) gives AAA...AAAXXX
         //! Used by two_stage_index to index values
@@ -490,6 +511,182 @@ namespace boost { namespace genetics {
             return values;
         }
 
+        //! \brief Calculate the Burrows Wheeler Transform
+        void bwt(basic_dna_string<unmapped_traits> &result, size_t &inverse_sa0) const {
+            const bool debug = false;
+
+            result.resize(size()+1);
+
+            // The suffix array is a sort of all the substrings of a string.
+            // Example "hello" -> "", "ello", "hello", llo", "lo", "o"
+            // with the first character in alphabetical order
+            // giving the positions 5, 1, 0, 2, 3, 4
+            
+            // We use the suffix array to generate a Burrows Wheeler transform
+            // of the string, which is the character preceding each substring.
+            // In this case this is 'o', 'h', '$', 'e', 'l', 'l'
+            // '$' is a special character which is an 'A' in the result but has
+            // location inverse_sa0 in the result.
+            
+            // see: https://en.wikipedia.org/wiki/FM-index
+        
+            size_t str_size = size();
+            if (str_size == 0) {
+                return;
+            }
+            if (
+                size() >= std::numeric_limits<addr_type>::max()
+            ) {
+                throw std::invalid_argument(
+                    "bwt(): string too large for address type"
+                );
+            }
+            
+            // Big note: it may seem strange to computer scientists to use sorts in this way
+            // when you could invert an array using indices, but using x[y[i]]
+            // constructs in real code is highly inefficient (~3000 cycles per
+            // element for large arrays)
+
+            // construction sorter.
+            // note: this is impractical on real (non-academic) machines of the 2015
+            // generation as it uses at least 12.25 bytes per base (~32GB for ENSEMBL human).
+            // 64GB machines will be the norm fairly soon and in the meantime, SSE backed swap
+            // space works reasonably well with std::sort.
+            //
+            // Richard Durbin's aproach of using BWT merging seems better and we should
+            // investigate adopting it, especially as cloud computing is the target
+            // with limited memory available at reasonable price.
+            std::vector<bwt_sort_type> sorter;
+
+            // allocate memory.
+            sorter.reserve(str_size+1);
+            result.resize(str_size+1);
+
+            auto sort_by_address = [](const bwt_sort_type &a, const bwt_sort_type &b) { return a.addr < b.addr; };
+
+            auto sort_by_group = [](const bwt_sort_type &a, const bwt_sort_type &b) {
+                return a.group < b.group;
+            };
+
+            auto sort_by_group_and_next = [](const bwt_sort_type &a, const bwt_sort_type &b) {
+                return a.group < b.group + (a.next_group < b.next_group);
+            };
+            
+            auto debug_dump = [this,&sorter](const char *msg, size_t h) {
+                printf("\n%s h=%d\n", msg, (int)h);
+                for (size_t i = 0; i != sorter.size(); ++i) {
+                    auto &s = sorter[i];
+                    const char *str = std::string(substr(s.addr, 40)).c_str();
+                    printf("%4d %12d %4d %4d %s\n", (int)i, (int)s.group, (int)s.next_group, (int)s.addr, str);
+                }
+            };
+
+            // use the upper few bits of the dna string as a key for the initial sort
+            const size_t key_chars = sizeof(addr_type) * 4;
+            const int sh = sizeof(word_type) * 8 - key_chars * 2;
+            for (size_t i = 0; i != str_size; ++i) {
+                addr_type group = (addr_type)(window(i) >> sh);
+                addr_type next_group = i + key_chars < str_size ? key_chars : str_size - i;
+                sorter.push_back(bwt_sort_type{ group, next_group, (addr_type)i });
+            }
+            
+            {
+                // the $ value
+                sorter.push_back(bwt_sort_type{ 0, 0, (addr_type)str_size });
+            }
+
+            for (size_t h = key_chars; ; h *= 2) {
+                // sort by group    
+                std::sort(sorter.begin(), sorter.end(), sort_by_group_and_next);
+    
+                if (debug) debug_dump("sorted group and next_group", h);
+
+                // build the group numbers
+                auto t = sorter[0];
+                addr_type group = 0;
+                sorter[0].group = group++;
+                int finished = 1;
+                for (size_t i = 1; i != str_size+1; ++i) {
+                    auto &s = sorter[i];
+                    int different = t.group != s.group | t.next_group != s.next_group;
+                    finished &= different;
+                    group = different ? (addr_type)i : group;
+                    t = s;
+                    s.group = group;
+                }
+                
+                if (debug) debug_dump("built group numbers", h);
+
+                if (finished) break;
+    
+                // invert the sort, restoring the original order of the sequence
+                std::sort(sorter.begin(), sorter.end(), sort_by_address);
+
+                // avoid random access to the string by using a sort.                
+                for (size_t i = 0; i != str_size+1; ++i) {
+                    bwt_sort_type &s = sorter[i];
+                    s.next_group = i < str_size - h ? sorter[i+h].group : 0;
+                }
+    
+                if (debug) debug_dump("set next_group", h);
+            }
+
+            // linearise the addresses for fast access.
+            // this may be faster than using a peek/poke aproach
+            std::sort(sorter.begin(), sorter.end(), sort_by_address);
+
+            // this bwt entry (for address 0) would usually have '$',
+            // but we have only four characters in the alphabet.
+            inverse_sa0 = sorter[0].group;
+            sorter[0].next_group = (addr_type)0;
+
+            // put the previous char in next_group for the bwt.
+            for (size_t i = 1; i != str_size+1; ++i) {
+                bwt_sort_type &s = sorter[i];
+                s.next_group = get_code(i-1);
+            }
+
+            if (debug) debug_dump("set next_group for bwt", 0);
+
+            // restore the group order
+            std::sort(sorter.begin(), sorter.end(), sort_by_group);
+
+            // copy the chars into the BWT
+            for (size_t i = 0; i != str_size+1; ++i) {
+                bwt_sort_type &s = sorter[i];
+                result.set_code(i, s.next_group);
+            }
+
+            if (debug) debug_dump("set bwt data", 0);
+            
+            if (debug) printf("inverse_sa0=%d\n", (int)inverse_sa0);
+            
+            // make sure we fail the tests if debug is on.
+            if (debug) result.resize(0);
+        }
+
+        //! \brief Calculate the inverse Burrows Wheeler Transform
+        void ibwt(basic_dna_string<unmapped_traits> &result, size_t inverse_sa0) const {
+            size_t str_size = size();
+            result.resize(str_size-1);
+            
+            std::vector<ibwt_sort_type> sorter;
+            sorter.resize(str_size);
+            for (size_t i = 0; i != str_size; ++i) {
+                sorter[i].addr = (addr_type)i;
+                sorter[i].chr = get_code(i) + 1;
+            }
+            sorter[inverse_sa0].chr = 0;
+
+            // Ok, we should be able to bucket sort this one!
+            auto sort_by_chr = [](const ibwt_sort_type &a, const ibwt_sort_type &b) { return a.chr < b.chr + (a.addr < b.addr); };
+            std::sort(sorter.begin(), sorter.end(), sort_by_chr);
+
+            // Sadly, very little choice but to pointer chase this loop.
+            for (size_t addr = sorter[0].addr, i = 0; i != str_size; ++i, addr = sorter[addr].addr) {
+                result.set_code(i, sorter[i].chr - 1);
+            }
+        }
     private:
         //! Inexact search using popcnt (if we have one!)
         template <class StringTraits, bool cpu_has_popcnt>
