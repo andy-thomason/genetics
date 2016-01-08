@@ -464,8 +464,13 @@ BOOST_AUTO_TEST_CASE( bwt_test )
 
     {
         dna_string dna(chr1);
+        //auto t0 = std::chrono::high_resolution_clock::now();
         dna.bwt(bwt, inverse_sa0);
+        //auto t1 = std::chrono::high_resolution_clock::now();
+        //std::cout << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() << "us\n";
         bwt.ibwt(ibwt, inverse_sa0);
+        //auto t2 = std::chrono::high_resolution_clock::now();
+        //std::cout << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() << "us\n";
         BOOST_CHECK(ibwt == dna);
     }
 }
