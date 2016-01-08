@@ -403,48 +403,143 @@ BOOST_AUTO_TEST_CASE( fm_index_test )
 {
     using namespace boost::genetics;
     {
-        dna_string dna("ACGT");
-        fm_index fm(dna);
-        BOOST_CHECK(fm.bwt() == dna_string("T$ACG"));
-        BOOST_CHECK(fm.inverse_sa0() == 1);
-        BOOST_CHECK(fm.verify());
-    }
-
-    {
-        dna_string dna("TGCA");
-        fm_index fm(dna);
-        BOOST_CHECK(fm.bwt() == dna_string("ACGT$"));
-        BOOST_CHECK(fm.inverse_sa0() == 4);
-        BOOST_CHECK(fm.verify());
-    }
-
-    {
-        dna_string dna("TCGCGCCTGTCATCCCTTCGCGCCTGTCATCCC");
-        fm_index fm(dna);
-        BOOST_CHECK(fm.bwt() == dna_string("CCCCTTCTTGGCGGTTCCCCCCCTTGGAAT$CCC"));
-        BOOST_CHECK(fm.inverse_sa0() == 30);
-        BOOST_CHECK(fm.verify());
-    }
-
-    {
-        dna_string dna("AAAAAAAAAAAAAAAAAAAA");
-        fm_index fm(dna);
-        BOOST_CHECK(fm.bwt() == dna_string("AAAAAAAAAAAAAAAAAAAA$"));
-        BOOST_CHECK(fm.inverse_sa0() == 20);
-        BOOST_CHECK(fm.verify());
-    }
-
-    {
         dna_string dna(chr1);
         fm_index fm(dna);
         BOOST_CHECK(fm.verify());
     }
+}
+
+BOOST_AUTO_TEST_CASE( bwt_test )
+{
+    using namespace boost::genetics;
+
+    dna_string bwt;
+    dna_string ibwt;
+    size_t inverse_sa0 = 0;
+
+    {
+        dna_string dna("ACGT");
+        dna.bwt(bwt, inverse_sa0);
+        bwt.ibwt(ibwt, inverse_sa0);
+        BOOST_CHECK(bwt == dna_string("T$ACG"));
+        BOOST_CHECK(inverse_sa0 == 1);
+        BOOST_CHECK(ibwt == dna);
+    }
+
+    {
+        dna_string dna("TGCA");
+        dna.bwt(bwt, inverse_sa0);
+        bwt.ibwt(ibwt, inverse_sa0);
+        BOOST_CHECK(bwt == dna_string("ACGT$"));
+        BOOST_CHECK(inverse_sa0 == 4);
+        BOOST_CHECK(ibwt == dna);
+    }
+
+    {
+        dna_string dna("TCGCGCCTGTCATCCCTTCGCGCCTGTCATCCC");
+        dna.bwt(bwt, inverse_sa0);
+        bwt.ibwt(ibwt, inverse_sa0);
+        BOOST_CHECK(bwt == dna_string("CCCCTTCTTGGCGGTTCCCCCCCTTGGAAT$CCC"));
+        BOOST_CHECK(inverse_sa0 == 30);
+        BOOST_CHECK(ibwt == dna);
+    }
+
+    {
+        dna_string dna("AAAAAAAAAAAAAAAAAAAA");
+        dna.bwt(bwt, inverse_sa0);
+        bwt.ibwt(ibwt, inverse_sa0);
+        BOOST_CHECK(bwt == dna_string("AAAAAAAAAAAAAAAAAAAA$"));
+        BOOST_CHECK(inverse_sa0 == 20);
+        BOOST_CHECK(ibwt == dna);
+    }
 
     {
         dna_string dna;
-        fm_index fm(dna);
-        BOOST_CHECK(fm.bwt() == dna_string("$"));
-        BOOST_CHECK(fm.inverse_sa0() == 0);
-        BOOST_CHECK(fm.verify());
+        dna.bwt(bwt, inverse_sa0);
+        bwt.ibwt(ibwt, inverse_sa0);
+        BOOST_CHECK(bwt == dna_string("$"));
+        BOOST_CHECK(inverse_sa0 == 0);
+        BOOST_CHECK(ibwt == dna);
+    }
+
+    {
+        dna_string dna(chr1);
+        dna.bwt(bwt, inverse_sa0);
+        bwt.ibwt(ibwt, inverse_sa0);
+        BOOST_CHECK(ibwt == dna);
+    }
+}
+
+BOOST_AUTO_TEST_CASE( occurance_test )
+{
+    using namespace boost::genetics;
+    
+    auto count = [](const char *b, const char *e) {
+        std::array<size_t, 4> res;
+        res[0] = res[1] = res[2] = res[3] = 0;
+        while (b != e) {
+            if (*b == 'C') {
+                res[1]++;
+            } else if (*b == 'G') {
+                res[2]++;
+            } else if (*b == 'T') {
+                res[3]++;
+            } else {
+                res[0]++;
+            }
+            ++b;
+        }
+        return res;
+    };
+    
+    {
+        const char *str = "AAAACCCGGGGGTTTTTT";
+        dna_string dna(str);
+        auto dna_occ = dna.occurance(0, dna.size());
+        auto str_occ = count(str, str+dna.size());
+        BOOST_CHECK(dna_occ == str_occ);
+        //printf("%d %d %d %d\n", (int)dna_occ[0], (int)dna_occ[1], (int)dna_occ[2], (int)dna_occ[3]);
+        //printf("%d %d %d %d\n", (int)str_occ[0], (int)str_occ[1], (int)str_occ[2], (int)str_occ[3]);
+    }
+    {
+        const char *str = "TTACGATTATTAATTACGATTATTAATTACGATTATTAA";
+        dna_string dna(str);
+        {
+            size_t b = 3, e = 39;
+            auto dna_occ = dna.occurance(b, e);
+            auto str_occ = count(str+b, str+e);
+            BOOST_CHECK(dna_occ == str_occ);
+        }
+        {
+            size_t b = 3, e = 4;
+            auto dna_occ = dna.occurance(b, e);
+            auto str_occ = count(str+b, str+e);
+            BOOST_CHECK(dna_occ == str_occ);
+        }
+        {
+            size_t b = 3, e = 31;
+            auto dna_occ = dna.occurance(b, e);
+            auto str_occ = count(str+b, str+e);
+            BOOST_CHECK(dna_occ == str_occ);
+        }
+        {
+            size_t b = 3, e = 32;
+            auto dna_occ = dna.occurance(b, e);
+            auto str_occ = count(str+b, str+e);
+            BOOST_CHECK(dna_occ == str_occ);
+        }
+        {
+            size_t b = 3, e = 33;
+            auto dna_occ = dna.occurance(b, e);
+            auto str_occ = count(str+b, str+e);
+            BOOST_CHECK(dna_occ == str_occ);
+        }
+    }
+    {
+        const char *str = chr1;
+        dna_string dna(str);
+        auto dna_occ = dna.occurance(0, dna.size());
+        auto str_occ = count(str, str+dna.size());
+        BOOST_CHECK(dna_occ == str_occ);
     }
 }

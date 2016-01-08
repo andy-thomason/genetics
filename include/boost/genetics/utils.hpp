@@ -13,6 +13,7 @@
 #include <string>
 #include <iosfwd>
 #include <vector>
+#include <array>
 #include <algorithm>
 #include <stdexcept>
 
@@ -104,9 +105,35 @@ namespace boost { namespace genetics {
             int result[4];
             __cpuidex(result, 0x00000001, 0x000000000);
             return (result[2] & (1 << 23)) != 0;
+        #elif defined(__GNUC__)
+            /*unsigned result[4];
+            __get_cpuid (0, result+0, result+1, result+2, result+3);
+            return (result[2] & (1 << 23)) != 0;*/
+            return true; // rash assumption!
         #else
             return false;
         #endif
+    }
+
+    static inline int soft_lzcnt(uint64_t value) {
+        int result = 0;
+        result = (value >> 32) ? result : result + 32;
+        value = (value >> 32) ? (value >> 32) : value;
+        result = (value >> 16) ? result : result + 16;
+        value = (value >> 16) ? (value >> 16) : value;
+        result = (value >> 8) ? result : result + 8;
+        value = (value >> 8) ? (value >> 8) : value;
+        static const std::uint8_t lzcnt_table[] = {
+            8,7,6,6,5,5,5,5,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+            2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        };
+        return result + lzcnt_table[value];
     }
 
     // Leading zero count: either use machine instruction or C version.
@@ -114,23 +141,29 @@ namespace boost { namespace genetics {
         #if defined(_MSC_VER) && defined(_M_X64)
             return (int)__lzcnt64(value) ^ (has_lzcnt ? 0x00 : 0x1f);
         #elif defined(__GNUC__)
-            return (int)__builtin_clzll(value);
-        #else
-            int result = value ? 0 : 1;
-            result = (value >> 32) ? result : result + 32;
-            value = (value >> 32) ? (value >> 32) : value;
-            result = (value >> 16) ? result : result + 16;
-            value = (value >> 16) ? (value >> 16) : value;
-            result = (value >> 8) ? result : result + 8;
-            value = (value >> 8) ? (value >> 8) : value;
-            result = (value >> 4) ? result : result + 4;
-            value = (value >> 4) ? (value >> 4) : value;
-            result = (value >> 2) ? result : result + 2;
-            value = (value >> 2) ? (value >> 2) : value;
-            result = (value >> 1) ? result : result + 1;
-            value = (value >> 1) ? (value >> 1) : value;
-            return result;
+            // sadly the builtin is a pile of bovine excrement on both
+            // clang and GCC
+            //return (int)__builtin_clzll(value);
+            if (has_lzcnt) {
+                int64_t res;
+                __asm__ volatile ("lzcnt %1, %0" : "=r"(res) : "r"(value));
+                return (int)res;
+            }
         #endif
+        return soft_lzcnt(value);
+    }
+
+    static inline int soft_popcnt2(uint64_t value) {
+        value = (value & 0x3333333333333333ull) + ((value >> 2) & 0x3333333333333333ull);
+        value = (value & 0x0f0f0f0f0f0f0f0full) + ((value >> 4) & 0x0f0f0f0f0f0f0f0full);
+        value = (value & 0x00ff00ff00ff00ffull) + ((value >> 8) & 0x00ff00ff00ff00ffull);
+        value = (value & 0x0000ffff0000ffffull) + ((value >> 16) & 0x0000ffff0000ffffull);
+        return (int)(value + (value>>32));
+    }
+
+    static inline int soft_popcnt(uint64_t value) {
+        value = (value & 0x5555555555555555ull) + ((value >> 1) & 0x5555555555555555ull);
+        return soft_popcnt2(value);
     }
 
     // Non-zero bit population count: either use machine instruction or C version.
@@ -140,14 +173,16 @@ namespace boost { namespace genetics {
                 return (int)__popcnt64(value);
             }
         #elif defined(__GNUC__)
-            return __builtin_popcountll(value);
+            if (has_popcnt) {
+                // sadly the builtin is a pile of bovine excrement on both
+                // clang and GCC
+                //return (int)__builtin_popcountll(value);
+                int64_t res;
+                __asm__ volatile ("popcnt %1, %0" : "=r"(res) : "r"(value));
+                return (int)res;
+            }
         #endif
-        value = (value & 0x5555555555555555ull) + ((value >> 1) & 0x5555555555555555ull);
-        value = (value & 0x3333333333333333ull) + ((value >> 2) & 0x3333333333333333ull);
-        value = (value & 0x0f0f0f0f0f0f0f0full) + ((value >> 4) & 0x0f0f0f0f0f0f0f0full);
-        value = (value & 0x00ff00ff00ff00ffull) + ((value >> 8) & 0x00ff00ff00ff00ffull);
-        value = (value & 0x0000ffff0000ffffull) + ((value >> 16) & 0x0000ffff0000ffffull);
-        return (int)(value + (value>>32));
+        return soft_popcnt(value);
     }
 
     static inline uint64_t rev_comp_word(uint64_t x) {

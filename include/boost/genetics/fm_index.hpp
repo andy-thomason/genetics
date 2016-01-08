@@ -23,6 +23,8 @@ namespace boost { namespace genetics {
     //! \tparam Traits Typically one of unmapped_traits or mapped_traits.
     //! These may be customised for larger address lengths, for example.
 
+    // see: https://en.wikipedia.org/wiki/FM-index
+
     template<class Traits>
     class basic_fm_index {
     public:
@@ -39,13 +41,15 @@ namespace boost { namespace genetics {
         
         //! \brief Write to a binary stream for subsequent mapping.
         void write_binary(writer &wr) const {
-            wr.write(addr_);
+            wr.write(bwt_);
+            wr.write64(inverse_sa0_);
         }
 
         //! \brief rvalue move operator
         basic_fm_index &operator =(basic_fm_index &&rhs) {
             string_ = rhs.string_;
-            addr_ = std::move(rhs.addr_);
+            bwt_ = std::move(rhs.bwt_);
+            inverse_sa0_ = rhs.inverse_sa0_;
             return *this;
         }
 
@@ -58,7 +62,6 @@ namespace boost { namespace genetics {
             typename Mapper::is_mapper *p=0
         ) :
             string_(&string),
-            addr_(map),
             bwt_(map),
             inverse_sa0_((size_t)map.read64())
         {
@@ -74,7 +77,8 @@ namespace boost { namespace genetics {
         //! Swap two suffix arrays
         void swap(basic_fm_index &rhs) {
             std::swap(string_, rhs.string_);
-            addr_.swap(rhs.addr_);
+            bwt_.swap(rhs.bwt_);
+            std::swap(inverse_sa0_, rhs.inverse_sa0_);
         }
 
         //! Write the suffix array to a stream for debugging.
@@ -94,6 +98,7 @@ namespace boost { namespace genetics {
             return inverse_sa0_;
         }
         
+        //! Used for unit testing to check the integrity of the algorithms.
         bool verify() const {
             if (bwt_.size() != string_->size() + 1) {
                 std::cerr << "fm_index verify fail: wrong bwt size\n";
@@ -110,11 +115,18 @@ namespace boost { namespace genetics {
             return true;
         }
     private:
-        // Note: order matters
+        // Note: order matters at the map constructor builds these in a certain order.
+        
+        // a reference to the dna_string.
         string_type *string_ = nullptr;
-        addr_array_type addr_;
+
+        // The Burrows Wheeler transform of the string.
         dna_string_type bwt_;
+
+        // The Burrows Wheeler transform start address.
         size_t inverse_sa0_ = 0;
+        
+        // The cumulative index of '$', 'A', 'C', 'G', 'T'
         std::array<addr_type, 6> cumulative_index_;
     };
 

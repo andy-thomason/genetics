@@ -512,6 +512,7 @@ namespace boost { namespace genetics {
         }
 
         //! \brief Calculate the Burrows Wheeler Transform
+        //! This is useful for searching and compression.
         void bwt(basic_dna_string &result, size_t &inverse_sa0) const {
             const bool debug = false;
 
@@ -526,7 +527,7 @@ namespace boost { namespace genetics {
             // '$' is a special character which is an 'A' in the result but has
             // location inverse_sa0 in the result.
             
-            // see: https://en.wikipedia.org/wiki/FM-index
+            // see: https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform
         
             size_t str_size = size();
             if (str_size == 0) {
@@ -721,6 +722,61 @@ namespace boost { namespace genetics {
                 std::cout << "ibwt fail: debug still on\n";
                 result.resize(0);
             }
+        }
+        
+        //! Calculate the occurance of each of the letters, ACG and T in [start, end)
+        std::array<size_t, 4> occurance(size_t start, size_t end) const {
+            if (start > end || end > size()) {
+                throw std::invalid_argument(
+                    "occurance(): start or end incorrect"
+                );
+            }
+
+            const size_t bpv = bases_per_value;
+            size_t startv = start / bpv;
+            size_t endv = end / bpv;
+            size_t startm = start % bpv;
+            size_t endm = end % bpv;
+
+            size_t sh1 = startm*2;
+            size_t sh2 = (bpv - endm)*2;
+            word_type mask = 0xAAAAAAAAAAAAAAAAull << sh1 >> sh1;
+
+            size_t totA = 0;
+            size_t totC = 0;
+            size_t totG = 0;
+            if (has_popcnt()) {
+                for (size_t i = startv; i < endv; ++i) {
+                    word_type w = values[i];
+                    totA += popcnt((~w & (~w*2)) & mask, true);
+                    totC += popcnt((~w & (w*2)) & mask, true);
+                    totG += popcnt((w & (~w*2)) & mask, true);
+                    mask = 0xAAAAAAAAAAAAAAAAull;
+                }
+            } else {
+                for (size_t i = startv; i < endv; ++i) {
+                    word_type w = values[i];
+                    totA += soft_popcnt((~w & (~w*2)) & mask);
+                    totC += soft_popcnt((~w & (w*2)) & mask);
+                    totG += soft_popcnt((w & (~w*2)) & mask);
+                    mask = 0xAAAAAAAAAAAAAAAAull;
+                }
+            }
+
+            {
+                word_type w = values[endv];
+                mask = endm ? mask >> sh2 << sh2 : 0;
+                totA += soft_popcnt((~w & (~w*2)) & mask);
+                totC += soft_popcnt((~w & (w*2)) & mask);
+                totG += soft_popcnt((w & (~w*2)) & mask);
+            }
+            
+            std::array<size_t, 4> occ;
+            occ[0] = totA;
+            occ[1] = totC;
+            occ[2] = totG;
+            occ[3] = (end - start) - (occ[0] + totC + totG);
+            return occ;
         }
     private:
         //! Inexact search using popcnt (if we have one!)
