@@ -405,25 +405,32 @@ BOOST_AUTO_TEST_CASE( fm_index_test )
     {
         dna_string dna("ACGT");
         fm_index fm(dna);
+        BOOST_CHECK(fm.bwt() == dna_string("T$ACG"));
+        BOOST_CHECK(fm.inverse_sa0() == 1);
         BOOST_CHECK(fm.verify());
     }
 
     {
         dna_string dna("TGCA");
         fm_index fm(dna);
+        BOOST_CHECK(fm.bwt() == dna_string("ACGT$"));
+        BOOST_CHECK(fm.inverse_sa0() == 4);
         BOOST_CHECK(fm.verify());
     }
 
     {
         dna_string dna("TCGCGCCTGTCATCCCTTCGCGCCTGTCATCCC");
         fm_index fm(dna);
+        BOOST_CHECK(fm.bwt() == dna_string("CCCCTTCTTGGCGGTTCCCCCCCTTGGAAT$CCC"));
+        BOOST_CHECK(fm.inverse_sa0() == 30);
         BOOST_CHECK(fm.verify());
-        //std::cout << fm;
     }
 
     {
         dna_string dna("AAAAAAAAAAAAAAAAAAAA");
         fm_index fm(dna);
+        BOOST_CHECK(fm.bwt() == dna_string("AAAAAAAAAAAAAAAAAAAA$"));
+        BOOST_CHECK(fm.inverse_sa0() == 20);
         BOOST_CHECK(fm.verify());
     }
 
@@ -436,6 +443,8 @@ BOOST_AUTO_TEST_CASE( fm_index_test )
     {
         dna_string dna;
         fm_index fm(dna);
+        BOOST_CHECK(fm.bwt() == dna_string("$"));
+        BOOST_CHECK(fm.inverse_sa0() == 0);
         BOOST_CHECK(fm.verify());
     }
 }

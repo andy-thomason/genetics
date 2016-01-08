@@ -385,7 +385,7 @@ namespace boost { namespace genetics {
         int compare(size_t start_pos, size_t max_bases, const basic_dna_string<StringTraits> &str) const {
             return compare_inexact(start_pos, max_bases, str);
         }
-
+        
         //! \brief return the distance (number of errors) between a string and a substring.
         //! \tparam StringTraits Traits of other string to compare with.
         //! \param start_pos Zero-based offset to start the search.
@@ -469,7 +469,7 @@ namespace boost { namespace genetics {
             size_t off = index/bases_per_value;
             word_type mask = (word_type)0x03 << sh;
             if (index < num_bases) {
-                values[off] = (values[off] & ~mask) | (code << sh);
+                values[off] = (values[off] & ~mask) | ((word_type)code << sh);
             }
         }
 
@@ -512,12 +512,10 @@ namespace boost { namespace genetics {
         }
 
         //! \brief Calculate the Burrows Wheeler Transform
-        void bwt(basic_dna_string<unmapped_traits> &result, size_t &inverse_sa0) const {
+        void bwt(basic_dna_string &result, size_t &inverse_sa0) const {
             const bool debug = false;
 
-            result.resize(size()+1);
-
-            // The suffix array is a sort of all the substrings of a string.
+            // The suffix array is a sort of all the substrqings of a string.
             // Example "hello" -> "", "ello", "hello", llo", "lo", "o"
             // with the first character in alphabetical order
             // giving the positions 5, 1, 0, 2, 3, 4
@@ -532,6 +530,9 @@ namespace boost { namespace genetics {
         
             size_t str_size = size();
             if (str_size == 0) {
+                result.resize(1);
+                result.set_code(0, 0);
+                inverse_sa0 = 0;
                 return;
             }
             if (
@@ -595,6 +596,23 @@ namespace boost { namespace genetics {
                 sorter.push_back(bwt_sort_type{ 0, 0, (addr_type)str_size });
             }
 
+            // each time we go round the loop we have already constucted 
+            // a sort of the suffixes to h characters. This means that some
+            // suffixes will still be the same.
+            //
+            // example: (h=2)
+            //       group
+            // AAAA    1
+            // ACCG    2  <-
+            // ACGT    2  <- these are the same to 2 chars.
+            // AGTT    4
+            // etc.
+            // 
+            // But we can use our existing group numbers to resolve them.
+            //
+            // To avoid indexing the arrays, we use std::sort which is more
+            // cache friendly. Turn the debug flag on to see what it does.
+            //
             for (size_t h = key_chars; ; h *= 2) {
                 // sort by group    
                 std::sort(sorter.begin(), sorter.end(), sort_by_group_and_next);
@@ -662,11 +680,16 @@ namespace boost { namespace genetics {
             if (debug) printf("inverse_sa0=%d\n", (int)inverse_sa0);
             
             // make sure we fail the tests if debug is on.
-            if (debug) result.resize(0);
+            if (debug) {
+                result.resize(0);
+                std::cout << "bwt fail: debug still on\n";
+            }
         }
 
         //! \brief Calculate the inverse Burrows Wheeler Transform
-        void ibwt(basic_dna_string<unmapped_traits> &result, size_t inverse_sa0) const {
+        void ibwt(basic_dna_string &result, size_t inverse_sa0) const {
+            const bool debug = false;
+            
             size_t str_size = size();
             result.resize(str_size-1);
             
@@ -682,9 +705,21 @@ namespace boost { namespace genetics {
             auto sort_by_chr = [](const ibwt_sort_type &a, const ibwt_sort_type &b) { return a.chr < b.chr + (a.addr < b.addr); };
             std::sort(sorter.begin(), sorter.end(), sort_by_chr);
 
+            if (debug) {
+                for (size_t i = 0; i != sorter.size(); ++i) {
+                    auto &s = sorter[i];
+                    printf("%4d %2d %4d\n", (int)i, (int)s.chr, (int)s.addr);
+                }
+            }
+
             // Sadly, very little choice but to pointer chase this loop.
             for (size_t addr = sorter[0].addr, i = 0; i != str_size; ++i, addr = sorter[addr].addr) {
-                result.set_code(i, sorter[i].chr - 1);
+                result.set_code(i, sorter[addr].chr - 1);
+            }
+            
+            if (debug) {
+                std::cout << "ibwt fail: debug still on\n";
+                result.resize(0);
             }
         }
     private:

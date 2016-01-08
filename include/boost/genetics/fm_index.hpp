@@ -99,14 +99,11 @@ namespace boost { namespace genetics {
                 std::cerr << "fm_index verify fail: wrong bwt size\n";
                 return false;
             }
+
             dna_string_type ibwt;
             bwt_.ibwt(ibwt, inverse_sa0_);
             
-            std::cout << *string_ << "\n";
-            std::cout << bwt_ << "\n";
-            std::cout << ibwt << "\n";
-            
-            if (ibwt.compare(0, ibwt.size(), *string_) != 0) {
+            if (ibwt != *string_) {
                 std::cerr << "fm_index verify fail: inverse bwt not same as string\n";
                 return false;
             }

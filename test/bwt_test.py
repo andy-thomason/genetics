@@ -9,7 +9,7 @@ def bwt(str):
 # based on http://codereview.stackexchange.com/questions/21058/increasing-speed-of-bwt-inverse
 def ibwt(str):
     sorter = sorted((char, index) for index, char in enumerate(str))
-    #print(sorter)
+    print(sorter)
     k = sorter[0][1]
     result = []
     for i in range(len(str)):
