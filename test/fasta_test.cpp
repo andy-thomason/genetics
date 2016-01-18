@@ -35,5 +35,13 @@ BOOST_AUTO_TEST_CASE( fasta_test )
     const fasta_file::string_type &str = f.get_string();
     BOOST_CHECK(str.substr((6-6)*60, 60) == "GATCCACCCGCCTTGGCCTCCTAAAGTGCTGGGATTACAGGTGTTAGCCACCACGTCCAG");
     BOOST_CHECK(str.substr((7-6)*60, 60) == "CTGTTAATTTTTATTTAATAAGAATGACAGAGTGAGGGCCATCACTGTTAATGAAGCCAG");
+
+    search_params params;
+    search_stats stats;
+    std::vector<fasta_result> result;
+    f.find_inexact(result, "GATCCACCCGCCTTGGCCTCCTAAAGTGCTGGGATTACAGGTGTTAGCCACCACGTCCAG", params, stats);
+    for (auto r : result) {
+        std::cout << r.location << " d=" << r.distance << " rc=" << r.reverse_complement << " str=" << str.substr(r.location, 60) << "\n";
+    }
 }
 

@@ -19,4 +19,7 @@ example/python/ensembl_chr21.fa
 Makefile
 example/python/libboost_python.so.1.59.0
 test/test
+test/fasta_test
+test/packed_test
+.c9/
 

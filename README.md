@@ -17,38 +17,44 @@ special cases.
 
 We provide both packed (2 bits/base) and unpacked data (eg. std::string) algorithms.
 
-Most genetic searches revolve around the creation of Suffix Arrays which are a sort of all the substrings of a sequence to the end.
+## Classes
 
-eg.
+Class                | Description
+-------------------- | -------------------------------------------------------------------------------
+**dna_string**       | represents genetic data as two bits per base.
+**augmented_string** | adds auxililiary characters such as long runs on 'N' to the dna_string
+**two_stage_index**  | provides very large (Gigabyte sized) index of a dna_string
+**fm_index**         | is an implementation of an FM-Index used by the BWA and Bowtie aligners
+**fasta**            | is an implementation of a genetic reference such as the ENSEMBL human genome
 
-"hello" consists of the substrings "hello", "ello", "llo", "lo", "p" and ""
+## Examples
 
-The suffix array is:
+Markup :  `code()`
+```
+#include <boost/genetics/fasta.hpp>
+using namespace boost::genetics;
 
-5 ""
-1 "ello"
-0 "hello"
-2 "llo"
-3 "lo"
-4 "o"
+  // load an EBSEMBL reference
+  // from ftp://ftp.ensembl.org/pub/release-83/fasta/homo_sapiens/dna/
+  fasta my_reference("Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz");
+  my_reference.make_index(12);
 
-See Wikipedia for a more comprehensive discussion.
+  // search for a single string.
+  search_params params;
+  search_stats stats;
+  std::vector<fasta_result> result;
+  my_reference.find_inexact(result, "GATACAGATACAGATACA", params, stats);
 
-For simplicity, we calculate a hybrid indexed suffix array which gives you all the substrings
-starting with a fixed number of letters. For this we add an index of 2^(2N) entries for N
-letters the suffixes sorted by address in the array instead of value. We hope to extend this
-to optionally use a variable length and hash methods in the future as well as to support reduced
-size indices for low memory machines.
+  // now results contains locations with strings close to "GATACAGATACAGATACA"
 
-This means that we can use two very expensive memory accesses to find a set of addresses
-for a sequence and then a small number of very inexpensive accesses and a merge operation
-to find exact matches of any length (N x M).
+```
 
-For inexact matches, we can filter the M matches we have to a much smaller set where we can
-then do expensive tests on the reference itself.
 
-For a very large number of potential errors, such as 6 errors in a 20 character string, it is
-fastest to brute-force search the genome. Here we can make use of leading zero and population
-count operations to rapidly screen large number of bases.
+## Performance
 
-Many thanks to Paul Bristow, Riley Doyle, Andre and others for their contributions.
+Several measures improve performance significantly over traditional implementations.
+
+**Memory mapped I/O** allows us to load an index instantly and share them between processes.
+**Use of special instructions** Popcnt and lzcnt allow us to search faster
+**Careful use of memory** Avoiding indexing when possible to improve cache latency
+
