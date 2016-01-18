@@ -19,17 +19,16 @@ We provide both packed (2 bits/base) and unpacked data (eg. std::string) algorit
 
 ## Classes
 
-Class                | Description
--------------------- | -------------------------------------------------------------------------------
-**dna_string**       | represents genetic data as two bits per base.
-**augmented_string** | adds auxililiary characters such as long runs on 'N' to the dna_string
-**two_stage_index**  | provides very large (Gigabyte sized) index of a dna_string
-**fm_index**         | is an implementation of an FM-Index used by the BWA and Bowtie aligners
-**fasta**            | is an implementation of a genetic reference such as the ENSEMBL human genome
+Class                  | Description
+--------------------   | -------------------------------------------------------------------------------
+```dna_string```       | represents genetic data as two bits per base.
+```augmented_string``` | adds auxililiary characters such as long runs on 'N' to the dna_string
+```two_stage_index```  | provides very large (Gigabyte sized) index of a dna_string
+```fm_index```         | is an implementation of an FM-Index used by the BWA and Bowtie aligners
+```fasta```            | is an implementation of a genetic reference such as the ENSEMBL human genome
 
 ## Examples
 
-Markup :  `code()`
 ```
 #include <boost/genetics/fasta.hpp>
 using namespace boost::genetics;
