@@ -127,10 +127,8 @@ namespace boost { namespace genetics {
             }
 
             size_t largest_bucket = 0;
-            size_t largest_bucket_idx = 0;
             for (size_t i = 0; i != index_size; ++i) {
                 if (largest_bucket < (size_t)(index[i+1] - index[i])) {
-                    largest_bucket_idx = i;
                     largest_bucket = (size_t)(index[i+1] - index[i]);
                 }
             }

@@ -627,7 +627,7 @@ namespace boost { namespace genetics {
                 int finished = 1;
                 for (size_t i = 1; i != str_size+1; ++i) {
                     auto &s = sorter[i];
-                    int different = t.group != s.group | t.next_group != s.next_group;
+                    int different = (t.group != s.group) | (t.next_group != s.next_group);
                     finished &= different;
                     group = different ? (addr_type)i : group;
                     t = s;
